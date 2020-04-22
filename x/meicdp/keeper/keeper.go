@@ -12,15 +12,17 @@ import (
 type Keeper struct {
 	storeKey      sdk.StoreKey
 	cdc           codec.Marshaler
+	BankKeeper    types.BankKeeper
 	ChannelKeeper types.ChannelKeeper
 }
 
 // NewKeeper creates a new band consumer Keeper instance.
-func NewKeeper(cdc codec.Marshaler, key sdk.StoreKey, channelKeeper types.ChannelKeeper) Keeper {
+func NewKeeper(cdc codec.Marshaler, key sdk.StoreKey, channelKeeper types.ChannelKeeper, bankKeeper types.BankKeeper) Keeper {
 	return Keeper{
 		storeKey:      key,
 		cdc:           cdc,
 		ChannelKeeper: channelKeeper,
+		BankKeeper:    bankKeeper,
 	}
 }
 
@@ -42,4 +44,10 @@ func (k Keeper) GetResult(ctx sdk.Context, requestID oracle.RequestID) ([]byte, 
 func (k Keeper) HasResult(ctx sdk.Context, requestID oracle.RequestID) bool {
 	store := ctx.KVStore(k.storeKey)
 	return store.Has(types.ResultStoreKey(requestID))
+}
+
+// HasCDP - Is CDP of this account on the store
+func (k Keeper) HasCDP(ctx sdk.Context, account sdk.AccAddress) bool {
+	store := ctx.KVStore(k.storeKey)
+	return store.Has(types.CDPStoreKey(account))
 }
