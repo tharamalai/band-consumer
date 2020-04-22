@@ -3,12 +3,12 @@ package app
 import (
 	"io"
 	"os"
-	
+
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
-	consuming "github.com/tharamalai/meichain/x/meicdp"
+	meicdp "github.com/tharamalai/meichain/x/meicdp"
 
 	bam "github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -67,7 +67,7 @@ var (
 		evidence.AppModuleBasic{},
 		ibc.AppModuleBasic{},
 		transfer.AppModuleBasic{},
-		consuming.AppModuleBasic{},
+		meicdp.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -114,7 +114,7 @@ type BandConsumerApp struct {
 	evidenceKeeper  evidence.Keeper
 	ibcKeeper       ibc.Keeper
 	transferKeeper  transfer.Keeper
-	consumingKeeper consuming.Keeper
+	meicdpKeeper meicdp.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -141,7 +141,7 @@ func NewBandConsumerApp(
 		bam.MainStoreKey, auth.StoreKey, bank.StoreKey, staking.StoreKey,
 		supply.StoreKey, mint.StoreKey, distr.StoreKey, slashing.StoreKey,
 		gov.StoreKey, params.StoreKey, ibc.StoreKey, transfer.StoreKey,
-		evidence.StoreKey, upgrade.StoreKey, consuming.StoreKey,
+		evidence.StoreKey, upgrade.StoreKey, meicdp.StoreKey,
 	)
 	tKeys := sdk.NewTransientStoreKeys(staking.TStoreKey, params.TStoreKey)
 
@@ -227,8 +227,8 @@ func NewBandConsumerApp(
 	app.transferKeeper = transfer.NewKeeper(app.cdc, keys[transfer.StoreKey], transferCapKey,
 		app.ibcKeeper.ChannelKeeper, app.bankKeeper, app.supplyKeeper)
 
-	app.consumingKeeper = consuming.NewKeeper(
-		appCodec, keys[consuming.StoreKey], app.ibcKeeper.ChannelKeeper,
+	app.meicdpKeeper = meicdp.NewKeeper(
+		appCodec, keys[meicdp.StoreKey], app.ibcKeeper.ChannelKeeper,
 	)
 
 	// register the staking hooks
@@ -254,7 +254,7 @@ func NewBandConsumerApp(
 		evidence.NewAppModule(app.evidenceKeeper),
 		ibc.NewAppModule(app.ibcKeeper),
 		transfer.NewAppModule(app.transferKeeper),
-		consuming.NewAppModule(app.consumingKeeper),
+		meicdp.NewAppModule(app.meicdpKeeper),
 	)
 	// During begin block slashing happens after distr.BeginBlocker so that
 	// there is nothing left over in the validator fee pool, so as to keep the
