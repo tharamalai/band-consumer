@@ -1,6 +1,9 @@
 package keeper
 
 import (
+	"bytes"
+	"encoding/json"
+
 	"github.com/bandprotocol/bandchain/chain/x/oracle"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -44,6 +47,14 @@ func (k Keeper) GetResult(ctx sdk.Context, requestID oracle.RequestID) ([]byte, 
 func (k Keeper) HasResult(ctx sdk.Context, requestID oracle.RequestID) bool {
 	store := ctx.KVStore(k.storeKey)
 	return store.Has(types.ResultStoreKey(requestID))
+}
+
+//SetCDP - set CDP of user account to the store
+func (k Keeper) SetCDP(ctx sdk.Context, account sdk.AccAddress, cdp types.CDP) {
+	store := ctx.KVStore(k.storeKey)
+	cdpBytes := new(bytes.Buffer)
+	json.NewEncoder(cdpBytes).Encode(cdp)
+	store.Set(types.CDPStoreKey(account), cdpBytes.Bytes())
 }
 
 // HasCDP - Is CDP of this account on the store
