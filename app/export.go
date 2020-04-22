@@ -14,7 +14,7 @@ import (
 )
 
 // ExportAppStateAndValidators export the state of band-consumer for a genesis file
-func (app *BandConsumerApp) ExportAppStateAndValidators(forZeroHeight bool, jailWhiteList []string,
+func (app *MeichainApp) ExportAppStateAndValidators(forZeroHeight bool, jailWhiteList []string,
 ) (appState json.RawMessage, validators []tmtypes.GenesisValidator, err error) {
 	// as if they could withdraw from the start of the next block
 	ctx := app.NewContext(true, abci.Header{Height: app.LastBlockHeight()})
@@ -35,7 +35,7 @@ func (app *BandConsumerApp) ExportAppStateAndValidators(forZeroHeight bool, jail
 // prepare for fresh start at zero height
 // NOTE zero height genesis is a temporary feature which will be deprecated
 //      in favour of export at a block height
-func (app *BandConsumerApp) prepForZeroHeightGenesis(ctx sdk.Context, jailWhiteList []string) {
+func (app *MeichainApp) prepForZeroHeightGenesis(ctx sdk.Context, jailWhiteList []string) {
 	applyWhiteList := false
 
 	//Check if there is a whitelist
