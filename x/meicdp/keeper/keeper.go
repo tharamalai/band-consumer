@@ -13,13 +13,13 @@ import (
 
 type Keeper struct {
 	storeKey      sdk.StoreKey
-	cdc           codec.Marshaler
+	cdc           *codec.Codec
 	BankKeeper    types.BankKeeper
 	ChannelKeeper types.ChannelKeeper
 }
 
 // NewKeeper creates a new band consumer Keeper instance.
-func NewKeeper(cdc codec.Marshaler, key sdk.StoreKey, channelKeeper types.ChannelKeeper, bankKeeper types.BankKeeper) Keeper {
+func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, channelKeeper types.ChannelKeeper, bankKeeper types.BankKeeper) Keeper {
 	return Keeper{
 		storeKey:      key,
 		cdc:           cdc,
