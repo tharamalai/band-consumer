@@ -57,7 +57,26 @@ func (k Keeper) SetCDP(ctx sdk.Context, account sdk.AccAddress, cdp types.CDP) {
 	store.Set(types.CDPStoreKey(account), cdpBytes.Bytes())
 }
 
-// HasCDP - Is CDP of this account on the store
+//GetCDP - get CDP of user account from the store
+func (k Keeper) GetCDP(ctx sdk.Context, account sdk.AccAddress) (types.CDP, error) {
+	store := ctx.KVStore(k.storeKey)
+	if k.HasCDP(ctx, account) {
+		s := store.Get(types.CDPStoreKey(account))
+		var cdp types.CDP
+		if err := json.Unmarshal(s, &cdp); err != nil {
+			return types.CDP{}, sdkerrors.Wrapf(types.ErrUnmarshalJSON,
+				"GetCDP: CDP of %d is invalid json data.", account,
+			)
+		}
+
+		return cdp, nil
+	}
+	return types.CDP{}, sdkerrors.Wrapf(types.ErrItemNotFound,
+		"GetCDP: CDP of %d is not available.", account,
+	)
+}
+
+// HasCDP - has CDP of this account on the store
 func (k Keeper) HasCDP(ctx sdk.Context, account sdk.AccAddress) bool {
 	store := ctx.KVStore(k.storeKey)
 	return store.Has(types.CDPStoreKey(account))
