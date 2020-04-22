@@ -1,4 +1,4 @@
-module github.com/bandprotocol/band-consumer
+module github.com/tharamalai/meichain
 
 go 1.13
 

@@ -9,7 +9,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/spf13/cobra"
 
-	"github.com/bandprotocol/band-consumer/x/consuming/types"
+	"github.com/tharamalai/meichain/x/meicdp/types"
 )
 
 // GetQueryCmd returns

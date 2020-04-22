@@ -22,7 +22,7 @@ import (
 	tmtypes "github.com/tendermint/tendermint/types"
 	dbm "github.com/tendermint/tm-db"
 
-	"github.com/bandprotocol/band-consumer/app"
+	"github.com/tharamalai/meichain/app"
 )
 
 const flagInvCheckPeriod = "inv-check-period"

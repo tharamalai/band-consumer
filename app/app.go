@@ -3,11 +3,12 @@ package app
 import (
 	"io"
 	"os"
-
+	
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
+	consuming "github.com/tharamalai/meichain/x/meicdp"
 
 	bam "github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -35,8 +36,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/supply"
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
-
-	"github.com/bandprotocol/band-consumer/x/consuming"
 )
 
 const appName = "BandConsumerApp"

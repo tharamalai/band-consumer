@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/cobra"
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/bandprotocol/band-consumer/x/consuming/client/cli"
+	"github.com/tharamalai/meichain/x/meicdp/client/cli"
 )
 
 // AppModule Basics object

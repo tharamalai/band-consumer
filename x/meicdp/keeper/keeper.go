@@ -6,7 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/bandprotocol/band-consumer/x/consuming/types"
+	"github.com/tharamalai/meichain/x/meicdp/types"
 )
 
 type Keeper struct {

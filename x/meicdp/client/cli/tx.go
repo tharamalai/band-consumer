@@ -16,7 +16,7 @@ import (
 	authclient "github.com/cosmos/cosmos-sdk/x/auth/client"
 	"github.com/spf13/cobra"
 
-	"github.com/bandprotocol/band-consumer/x/consuming/types"
+	"github.com/tharamalai/meichain/x/meicdp/types"
 	"github.com/bandprotocol/bandchain/chain/x/oracle"
 )
 
