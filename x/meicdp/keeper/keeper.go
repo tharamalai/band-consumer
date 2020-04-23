@@ -49,10 +49,10 @@ func (k Keeper) HasResult(ctx sdk.Context, requestID oracle.RequestID) bool {
 }
 
 //SetCDP - set CDP of user account to the store
-func (k Keeper) SetCDP(ctx sdk.Context, account sdk.AccAddress, cdp types.CDP) {
+func (k Keeper) SetCDP(ctx sdk.Context, cdp types.CDP) {
 	store := ctx.KVStore(k.storeKey)
 	c := k.cdc.MustMarshalBinaryBare(cdp)
-	store.Set(types.CDPStoreKey(account), c)
+	store.Set(types.CDPStoreKey(cdp.Owner), c)
 }
 
 //GetCDP - get CDP of user account from the store

@@ -1,4 +1,4 @@
-package consuming
+package meicdp
 
 import (
 	"encoding/json"
