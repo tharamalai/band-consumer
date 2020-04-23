@@ -1,6 +1,7 @@
 package meicdp
 
 import (
+	"encoding/binary"
 	"encoding/hex"
 	"fmt"
 
@@ -69,6 +70,80 @@ func NewHandler(keeper Keeper) sdk.Handler {
 		case types.MsgReturnDebt:
 			return handleMsgReturnDebt(ctx, keeper, msg)
 
+		case types.MsgUnlockCollateral:
+			msgCount := keeper.GetMsgCount(ctx)
+
+			// setup oracle request
+			bandChainID := "bandchain"
+			port := "meicdp"
+			oracleScriptID := oracle.OracleScriptID(3)
+			clientID := fmt.Sprintf("Msg:%d", msgCount)
+			calldata := make([]byte, 8)
+			binary.LittleEndian.PutUint64(calldata, 1000000)
+			askCount := int64(1)
+			minCount := int64(1)
+
+			channelID, err := keeper.GetChannel(ctx, bandChainID, port)
+
+			dataRequest := types.NewDataRequest(
+				oracleScriptID,
+				channelID,
+				bandChainID,
+				port,
+				clientID,
+				calldata,
+				askCount,
+				minCount,
+				msg.Sender,
+			)
+
+			// Set message to the store for waiting the oracle response packet.
+			keeper.SetMsg(ctx, msgCount, msg)
+
+			err = requestOracle(ctx, keeper, dataRequest)
+			if err != nil {
+				return nil, err
+			}
+
+			return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
+
+		case types.MsgBorrowDebt:
+			msgCount := keeper.GetMsgCount(ctx)
+
+			// setup oracle request
+			bandChainID := "bandchain"
+			port := "meicdp"
+			oracleScriptID := oracle.OracleScriptID(3)
+			clientID := fmt.Sprintf("Msg:%d", msgCount)
+			calldata := make([]byte, 8)
+			binary.LittleEndian.PutUint64(calldata, 1000000)
+			askCount := int64(1)
+			minCount := int64(1)
+
+			channelID, err := keeper.GetChannel(ctx, bandChainID, port)
+
+			dataRequest := types.NewDataRequest(
+				oracleScriptID,
+				channelID,
+				bandChainID,
+				port,
+				clientID,
+				calldata,
+				askCount,
+				minCount,
+				msg.Sender,
+			)
+
+			// Set message to the store for waiting the oracle response packet.
+			keeper.SetMsg(ctx, msgCount, msg)
+
+			err = requestOracle(ctx, keeper, dataRequest)
+			if err != nil {
+				return nil, err
+			}
+
+			return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
+
 		default:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unrecognized %s message type: %T", ModuleName, msg)
 		}
@@ -132,4 +207,48 @@ func handleMsgReturnDebt(ctx sdk.Context, keeper Keeper, msg types.MsgReturnDebt
 func handleSetSourceChannel(ctx sdk.Context, msg types.MsgSetSourceChannel, keeper Keeper) (*sdk.Result, error) {
 	keeper.SetChannel(ctx, msg.ChainName, msg.SourcePort, msg.SourceChannel)
 	return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
+}
+
+func requestOracle(ctx sdk.Context, keeper Keeper, dataReq types.DataRequest) error {
+
+	channelID, err := keeper.GetChannel(ctx, dataReq.ChainID, dataReq.Port)
+
+	sourceChannelEnd, found := keeper.ChannelKeeper.GetChannel(ctx, "meichain", channelID)
+	if !found {
+		return sdkerrors.Wrapf(
+			sdkerrors.ErrUnknownRequest,
+			"unknown channel %s port meichain",
+			channelID,
+		)
+	}
+
+	destinationPort := sourceChannelEnd.Counterparty.PortID
+	destinationChannel := sourceChannelEnd.Counterparty.ChannelID
+	sequence, found := keeper.ChannelKeeper.GetNextSequenceSend(
+		ctx, "meichain", channelID,
+	)
+
+	if !found {
+		return sdkerrors.Wrapf(
+			sdkerrors.ErrUnknownRequest,
+			"unknown sequence number for channel %s port oracle",
+			channelID,
+		)
+	}
+
+	packet := oracle.NewOracleRequestPacketData(
+		dataReq.ClientID, dataReq.OracleScriptID, string(dataReq.Calldata),
+		dataReq.AskCount, dataReq.MinCount,
+	)
+
+	err = keeper.ChannelKeeper.SendPacket(ctx, channel.NewPacket(packet.GetBytes(),
+		sequence, "meichain", channelID, destinationPort, destinationChannel,
+		1000000000, // Arbitrarily high timeout for now
+	))
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
