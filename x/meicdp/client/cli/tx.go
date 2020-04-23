@@ -138,7 +138,7 @@ func GetCmdLockCollateral(cdc *codec.Codec) *cobra.Command {
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Lock collateral to the CDP.
 Example:
-$ %s tx maicap lock 100000uatom
+$ %s tx meicdp lock 100000uatom
 `,
 				version.ClientName, version.ClientName,
 			),
@@ -155,6 +155,49 @@ $ %s tx maicap lock 100000uatom
 			fmt.Println("amount", amount)
 
 			msg := types.NewMsgLockCollateral(
+				amount,
+				cliCtx.GetFromAddress(),
+			)
+
+			err = msg.ValidateBasic()
+			if err != nil {
+				return err
+			}
+
+			return authclient.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg})
+		},
+	}
+
+	return cmd
+}
+
+// GetCmdReturnDebt implements return debt handler
+func GetCmdReturnDebt(cdc *codec.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "return [amount]",
+		Short: "Return debt to the CDP.",
+		Args:  cobra.ExactArgs(1),
+		Long: strings.TrimSpace(
+			fmt.Sprintf(`Return debt to the CDP.
+Example:
+$ %s tx meicdp return 100000umei
+`,
+				version.ClientName, version.ClientName,
+			),
+		),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			inBuf := bufio.NewReader(cmd.InOrStdin())
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(authclient.GetTxEncoder(cdc))
+
+			amount, err := sdk.ParseCoins(args[0])
+			if err != nil {
+				return err
+			}
+
+			fmt.Println("amount", amount)
+
+			msg := types.NewMsgReturnDebt(
 				amount,
 				cliCtx.GetFromAddress(),
 			)
