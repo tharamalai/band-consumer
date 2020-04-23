@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"encoding/binary"
-	"fmt"
 
 	"github.com/bandprotocol/bandchain/chain/x/oracle"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -50,6 +49,13 @@ func (k Keeper) GetResult(ctx sdk.Context, requestID oracle.RequestID) ([]byte, 
 func (k Keeper) HasResult(ctx sdk.Context, requestID oracle.RequestID) bool {
 	store := ctx.KVStore(k.storeKey)
 	return store.Has(types.ResultStoreKey(requestID))
+}
+
+// SetCDP - set CDP into the store
+func (k Keeper) SetCDP(ctx sdk.Context, cdp types.CDP) {
+	store := ctx.KVStore(k.storeKey)
+	c := k.cdc.MustMarshalBinaryBare(cdp)
+	store.Set(types.CDPStoreKey(cdp.Owner), c)
 }
 
 //GetCDP - get CDP of user account from the store
