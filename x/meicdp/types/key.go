@@ -10,6 +10,10 @@ import (
 const (
 	// ModuleName is the name of the module
 	ModuleName = "meicdp"
+
+	// RouterKey is the module name router key
+	RouterKey = ModuleName
+
 	// StoreKey to be used when creating the KVStore
 	StoreKey = ModuleName
 )
