@@ -67,19 +67,18 @@ func NewHandler(keeper Keeper) sdk.Handler {
 }
 
 func handleMsgSetCDP(ctx sdk.Context, keeper Keeper, msg types.MsgSetCDP) (*sdk.Result, error) {
-	collateralAmount, err := sdk.ParseCoins("0 uatom")
-	if err != nil {
-		return nil, err
-	}
 
-	debtAmount, err := sdk.ParseCoins("0 mei")
-	if err != nil {
-		return nil, err
-	}
+	atomToken := sdk.NewCoin("uatom", sdk.NewInt(0))
+	collateralCoins := sdk.NewCoins(atomToken)
+	keeper.BankKeeper.AddCoins(ctx, msg.Sender, collateralCoins)
+
+	meiToken := sdk.NewCoin("mei", sdk.NewInt(0))
+	debtCoins := sdk.NewCoins(meiToken)
+	keeper.BankKeeper.AddCoins(ctx, msg.Sender, debtCoins)
 
 	cdp := types.NewCDP(
-		collateralAmount,
-		debtAmount,
+		collateralCoins,
+		debtCoins,
 		msg.Sender,
 	)
 

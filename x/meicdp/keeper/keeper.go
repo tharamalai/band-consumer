@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"encoding/binary"
+	"fmt"
 
 	"github.com/bandprotocol/bandchain/chain/x/oracle"
 	"github.com/cosmos/cosmos-sdk/codec"

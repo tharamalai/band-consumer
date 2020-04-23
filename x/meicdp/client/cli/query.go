@@ -14,18 +14,19 @@ import (
 
 // GetQueryCmd returns
 func GetQueryCmd(storeKey string, cdc *codec.Codec) *cobra.Command {
-	consumingCmd := &cobra.Command{
+	meiCdpCmd := &cobra.Command{
 		Use:                        types.ModuleName,
-		Short:                      "Querying commands for the consuming module",
+		Short:                      "Querying commands for the meicdp module",
 		DisableFlagParsing:         true,
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
-	consumingCmd.AddCommand(flags.GetCommands(
+	meiCdpCmd.AddCommand(flags.GetCommands(
 		GetCmdReadResult(storeKey, cdc),
+		GetCmdReadCDP(storeKey, cdc),
 	)...)
 
-	return consumingCmd
+	return meiCdpCmd
 }
 
 // GetCmdReadRequest queries request by reqID
@@ -64,10 +65,11 @@ func GetCmdReadCDP(queryRoute string, cdc *codec.Codec) *cobra.Command {
 				nil,
 			)
 			if err != nil {
+				fmt.Println("err", err)
 				fmt.Printf("read cdp fail - %s \n", account)
 				return nil
 			}
-			return cliCtx.PrintOutput(res)
+			return cliCtx.PrintOutput(string(res))
 		},
 	}
 }

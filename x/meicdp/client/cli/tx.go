@@ -32,19 +32,19 @@ const (
 // GetTxCmd returns the transaction commands for this module
 func GetTxCmd(storeKey string, cdc *codec.Codec) *cobra.Command {
 	fmt.Println("Module name", types.ModuleName)
-	consumingCmd := &cobra.Command{
+	meiCdpCmd := &cobra.Command{
 		Use:                        types.ModuleName,
 		Short:                      "meicdp transaction subcommands",
 		DisableFlagParsing:         true,
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
-	consumingCmd.AddCommand(flags.PostCommands(
+	meiCdpCmd.AddCommand(flags.PostCommands(
 		GetCmdRequest(cdc),
 		GetCmdSetCDP(cdc),
 	)...)
 
-	return consumingCmd
+	return meiCdpCmd
 }
 
 // GetCmdRequest implements the request command handler.
@@ -132,13 +132,13 @@ $ %s tx consuming request 1 --calldata 1234abcdef --requested-validator-count 4 
 // GetCmdSetCDP implement set CDP command handler
 func GetCmdSetCDP(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "set cdp",
+		Use:   "cdp",
 		Short: "Set a new cdp.",
 		Args:  cobra.ExactArgs(0),
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Create a new CDP.
 Example:
-$ %s tx maicap set cdp
+$ %s tx maicap cdp
 `,
 				version.ClientName, version.ClientName,
 			),
