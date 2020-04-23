@@ -42,6 +42,9 @@ func GetTxCmd(storeKey string, cdc *codec.Codec) *cobra.Command {
 	meiCdpCmd.AddCommand(flags.PostCommands(
 		GetCmdRequest(cdc),
 		GetCmdLockCollateral(cdc),
+		GetCmdUnlockCollateral(cdc),
+		GetCmdReturnDebt(cdc),
+		GetCmdBorrowDebt(cdc),
 	)...)
 
 	return meiCdpCmd
