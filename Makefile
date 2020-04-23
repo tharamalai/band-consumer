@@ -49,8 +49,8 @@ build_tags_comma_sep := $(subst $(whitespace),$(comma),$(build_tags))
 # process linker flags
 
 ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=band-consumer \
-		  -X github.com/cosmos/cosmos-sdk/version.ServerName=bcd \
-		  -X github.com/cosmos/cosmos-sdk/version.ClientName=bccli \
+		  -X github.com/cosmos/cosmos-sdk/version.ServerName=meid \
+		  -X github.com/cosmos/cosmos-sdk/version.ClientName=meicli \
 		  -X github.com/cosmos/cosmos-sdk/version.Version=$(VERSION) \
 		  -X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) \
 		  -X "github.com/cosmos/cosmos-sdk/version.BuildTags=$(build_tags_comma_sep)"
@@ -74,11 +74,11 @@ all: install lint test
 
 build: go.sum
 ifeq ($(OS),Windows_NT)
-	go build -mod=readonly $(BUILD_FLAGS) -o build/bcd.exe ./cmd/bcd
-	go build -mod=readonly $(BUILD_FLAGS) -o build/bccli.exe ./cmd/bccli
+	go build -mod=readonly $(BUILD_FLAGS) -o build/meid.exe ./cmd/meid
+	go build -mod=readonly $(BUILD_FLAGS) -o build/meicli.exe ./cmd/meicli
 else
-	go build -mod=readonly $(BUILD_FLAGS) -o build/bcd ./cmd/bcd
-	go build -mod=readonly $(BUILD_FLAGS) -o build/bccli ./cmd/bccli
+	go build -mod=readonly $(BUILD_FLAGS) -o build/meid ./cmd/meid
+	go build -mod=readonly $(BUILD_FLAGS) -o build/meicli ./cmd/meicli
 endif
 
 build-linux: go.sum
@@ -92,8 +92,8 @@ else
 endif
 
 install: go.sum
-	go install $(BUILD_FLAGS) ./cmd/bcd
-	go install $(BUILD_FLAGS) ./cmd/bccli
+	go install $(BUILD_FLAGS) ./cmd/meid
+	go install $(BUILD_FLAGS) ./cmd/meicli
 
 go-mod-cache: go.sum
 	@echo "--> Download go modules to local cache"
@@ -106,7 +106,7 @@ go.sum: go.mod
 draw-deps:
 	@# requires brew install graphviz or apt-get install graphviz
 	go get github.com/RobotsAndPencils/goviz
-	@goviz -i ./cmd/bcd -d 2 | dot -Tpng -o dependency-graph.png
+	@goviz -i ./cmd/meid -d 2 | dot -Tpng -o dependency-graph.png
 
 clean:
 	rm -rf snapcraft-local.yaml build/
@@ -188,12 +188,12 @@ format:
 ###                                Localnet                                 ###
 ###############################################################################
 
-build-docker-bcdnode:
+build-docker-meidnode:
 	$(MAKE) -C networks/local
 
 # Run a 4-node testnet locally
 localnet-start: build-linux localnet-stop
-	@if ! [ -f build/node0/bcd/config/genesis.json ]; then docker run --rm -v $(CURDIR)/build:/bcd:Z tendermint/bcdnode testnet --v 4 -o . --starting-ip-address 192.168.10.2 --keyring-backend=test ; fi
+	@if ! [ -f build/node0/meid/config/genesis.json ]; then docker run --rm -v $(CURDIR)/build:/meid:Z tendermint/meidnode testnet --v 4 -o . --starting-ip-address 192.168.10.2 --keyring-backend=test ; fi
 	docker-compose up -d
 
 # Stop testnet
@@ -205,11 +205,11 @@ setup-contract-tests-data:
 	rm -rf /tmp/contract_tests ; \
 	mkdir /tmp/contract_tests ; \
 	cp "${GOPATH}/pkg/mod/${SDK_PACK}/client/lcd/swagger-ui/swagger.yaml" /tmp/contract_tests/swagger.yaml ; \
-	./build/bcd init --home /tmp/contract_tests/.bcd --chain-id lcd contract-tests ; \
+	./build/meid init --home /tmp/contract_tests/.meid --chain-id lcd contract-tests ; \
 	tar -xzf lcd_test/testdata/state.tar.gz -C /tmp/contract_tests/
 
 start-bc: setup-contract-tests-data
-	./build/bcd --home /tmp/contract_tests/.bcd start &
+	./build/meid --home /tmp/contract_tests/.meid start &
 	@sleep 2s
 
 setup-transactions: start-bc
@@ -217,11 +217,11 @@ setup-transactions: start-bc
 
 run-lcd-contract-tests:
 	@echo "Running Band-Consumer LCD for contract tests"
-	./build/bccli rest-server --laddr tcp://0.0.0.0:8080 --home /tmp/contract_tests/.bccli --node http://localhost:26657 --chain-id lcd --trust-node true
+	./build/meicli rest-server --laddr tcp://0.0.0.0:8080 --home /tmp/contract_tests/.meicli --node http://localhost:26657 --chain-id lcd --trust-node true
 
 contract-tests: setup-transactions
 	@echo "Running Band-Consumer LCD for contract tests"
-	dredd && pkill bcd
+	dredd && pkill meid
 
 ###############################################################################
 ###                                Protobuf                                 ###

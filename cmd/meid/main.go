@@ -42,8 +42,8 @@ func main() {
 	ctx := server.NewDefaultContext()
 	cobra.EnableCommandSorting = false
 	rootCmd := &cobra.Command{
-		Use:               "bcd",
-		Short:             "Band-consumer Daemon (server)",
+		Use:               "meid",
+		Short:             "Meichain Daemon (server)",
 		PersistentPreRunE: server.PersistentPreRunEFn(ctx),
 	}
 

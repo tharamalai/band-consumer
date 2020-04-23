@@ -52,8 +52,8 @@ func main() {
 	// with the cdc
 
 	rootCmd := &cobra.Command{
-		Use:   "bccli",
-		Short: "Command line interface for interacting with bcd",
+		Use:   "meicli",
+		Short: "Command line interface for interacting with meid",
 	}
 
 	// Add --chain-id to persistent flags and mark it required

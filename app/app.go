@@ -41,11 +41,11 @@ import (
 const appName = "MeichainApp"
 
 var (
-	// DefaultCLIHome default home directories for bccli
-	DefaultCLIHome = os.ExpandEnv("$HOME/.bccli")
+	// DefaultCLIHome default home directories for meicli
+	DefaultCLIHome = os.ExpandEnv("$HOME/.meicli")
 
-	// DefaultNodeHome default home directories for bcd
-	DefaultNodeHome = os.ExpandEnv("$HOME/.bcd")
+	// DefaultNodeHome default home directories for meid
+	DefaultNodeHome = os.ExpandEnv("$HOME/.meid")
 
 	// ModuleBasics The module BasicManager is in charge of setting up basic,
 	// non-dependant module elements, such as codec registration
