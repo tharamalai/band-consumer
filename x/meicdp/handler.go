@@ -58,8 +58,6 @@ func NewHandler(keeper Keeper) sdk.Handler {
 			}
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal oracle packet data")
 
-		case types.MsgSetCDP:
-			return handleMsgSetCDP(ctx, keeper, msg)
 		default:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unrecognized %s message type: %T", ModuleName, msg)
 		}
