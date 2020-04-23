@@ -312,7 +312,7 @@ func GetCmdSetChannel(cdc *codec.Codec) *cobra.Command {
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Register a verified channel.
 Example:
-$ %s tx goldcdp set-cahnnel bandchain goldcdp dbdfgsdfsd
+$ %s tx meicdp set-cahnnel bandchain meicdp dbdfgsdfsd
 `,
 				version.ClientName,
 			),
