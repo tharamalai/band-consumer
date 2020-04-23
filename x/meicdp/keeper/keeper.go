@@ -60,9 +60,14 @@ func (k Keeper) GetCDP(ctx sdk.Context, account sdk.AccAddress) (types.CDP, erro
 		k.cdc.MustUnmarshalBinaryBare(c, &cdp)
 		return cdp, nil
 	}
-	return types.CDP{}, sdkerrors.Wrapf(types.ErrItemNotFound,
-		"GetCDP: CDP of %d is not available.", account,
-	)
+
+	atomToken := sdk.NewCoin("uatom", sdk.NewInt(0))
+	collateralCoins := sdk.NewCoins(atomToken)
+
+	meiToken := sdk.NewCoin("mei", sdk.NewInt(0))
+	debtCoins := sdk.NewCoins(meiToken)
+
+	return types.NewCDP(collateralCoins, debtCoins, account), nil
 }
 
 // HasCDP - has CDP of this account on the store
