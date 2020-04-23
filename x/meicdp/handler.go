@@ -4,6 +4,8 @@ import (
 	"encoding/binary"
 	"encoding/hex"
 	"fmt"
+	"strconv"
+	"strings"
 
 	"github.com/bandprotocol/bandchain/chain/x/oracle"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -56,10 +58,10 @@ func NewHandler(keeper Keeper) sdk.Handler {
 			return handleSetSourceChannel(ctx, msg, keeper)
 
 		case channeltypes.MsgPacket:
-			var responseData oracle.OracleResponsePacketData
-			if err := types.ModuleCdc.UnmarshalJSON(msg.GetData(), &responseData); err == nil {
-				fmt.Println("I GOT DATA", responseData.Result, responseData.ResolveTime)
-				// handleOraclePacket(ctx, keeper, responseData)
+			var responseDataPacket oracle.OracleResponsePacketData
+			if err := types.ModuleCdc.UnmarshalJSON(msg.GetData(), &responseDataPacket); err == nil {
+				fmt.Println("I GOT DATA", responseDataPacket.Result, responseDataPacket.ResolveTime)
+				handleOracleRespondPacketData(ctx, keeper, responseDataPacket)
 				return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
 			}
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal oracle packet data")
@@ -251,4 +253,43 @@ func requestOracle(ctx sdk.Context, keeper Keeper, dataReq types.DataRequest) er
 	}
 
 	return nil
+}
+
+func handleOracleRespondPacketData(ctx sdk.Context, keeper Keeper, packet oracle.OracleResponsePacketData) (*sdk.Result, error) {
+	clientID := strings.Split(packet.ClientID, ":")
+	if len(clientID) != 2 {
+		return nil, sdkerrors.Wrapf(types.ErrUnknownClientID, "unknown client id %s", packet.ClientID)
+	}
+
+	msgID, err := strconv.ParseUint(clientID[1], 10, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	rawResult, err := hex.DecodeString(packet.Result)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := types.DecodeResult(rawResult)
+	if err != nil {
+		return nil, err
+	}
+
+	msg, err := keeper.GetMsg(ctx, msgID)
+	if err != nil {
+		return nil, err
+	}
+
+	switch msg := msg.(type) {
+	case types.MsgUnlockCollateral:
+		fmt.Println("MsgUnlockCollateral", msg, result)
+
+	case types.MsgBorrowDebt:
+		fmt.Println("MsgBorrowBebt", msg, result)
+
+	}
+	// TODO: Add each packet handler of each message type
+	return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
+
 }
