@@ -5,7 +5,7 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-// MsgReturnDebt is a message for unlocking collaterral of Sender
+// MsgReturnDebt is a message for return debt of Sender
 type MsgReturnDebt struct {
 	Amount sdk.Coins
 	Sender sdk.AccAddress

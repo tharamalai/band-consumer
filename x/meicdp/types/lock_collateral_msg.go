@@ -5,7 +5,7 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-// MsgLockCollateral is a message for unlocking collaterral of Sender
+// MsgLockCollateral is a message for lock collaterral of Sender
 type MsgLockCollateral struct {
 	Amount sdk.Coins
 	Sender sdk.AccAddress
