@@ -55,8 +55,8 @@ func GetCmdRequest(cdc *codec.Codec) *cobra.Command {
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Make a new request via an existing oracle script with the configuration flags.
 Example:
-$ %s tx consuming request 1 -c 1234abcdef -r 4 -v 3 -x 20 -w 50 -g 5000 --from mykey
-$ %s tx consuming request 1 --calldata 1234abcdef --requested-validator-count 4 --sufficient-validator-count 3 --expiration 20 --prepare-gas 50 --execute-gas 5000 --from mykey
+$ %s tx meichain request 1 -c 1234abcdef -r 4 -v 3 -x 20 -w 50 -g 5000 --from mykey
+$ %s tx meichain request 1 --calldata 1234abcdef --requested-validator-count 4 --sufficient-validator-count 3 --expiration 20 --prepare-gas 50 --execute-gas 5000 --from mykey
 `,
 				version.ClientName, version.ClientName,
 			),

@@ -42,7 +42,7 @@ func NewMsgRequestData(
 func (msg MsgRequestData) Route() string { return RouterKey }
 
 // Type implements the sdk.Msg interface for MsgRequestData.
-func (msg MsgRequestData) Type() string { return "consuming" }
+func (msg MsgRequestData) Type() string { return "meichain" }
 
 // ValidateBasic implements the sdk.Msg interface for MsgRequestData.
 func (msg MsgRequestData) ValidateBasic() error {

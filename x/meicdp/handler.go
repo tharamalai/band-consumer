@@ -18,18 +18,18 @@ func NewHandler(keeper Keeper) sdk.Handler {
 		ctx = ctx.WithEventManager(sdk.NewEventManager())
 		switch msg := msg.(type) {
 		case MsgRequestData:
-			sourceChannelEnd, found := keeper.ChannelKeeper.GetChannel(ctx, "consuming", msg.SourceChannel)
+			sourceChannelEnd, found := keeper.ChannelKeeper.GetChannel(ctx, "meichain", msg.SourceChannel)
 			if !found {
 				return nil, sdkerrors.Wrapf(
 					sdkerrors.ErrUnknownRequest,
-					"unknown channel %s port consuming",
+					"unknown channel %s port meichain",
 					msg.SourceChannel,
 				)
 			}
 			destinationPort := sourceChannelEnd.Counterparty.PortID
 			destinationChannel := sourceChannelEnd.Counterparty.ChannelID
 			sequence, found := keeper.ChannelKeeper.GetNextSequenceSend(
-				ctx, "consuming", msg.SourceChannel,
+				ctx, "meichain", msg.SourceChannel,
 			)
 			if !found {
 				return nil, sdkerrors.Wrapf(
@@ -43,7 +43,7 @@ func NewHandler(keeper Keeper) sdk.Handler {
 				msg.AskCount, msg.MinCount,
 			)
 			err := keeper.ChannelKeeper.SendPacket(ctx, channel.NewPacket(packet.GetBytes(),
-				sequence, "consuming", msg.SourceChannel, destinationPort, destinationChannel,
+				sequence, "meichain", msg.SourceChannel, destinationPort, destinationChannel,
 				1000000000, // Arbitrarily high timeout for now
 			))
 			if err != nil {
@@ -54,6 +54,7 @@ func NewHandler(keeper Keeper) sdk.Handler {
 			var responseData oracle.OracleResponsePacketData
 			if err := types.ModuleCdc.UnmarshalJSON(msg.GetData(), &responseData); err == nil {
 				fmt.Println("I GOT DATA", responseData.Result, responseData.ResolveTime)
+				handleOraclePacket(ctx, keeper, responseData)
 				return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
 			}
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal oracle packet data")
