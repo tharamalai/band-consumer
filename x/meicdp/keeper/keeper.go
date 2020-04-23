@@ -18,7 +18,7 @@ type Keeper struct {
 	ChannelKeeper types.ChannelKeeper
 }
 
-// NewKeeper creates a new band consumer Keeper instance.
+// NewKeeper creates a new Mei CDP Keeper instance.
 func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, channelKeeper types.ChannelKeeper, bankKeeper types.BankKeeper) Keeper {
 	return Keeper{
 		storeKey:      key,
@@ -28,11 +28,13 @@ func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, channelKeeper types.ChannelKe
 	}
 }
 
+// TODO: Temporary keeper function for testing. Don't forget to remove.
 func (k Keeper) SetResult(ctx sdk.Context, requestID oracle.RequestID, result []byte) {
 	store := ctx.KVStore(k.storeKey)
 	store.Set(types.ResultStoreKey(requestID), result)
 }
 
+// TODO: Temporary keeper function for testing. Don't forget to remove.
 func (k Keeper) GetResult(ctx sdk.Context, requestID oracle.RequestID) ([]byte, error) {
 	if !k.HasResult(ctx, requestID) {
 		return nil, sdkerrors.Wrapf(types.ErrItemNotFound,
@@ -43,6 +45,7 @@ func (k Keeper) GetResult(ctx sdk.Context, requestID oracle.RequestID) ([]byte, 
 	return store.Get(types.ResultStoreKey(requestID)), nil
 }
 
+// TODO: Temporary keeper function for testing. Don't forget to remove.
 func (k Keeper) HasResult(ctx sdk.Context, requestID oracle.RequestID) bool {
 	store := ctx.KVStore(k.storeKey)
 	return store.Has(types.ResultStoreKey(requestID))

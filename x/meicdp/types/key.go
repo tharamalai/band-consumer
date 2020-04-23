@@ -29,6 +29,7 @@ var (
 )
 
 // ResultStoreKey is a function to generate key for each result in store
+// TODO: this is temporary function. Don't forget to remove after using this key
 func ResultStoreKey(requestID oracle.RequestID) []byte {
 	return append(ResultStoreKeyPrefix, int64ToBytes(int64(requestID))...)
 }
