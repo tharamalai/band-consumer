@@ -41,7 +41,6 @@ func GetTxCmd(storeKey string, cdc *codec.Codec) *cobra.Command {
 	}
 	meiCdpCmd.AddCommand(flags.PostCommands(
 		GetCmdRequest(cdc),
-		GetCmdSetCDP(cdc),
 	)...)
 
 	return meiCdpCmd
@@ -125,41 +124,6 @@ $ %s tx consuming request 1 --calldata 1234abcdef --requested-validator-count 4 
 	cmd.MarkFlagRequired(flagMinCount)
 	cmd.Flags().String(flagChannel, "", "The channel id.")
 	cmd.MarkFlagRequired(flagChannel)
-
-	return cmd
-}
-
-// GetCmdSetCDP implement set CDP command handler
-func GetCmdSetCDP(cdc *codec.Codec) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "cdp",
-		Short: "Set a new cdp.",
-		Args:  cobra.ExactArgs(0),
-		Long: strings.TrimSpace(
-			fmt.Sprintf(`Create a new CDP.
-Example:
-$ %s tx maicap cdp
-`,
-				version.ClientName, version.ClientName,
-			),
-		),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			inBuf := bufio.NewReader(cmd.InOrStdin())
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(authclient.GetTxEncoder(cdc))
-
-			msg := types.NewMsgSetCDP(
-				cliCtx.GetFromAddress(),
-			)
-
-			err := msg.ValidateBasic()
-			if err != nil {
-				return err
-			}
-
-			return authclient.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg})
-		},
-	}
 
 	return cmd
 }

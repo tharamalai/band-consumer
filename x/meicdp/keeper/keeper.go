@@ -48,13 +48,6 @@ func (k Keeper) HasResult(ctx sdk.Context, requestID oracle.RequestID) bool {
 	return store.Has(types.ResultStoreKey(requestID))
 }
 
-//SetCDP - set CDP of user account to the store
-func (k Keeper) SetCDP(ctx sdk.Context, cdp types.CDP) {
-	store := ctx.KVStore(k.storeKey)
-	c := k.cdc.MustMarshalBinaryBare(cdp)
-	store.Set(types.CDPStoreKey(cdp.Owner), c)
-}
-
 //GetCDP - get CDP of user account from the store
 func (k Keeper) GetCDP(ctx sdk.Context, account sdk.AccAddress) (types.CDP, error) {
 	store := ctx.KVStore(k.storeKey)
