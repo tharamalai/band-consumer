@@ -54,13 +54,13 @@ func NewHandler(keeper Keeper) sdk.Handler {
 			var responseData oracle.OracleResponsePacketData
 			if err := types.ModuleCdc.UnmarshalJSON(msg.GetData(), &responseData); err == nil {
 				fmt.Println("I GOT DATA", responseData.Result, responseData.ResolveTime)
-				handleOraclePacket(ctx, keeper, responseData)
+				// handleOraclePacket(ctx, keeper, responseData)
 				return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
 			}
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal oracle packet data")
 
 		case types.MsgLockCollateral:
-
+			return handleMsgLockCollateral(ctx, keeper, msg)
 		default:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unrecognized %s message type: %T", ModuleName, msg)
 		}
@@ -74,17 +74,22 @@ func handleMsgLockCollateral(ctx sdk.Context, keeper Keeper, msg types.MsgLockCo
 		return nil, err
 	}
 
+	fmt.Println("msg.Amount", msg.Amount)
+
 	// Accumulate collateral on CDP
-	newCollateral := cdp.CollateralAmount.Add(msg.CollateralAmount...)
+	newCollateral := cdp.CollateralAmount.Add(msg.Amount...)
+	fmt.Println("newCollateral", newCollateral)
 	cdp.CollateralAmount = newCollateral
 
+	fmt.Println("cdp", cdp)
+
+	fmt.Println("msg.Sender", msg.Sender)
 	// Store CDP
 	keeper.SetCDP(ctx, cdp)
 
-	moduleAddress := types.GetMeiCDPAddress()
-
 	// Transfer collateral to the module account
-	err = keeper.BankKeeper.SendCoins(ctx, msg.Sender, moduleAddress, msg.CollateralAmount)
+	moduleAddress := types.GetMeiCDPAddress()
+	err = keeper.BankKeeper.SendCoins(ctx, msg.Sender, moduleAddress, msg.Amount)
 	if err != nil {
 		return nil, err
 	}

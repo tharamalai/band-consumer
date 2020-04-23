@@ -41,6 +41,7 @@ func GetTxCmd(storeKey string, cdc *codec.Codec) *cobra.Command {
 	}
 	meiCdpCmd.AddCommand(flags.PostCommands(
 		GetCmdRequest(cdc),
+		GetCmdLockCollateral(cdc),
 	)...)
 
 	return meiCdpCmd
@@ -124,6 +125,48 @@ $ %s tx meichain request 1 --calldata 1234abcdef --requested-validator-count 4 -
 	cmd.MarkFlagRequired(flagMinCount)
 	cmd.Flags().String(flagChannel, "", "The channel id.")
 	cmd.MarkFlagRequired(flagChannel)
+
+	return cmd
+}
+
+// GetCmdLockCollateral implements lock collateral handler
+func GetCmdLockCollateral(cdc *codec.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "lock [amount]",
+		Short: "Lock collateral to the CDP.",
+		Args:  cobra.ExactArgs(1),
+		Long: strings.TrimSpace(
+			fmt.Sprintf(`Lock collateral to the CDP.
+Example:
+$ %s tx maicap lock 100000uatom
+`,
+				version.ClientName, version.ClientName,
+			),
+		),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			inBuf := bufio.NewReader(cmd.InOrStdin())
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(authclient.GetTxEncoder(cdc))
+
+			amount, err := sdk.ParseCoins(args[0])
+			if err != nil {
+				return err
+			}
+			fmt.Println("amount", amount)
+
+			msg := types.NewMsgLockCollateral(
+				amount,
+				cliCtx.GetFromAddress(),
+			)
+
+			err = msg.ValidateBasic()
+			if err != nil {
+				return err
+			}
+
+			return authclient.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg})
+		},
+	}
 
 	return cmd
 }
