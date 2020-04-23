@@ -50,6 +50,10 @@ func NewHandler(keeper Keeper) sdk.Handler {
 				return nil, err
 			}
 			return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
+
+		case types.MsgSetSourceChannel:
+			return handleSetSourceChannel(ctx, msg, keeper)
+
 		case channeltypes.MsgPacket:
 			var responseData oracle.OracleResponsePacketData
 			if err := types.ModuleCdc.UnmarshalJSON(msg.GetData(), &responseData); err == nil {
@@ -61,8 +65,10 @@ func NewHandler(keeper Keeper) sdk.Handler {
 
 		case types.MsgLockCollateral:
 			return handleMsgLockCollateral(ctx, keeper, msg)
+
 		case types.MsgReturnDebt:
 			return handleMsgReturnDebt(ctx, keeper, msg)
+
 		default:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unrecognized %s message type: %T", ModuleName, msg)
 		}
@@ -121,4 +127,9 @@ func handleMsgReturnDebt(ctx sdk.Context, keeper Keeper, msg types.MsgReturnDebt
 	}
 
 	return &sdk.Result{}, nil
+}
+
+func handleSetSourceChannel(ctx sdk.Context, msg types.MsgSetSourceChannel, keeper Keeper) (*sdk.Result, error) {
+	keeper.SetChannel(ctx, msg.ChainName, msg.SourcePort, msg.SourceChannel)
+	return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
 }
