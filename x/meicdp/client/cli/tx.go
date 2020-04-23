@@ -171,6 +171,48 @@ $ %s tx meicdp lock 100000uatom
 	return cmd
 }
 
+// GetCmdUnlockCollateral implements unlock collateral handler
+func GetCmdUnlockCollateral(cdc *codec.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "unlock [amount]",
+		Short: "Unlock collateral from the CDP.",
+		Args:  cobra.ExactArgs(1),
+		Long: strings.TrimSpace(
+			fmt.Sprintf(`Unlock collateral from the CDP.
+Example:
+$ %s tx meicdp unlock 100000uatom
+`,
+				version.ClientName, version.ClientName,
+			),
+		),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			inBuf := bufio.NewReader(cmd.InOrStdin())
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(authclient.GetTxEncoder(cdc))
+
+			amount, err := sdk.ParseCoins(args[0])
+			if err != nil {
+				return err
+			}
+			fmt.Println("amount", amount)
+
+			msg := types.NewMsgUnlockCollateral(
+				amount,
+				cliCtx.GetFromAddress(),
+			)
+
+			err = msg.ValidateBasic()
+			if err != nil {
+				return err
+			}
+
+			return authclient.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg})
+		},
+	}
+
+	return cmd
+}
+
 // GetCmdReturnDebt implements return debt handler
 func GetCmdReturnDebt(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
@@ -198,6 +240,49 @@ $ %s tx meicdp return 100000umei
 			fmt.Println("amount", amount)
 
 			msg := types.NewMsgReturnDebt(
+				amount,
+				cliCtx.GetFromAddress(),
+			)
+
+			err = msg.ValidateBasic()
+			if err != nil {
+				return err
+			}
+
+			return authclient.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg})
+		},
+	}
+
+	return cmd
+}
+
+// GetCmdBorrowDebt implements return debt handler
+func GetCmdBorrowDebt(cdc *codec.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "borrow [amount]",
+		Short: "Borrow debt from the CDP.",
+		Args:  cobra.ExactArgs(1),
+		Long: strings.TrimSpace(
+			fmt.Sprintf(`Borrow debt from the CDP.
+Example:
+$ %s tx meicdp borrow 100000umei
+`,
+				version.ClientName, version.ClientName,
+			),
+		),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			inBuf := bufio.NewReader(cmd.InOrStdin())
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(authclient.GetTxEncoder(cdc))
+
+			amount, err := sdk.ParseCoins(args[0])
+			if err != nil {
+				return err
+			}
+
+			fmt.Println("amount", amount)
+
+			msg := types.NewMsgBorrowDebt(
 				amount,
 				cliCtx.GetFromAddress(),
 			)
