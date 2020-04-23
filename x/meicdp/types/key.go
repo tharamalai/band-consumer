@@ -20,6 +20,7 @@ const (
 
 var (
 	// ResultStoreKeyPrefix is a prefix for storing result
+	// TODO: this is temporary prefix. Don't forget to remove
 	ResultStoreKeyPrefix = []byte{0xff}
 
 	// CDPStoreKeyPrefix is a prefix for storing CDP
