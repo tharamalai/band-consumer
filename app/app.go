@@ -79,6 +79,7 @@ var (
 		staking.NotBondedPoolName:       {supply.Burner, supply.Staking},
 		gov.ModuleName:                  {supply.Burner},
 		transfer.GetModuleAccountName(): {supply.Minter, supply.Burner},
+		meicdp.ModuleName:               {supply.Minter, supply.Burner},
 	}
 )
 
@@ -228,7 +229,7 @@ func NewMeichainApp(
 		app.ibcKeeper.ChannelKeeper, app.bankKeeper, app.supplyKeeper)
 
 	app.meicdpKeeper = meicdp.NewKeeper(
-		appCodec, keys[meicdp.StoreKey], app.ibcKeeper.ChannelKeeper,
+		app.cdc, keys[meicdp.StoreKey], app.ibcKeeper.ChannelKeeper, app.bankKeeper,
 	)
 
 	// register the staking hooks

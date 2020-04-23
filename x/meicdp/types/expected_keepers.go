@@ -15,3 +15,9 @@ type ChannelKeeper interface {
 	ChanCloseInit(ctx sdk.Context, portID, channelID string) error
 	TimeoutExecuted(ctx sdk.Context, packet channelexported.PacketI) error
 }
+
+// BankKeeper defines the expected bank keeper
+type BankKeeper interface {
+	AddCoins(ctx sdk.Context, addr sdk.AccAddress, amt sdk.Coins) (sdk.Coins, error)
+	SendCoins(ctx sdk.Context, from sdk.AccAddress, to sdk.AccAddress, amt sdk.Coins) error
+}

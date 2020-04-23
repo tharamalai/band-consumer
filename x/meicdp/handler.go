@@ -1,15 +1,15 @@
-package consuming
+package meicdp
 
 import (
 	"encoding/hex"
 	"fmt"
 
-	"github.com/tharamalai/meichain/x/meicdp/types"
 	"github.com/bandprotocol/bandchain/chain/x/oracle"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	channel "github.com/cosmos/cosmos-sdk/x/ibc/04-channel"
 	channeltypes "github.com/cosmos/cosmos-sdk/x/ibc/04-channel/types"
+	"github.com/tharamalai/meichain/x/meicdp/types"
 )
 
 // NewHandler creates the msg handler of this module, as required by Cosmos-SDK standard.
@@ -57,8 +57,31 @@ func NewHandler(keeper Keeper) sdk.Handler {
 				return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
 			}
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal oracle packet data")
+
+		case types.MsgSetCDP:
+			return handleMsgSetCDP(ctx, keeper, msg)
 		default:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unrecognized %s message type: %T", ModuleName, msg)
 		}
 	}
+}
+
+func handleMsgSetCDP(ctx sdk.Context, keeper Keeper, msg types.MsgSetCDP) (*sdk.Result, error) {
+
+	atomToken := sdk.NewCoin("uatom", sdk.NewInt(0))
+	collateralCoins := sdk.NewCoins(atomToken)
+	keeper.BankKeeper.AddCoins(ctx, msg.Sender, collateralCoins)
+
+	meiToken := sdk.NewCoin("mei", sdk.NewInt(0))
+	debtCoins := sdk.NewCoins(meiToken)
+	keeper.BankKeeper.AddCoins(ctx, msg.Sender, debtCoins)
+
+	cdp := types.NewCDP(
+		collateralCoins,
+		debtCoins,
+		msg.Sender,
+	)
+
+	keeper.SetCDP(ctx, cdp)
+	return &sdk.Result{}, nil
 }

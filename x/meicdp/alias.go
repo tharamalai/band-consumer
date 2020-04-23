@@ -1,4 +1,4 @@
-package consuming
+package meicdp
 
 import (
 	"github.com/tharamalai/meichain/x/meicdp/keeper"
