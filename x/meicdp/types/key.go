@@ -32,6 +32,9 @@ var (
 
 	// MsgStoreKeyPrefix is a prefix for storing Message
 	MsgStoreKeyPrefix = []byte{0x02}
+
+	// ChannelStoreKeyPrefix is a prefix for storing channel
+	ChannelStoreKeyPrefix = []byte{0x03}
 )
 
 // ResultStoreKey is a function to generate key for each result in store
@@ -48,6 +51,13 @@ func CDPStoreKey(account sdk.AccAddress) []byte {
 // MsgStoreKey is a function to generate key for each message in store
 func MsgStoreKey(msgID uint64) []byte {
 	return append(MsgStoreKeyPrefix, uint64ToBytes(msgID)...)
+}
+
+// ChannelStoreKey is a function to generate key for each verified channel in store
+func ChannelStoreKey(chainName, channelPort string) []byte {
+	buf := append(ChannelStoreKeyPrefix, []byte(chainName)...)
+	buf = append(buf, []byte(channelPort)...)
+	return buf
 }
 
 func int64ToBytes(num int64) []byte {
