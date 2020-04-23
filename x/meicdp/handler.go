@@ -59,8 +59,35 @@ func NewHandler(keeper Keeper) sdk.Handler {
 			}
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal oracle packet data")
 
+		case types.MsgLockCollateral:
+
 		default:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unrecognized %s message type: %T", ModuleName, msg)
 		}
 	}
+}
+
+func handleMsgLockCollateral(ctx sdk.Context, keeper Keeper, msg types.MsgLockCollateral) (*sdk.Result, error) {
+
+	cdp, err := keeper.GetCDP(ctx, msg.Sender)
+	if err != nil {
+		return nil, err
+	}
+
+	// Accumulate collateral on CDP
+	newCollateral := cdp.CollateralAmount.Add(msg.CollateralAmount...)
+	cdp.CollateralAmount = newCollateral
+
+	// Store CDP
+	keeper.SetCDP(ctx, cdp)
+
+	moduleAddress := types.GetMeiCDPAddress()
+
+	// Transfer collateral to the module account
+	err = keeper.BankKeeper.SendCoins(ctx, msg.Sender, moduleAddress, msg.CollateralAmount)
+	if err != nil {
+		return nil, err
+	}
+
+	return &sdk.Result{}, nil
 }

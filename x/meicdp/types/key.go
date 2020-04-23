@@ -60,3 +60,8 @@ func uint64ToBytes(num uint64) []byte {
 	binary.BigEndian.PutUint64(result, num)
 	return result
 }
+
+// GetMeiCDPAddress returns Mei CDP Address
+func GetMeiCDPAddress() sdk.AccAddress {
+	return sdk.AccAddress(crypto.AddressHash([]byte("MeiCDP")))
+}
