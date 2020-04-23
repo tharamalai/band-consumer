@@ -64,11 +64,11 @@ func GetCmdReadCDP(queryRoute string, cdc *codec.Codec) *cobra.Command {
 				fmt.Sprintf("custom/%s/cdp/%s", queryRoute, account),
 				nil,
 			)
+
 			if err != nil {
-				fmt.Println("err", err)
-				fmt.Printf("read cdp fail - %s \n", account)
-				return nil
+				return err
 			}
+
 			return cliCtx.PrintOutput(string(res))
 		},
 	}
