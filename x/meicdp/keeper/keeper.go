@@ -122,3 +122,24 @@ func (k Keeper) GetNextMsgCount(ctx sdk.Context) uint64 {
 	store.Set(types.MsgCountStoreKey, bz)
 	return msgCount + 1
 }
+
+// SetChannel stores default channel for the chain to the store
+func (k Keeper) SetChannel(ctx sdk.Context, chainName string, port string, channel string) {
+	store := ctx.KVStore(k.storeKey)
+	store.Set(types.ChannelStoreKey(chainName, port), []byte(channel))
+}
+
+// GetChannel returns default channel for the chain
+func (k Keeper) GetChannel(ctx sdk.Context, chainName string, port string) (string, error) {
+	store := ctx.KVStore(k.storeKey)
+	if !k.HasChannel(ctx, chainName, port) {
+		return "", sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "channel not found")
+	}
+	return string(store.Get(types.ChannelStoreKey(chainName, port))), nil
+}
+
+// HasChannel - has default channel for the chain
+func (k Keeper) HasChannel(ctx sdk.Context, chainName string, port string) bool {
+	store := ctx.KVStore(k.storeKey)
+	return store.Has(types.ChannelStoreKey(chainName, port))
+}
