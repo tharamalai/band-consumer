@@ -68,10 +68,10 @@ func (k Keeper) GetCDP(ctx sdk.Context, account sdk.AccAddress) (types.CDP, erro
 		return cdp, nil
 	}
 
-	atomToken := sdk.NewCoin("uatom", sdk.NewInt(0))
+	atomToken := sdk.NewCoin(types.AtomUnit, sdk.NewInt(0))
 	collateralCoins := sdk.NewCoins(atomToken)
 
-	meiToken := sdk.NewCoin("umei", sdk.NewInt(0))
+	meiToken := sdk.NewCoin(types.MeiUnit, sdk.NewInt(0))
 	debtCoins := sdk.NewCoins(meiToken)
 
 	return types.NewCDP(collateralCoins, debtCoins, account), nil

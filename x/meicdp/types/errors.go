@@ -13,5 +13,6 @@ var (
 	ErrInvalidState           = sdkerrors.Register(ModuleName, 6, "InvalidState")
 	ErrBadWasmExecution       = sdkerrors.Register(ModuleName, 7, "BadWasmExecution")
 	ErrUnmarshalJSON          = sdkerrors.Register(ModuleName, 8, "InvalidCDPJSONData")
-	ErrUnknownClientID        = sdkerrors.Register(ModuleName, 8, "UnknownClientID")
+	ErrUnknownClientID        = sdkerrors.Register(ModuleName, 9, "UnknownClientID")
+	ErrTooLowCollateralRatio  = sdkerrors.Register(ModuleName, 10, "TooLowCollateralRatio")
 )
