@@ -56,7 +56,7 @@ func queryCDP(
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid account format")
 	}
 
-	cdp, err := keeper.GetCDP(ctx, accAccount)
+	cdp := keeper.GetCDP(ctx, accAccount)
 	if err != nil {
 		return nil, err
 	}

@@ -59,13 +59,13 @@ func (k Keeper) SetCDP(ctx sdk.Context, cdp types.CDP) {
 }
 
 //GetCDP - get CDP of user account from the store
-func (k Keeper) GetCDP(ctx sdk.Context, account sdk.AccAddress) (types.CDP, error) {
+func (k Keeper) GetCDP(ctx sdk.Context, account sdk.AccAddress) types.CDP {
 	store := ctx.KVStore(k.storeKey)
 	if k.HasCDP(ctx, account) {
 		c := store.Get(types.CDPStoreKey(account))
 		var cdp types.CDP
 		k.cdc.MustUnmarshalBinaryBare(c, &cdp)
-		return cdp, nil
+		return cdp
 	}
 
 	atomToken := sdk.NewCoin("uatom", sdk.NewInt(0))
@@ -74,7 +74,7 @@ func (k Keeper) GetCDP(ctx sdk.Context, account sdk.AccAddress) (types.CDP, erro
 	meiToken := sdk.NewCoin("umei", sdk.NewInt(0))
 	debtCoins := sdk.NewCoins(meiToken)
 
-	return types.NewCDP(collateralCoins, debtCoins, account), nil
+	return types.NewCDP(collateralCoins, debtCoins, account)
 }
 
 // HasCDP - has CDP of this account on the store

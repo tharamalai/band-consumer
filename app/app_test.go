@@ -16,8 +16,8 @@ import (
 
 func TestBCDExport(t *testing.T) {
 	db := db.NewMemDB()
-	bcapp := NewMeichainApp(log.NewTMLogger(log.NewSyncWriter(os.Stdout)), db, nil, true, 0, map[int64]bool{}, "")
-	err := setGenesis(bcapp)
+	mapp := NewMeichainApp(log.NewTMLogger(log.NewSyncWriter(os.Stdout)), db, nil, true, 0, map[int64]bool{}, "")
+	err := setGenesis(mapp)
 	require.NoError(t, err)
 
 	// Making a new app object with the db, so that initchain hasn't been called
@@ -29,28 +29,28 @@ func TestBCDExport(t *testing.T) {
 // ensure that black listed addresses are properly set in bank keeper
 func TestBlackListedAddrs(t *testing.T) {
 	db := db.NewMemDB()
-	bcapp := NewMeichainApp(log.NewTMLogger(log.NewSyncWriter(os.Stdout)), db, nil, true, 0, map[int64]bool{}, "")
+	mapp := NewMeichainApp(log.NewTMLogger(log.NewSyncWriter(os.Stdout)), db, nil, true, 0, map[int64]bool{}, "")
 
 	for acc := range maccPerms {
-		require.True(t, bcapp.bankKeeper.BlacklistedAddr(bcapp.supplyKeeper.GetModuleAddress(acc)))
+		require.True(t, mapp.bankKeeper.BlacklistedAddr(mapp.supplyKeeper.GetModuleAddress(acc)))
 	}
 }
 
-func setGenesis(bcapp *MeichainApp) error {
+func setGenesis(mapp *MeichainApp) error {
 	genesisState := simapp.NewDefaultGenesisState()
-	stateBytes, err := codec.MarshalJSONIndent(bcapp.Codec(), genesisState)
+	stateBytes, err := codec.MarshalJSONIndent(mapp.Codec(), genesisState)
 	if err != nil {
 		return err
 	}
 
 	// Initialize the chain
-	bcapp.InitChain(
+	mapp.InitChain(
 		abci.RequestInitChain{
 			Validators:    []abci.ValidatorUpdate{},
 			AppStateBytes: stateBytes,
 		},
 	)
 
-	bcapp.Commit()
+	mapp.Commit()
 	return nil
 }
