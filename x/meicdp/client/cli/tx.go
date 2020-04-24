@@ -239,8 +239,6 @@ $ %s tx meicdp return 100000umei
 				return err
 			}
 
-			fmt.Println("amount", amount)
-
 			msg := types.NewMsgReturnDebt(
 				amount,
 				cliCtx.GetFromAddress(),
@@ -281,8 +279,6 @@ $ %s tx meicdp borrow 100000umei
 			if err != nil {
 				return err
 			}
-
-			fmt.Println("amount", amount)
 
 			msg := types.NewMsgBorrowDebt(
 				amount,
