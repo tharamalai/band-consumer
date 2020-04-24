@@ -25,9 +25,9 @@ func NewHandler(keeper Keeper) sdk.Handler {
 			}
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal oracle packet data")
 
-		case types.MsgLockCollateral:
+		case MsgLockCollateral:
 			return handleMsgLockCollateral(ctx, keeper, msg)
-		case types.MsgReturnDebt:
+		case MsgReturnDebt:
 			return handleMsgReturnDebt(ctx, keeper, msg)
 		default:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unrecognized %s message type: %T", ModuleName, msg)
@@ -35,7 +35,7 @@ func NewHandler(keeper Keeper) sdk.Handler {
 	}
 }
 
-func handleMsgLockCollateral(ctx sdk.Context, keeper Keeper, msg types.MsgLockCollateral) (*sdk.Result, error) {
+func handleMsgLockCollateral(ctx sdk.Context, keeper Keeper, msg MsgLockCollateral) (*sdk.Result, error) {
 
 	cdp := keeper.GetCDP(ctx, msg.Sender)
 
@@ -64,7 +64,7 @@ func handleMsgLockCollateral(ctx sdk.Context, keeper Keeper, msg types.MsgLockCo
 	return &sdk.Result{}, nil
 }
 
-func handleMsgReturnDebt(ctx sdk.Context, keeper Keeper, msg types.MsgReturnDebt) (*sdk.Result, error) {
+func handleMsgReturnDebt(ctx sdk.Context, keeper Keeper, msg MsgReturnDebt) (*sdk.Result, error) {
 
 	cdp := keeper.GetCDP(ctx, msg.Sender)
 

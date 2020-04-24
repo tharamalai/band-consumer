@@ -18,5 +18,9 @@ var (
 )
 
 type (
-	Keeper = keeper.Keeper
+	Keeper              = keeper.Keeper
+	MsgLockCollateral   = types.MsgLockCollateral
+	MsgUnlockCollateral = types.MsgUnlockCollateral
+	MsgBorrowDebt       = types.MsgBorrowDebt
+	MsgReturnDebt       = types.MsgReturnDebt
 )
