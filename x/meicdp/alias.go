@@ -18,6 +18,5 @@ var (
 )
 
 type (
-	Keeper         = keeper.Keeper
-	MsgRequestData = types.MsgRequestData
+	Keeper = keeper.Keeper
 )
