@@ -20,4 +20,8 @@ func init() {
 // RegisterCodec registers concrete types on the Amino codec.
 func RegisterCodec(cdc *codec.Codec) {
 	cdc.RegisterConcrete(MsgRequestData{}, "consuming/Request", nil)
+	cdc.RegisterConcrete(MsgLockCollateral{}, "meichain/LockCollateral", nil)
+	cdc.RegisterConcrete(MsgUnlockCollateral{}, "meichain/UnlockCollateral", nil)
+	cdc.RegisterConcrete(MsgReturnDebt{}, "meichain/ReturnDebt", nil)
+	cdc.RegisterConcrete(MsgBorrowDebt{}, "meichain/BorrowDebt", nil)
 }

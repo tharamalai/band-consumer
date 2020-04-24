@@ -1,8 +1,8 @@
-package consuming
+package meicdp
 
 import (
-	"github.com/bandprotocol/band-consumer/x/consuming/keeper"
-	"github.com/bandprotocol/band-consumer/x/consuming/types"
+	"github.com/tharamalai/meichain/x/meicdp/keeper"
+	"github.com/tharamalai/meichain/x/meicdp/types"
 )
 
 const (

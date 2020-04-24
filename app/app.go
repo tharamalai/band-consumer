@@ -8,6 +8,7 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
+	meicdp "github.com/tharamalai/meichain/x/meicdp"
 
 	bam "github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -35,18 +36,16 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/supply"
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
-
-	"github.com/bandprotocol/band-consumer/x/consuming"
 )
 
-const appName = "BandConsumerApp"
+const appName = "MeichainApp"
 
 var (
-	// DefaultCLIHome default home directories for bccli
-	DefaultCLIHome = os.ExpandEnv("$HOME/.bccli")
+	// DefaultCLIHome default home directories for meicli
+	DefaultCLIHome = os.ExpandEnv("$HOME/.meicli")
 
-	// DefaultNodeHome default home directories for bcd
-	DefaultNodeHome = os.ExpandEnv("$HOME/.bcd")
+	// DefaultNodeHome default home directories for meid
+	DefaultNodeHome = os.ExpandEnv("$HOME/.meid")
 
 	// ModuleBasics The module BasicManager is in charge of setting up basic,
 	// non-dependant module elements, such as codec registration
@@ -68,7 +67,7 @@ var (
 		evidence.AppModuleBasic{},
 		ibc.AppModuleBasic{},
 		transfer.AppModuleBasic{},
-		consuming.AppModuleBasic{},
+		meicdp.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -80,14 +79,15 @@ var (
 		staking.NotBondedPoolName:       {supply.Burner, supply.Staking},
 		gov.ModuleName:                  {supply.Burner},
 		transfer.GetModuleAccountName(): {supply.Minter, supply.Burner},
+		meicdp.ModuleName:               {supply.Minter, supply.Burner},
 	}
 )
 
 // Verify app interface at compile time
-var _ simapp.App = (*BandConsumerApp)(nil)
+var _ simapp.App = (*MeichainApp)(nil)
 
-// BandConsumerApp extended ABCI application
-type BandConsumerApp struct {
+// MeichainApp extended ABCI application
+type MeichainApp struct {
 	*bam.BaseApp
 	cdc *codec.Codec
 
@@ -101,21 +101,21 @@ type BandConsumerApp struct {
 	subspaces map[string]params.Subspace
 
 	// keepers
-	accountKeeper   auth.AccountKeeper
-	bankKeeper      bank.Keeper
-	supplyKeeper    supply.Keeper
-	stakingKeeper   staking.Keeper
-	slashingKeeper  slashing.Keeper
-	mintKeeper      mint.Keeper
-	distrKeeper     distr.Keeper
-	govKeeper       gov.Keeper
-	crisisKeeper    crisis.Keeper
-	paramsKeeper    params.Keeper
-	upgradeKeeper   upgrade.Keeper
-	evidenceKeeper  evidence.Keeper
-	ibcKeeper       ibc.Keeper
-	transferKeeper  transfer.Keeper
-	consumingKeeper consuming.Keeper
+	accountKeeper  auth.AccountKeeper
+	bankKeeper     bank.Keeper
+	supplyKeeper   supply.Keeper
+	stakingKeeper  staking.Keeper
+	slashingKeeper slashing.Keeper
+	mintKeeper     mint.Keeper
+	distrKeeper    distr.Keeper
+	govKeeper      gov.Keeper
+	crisisKeeper   crisis.Keeper
+	paramsKeeper   params.Keeper
+	upgradeKeeper  upgrade.Keeper
+	evidenceKeeper evidence.Keeper
+	ibcKeeper      ibc.Keeper
+	transferKeeper transfer.Keeper
+	meicdpKeeper   meicdp.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -124,12 +124,12 @@ type BandConsumerApp struct {
 	sm *module.SimulationManager
 }
 
-// NewBandConsumerApp returns a reference to an initialized BandConsumerApp.
-func NewBandConsumerApp(
+// NewMeichainApp returns a reference to an initialized MeichainApp.
+func NewMeichainApp(
 	logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest bool,
 	invCheckPeriod uint, skipUpgradeHeights map[int64]bool, home string,
 	baseAppOptions ...func(*bam.BaseApp),
-) *BandConsumerApp {
+) *MeichainApp {
 
 	// TODO: Remove cdc in favor of appCodec once all modules are migrated.
 	cdc := codecstd.MakeCodec(ModuleBasics)
@@ -142,11 +142,11 @@ func NewBandConsumerApp(
 		bam.MainStoreKey, auth.StoreKey, bank.StoreKey, staking.StoreKey,
 		supply.StoreKey, mint.StoreKey, distr.StoreKey, slashing.StoreKey,
 		gov.StoreKey, params.StoreKey, ibc.StoreKey, transfer.StoreKey,
-		evidence.StoreKey, upgrade.StoreKey, consuming.StoreKey,
+		evidence.StoreKey, upgrade.StoreKey, meicdp.StoreKey,
 	)
 	tKeys := sdk.NewTransientStoreKeys(staking.TStoreKey, params.TStoreKey)
 
-	app := &BandConsumerApp{
+	app := &MeichainApp{
 		BaseApp:        bApp,
 		cdc:            cdc,
 		invCheckPeriod: invCheckPeriod,
@@ -228,8 +228,8 @@ func NewBandConsumerApp(
 	app.transferKeeper = transfer.NewKeeper(app.cdc, keys[transfer.StoreKey], transferCapKey,
 		app.ibcKeeper.ChannelKeeper, app.bankKeeper, app.supplyKeeper)
 
-	app.consumingKeeper = consuming.NewKeeper(
-		appCodec, keys[consuming.StoreKey], app.ibcKeeper.ChannelKeeper,
+	app.meicdpKeeper = meicdp.NewKeeper(
+		app.cdc, keys[meicdp.StoreKey], app.ibcKeeper.ChannelKeeper, app.bankKeeper,
 	)
 
 	// register the staking hooks
@@ -255,7 +255,7 @@ func NewBandConsumerApp(
 		evidence.NewAppModule(app.evidenceKeeper),
 		ibc.NewAppModule(app.ibcKeeper),
 		transfer.NewAppModule(app.transferKeeper),
-		consuming.NewAppModule(app.consumingKeeper),
+		meicdp.NewAppModule(app.meicdpKeeper),
 	)
 	// During begin block slashing happens after distr.BeginBlocker so that
 	// there is nothing left over in the validator fee pool, so as to keep the
@@ -313,20 +313,20 @@ func NewBandConsumerApp(
 }
 
 // Name returns the name of the App
-func (app *BandConsumerApp) Name() string { return app.BaseApp.Name() }
+func (app *MeichainApp) Name() string { return app.BaseApp.Name() }
 
 // BeginBlocker application updates every begin block
-func (app *BandConsumerApp) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
+func (app *MeichainApp) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
 	return app.mm.BeginBlock(ctx, req)
 }
 
 // EndBlocker application updates every end block
-func (app *BandConsumerApp) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
+func (app *MeichainApp) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
 	return app.mm.EndBlock(ctx, req)
 }
 
 // InitChainer application update at chain initialization
-func (app *BandConsumerApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
+func (app *MeichainApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
 	var genesisState simapp.GenesisState
 	app.cdc.MustUnmarshalJSON(req.AppStateBytes, &genesisState)
 
@@ -341,12 +341,12 @@ func (app *BandConsumerApp) InitChainer(ctx sdk.Context, req abci.RequestInitCha
 }
 
 // LoadHeight loads a particular height
-func (app *BandConsumerApp) LoadHeight(height int64) error {
+func (app *MeichainApp) LoadHeight(height int64) error {
 	return app.LoadVersion(height, app.keys[bam.MainStoreKey])
 }
 
 // ModuleAccountAddrs returns all the app's module account addresses.
-func (app *BandConsumerApp) ModuleAccountAddrs() map[string]bool {
+func (app *MeichainApp) ModuleAccountAddrs() map[string]bool {
 	modAccAddrs := make(map[string]bool)
 	for acc := range maccPerms {
 		modAccAddrs[supply.NewModuleAddress(acc).String()] = true
@@ -356,12 +356,12 @@ func (app *BandConsumerApp) ModuleAccountAddrs() map[string]bool {
 }
 
 // Codec returns the application's sealed codec.
-func (app *BandConsumerApp) Codec() *codec.Codec {
+func (app *MeichainApp) Codec() *codec.Codec {
 	return app.cdc
 }
 
 // SimulationManager implements the SimulationApp interface
-func (app *BandConsumerApp) SimulationManager() *module.SimulationManager {
+func (app *MeichainApp) SimulationManager() *module.SimulationManager {
 	return app.sm
 }
 

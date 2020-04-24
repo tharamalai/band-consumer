@@ -1,4 +1,4 @@
-package consuming
+package meicdp
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"

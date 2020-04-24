@@ -22,7 +22,7 @@ import (
 	tmtypes "github.com/tendermint/tendermint/types"
 	dbm "github.com/tendermint/tm-db"
 
-	"github.com/bandprotocol/band-consumer/app"
+	"github.com/tharamalai/meichain/app"
 )
 
 const flagInvCheckPeriod = "inv-check-period"
@@ -42,8 +42,8 @@ func main() {
 	ctx := server.NewDefaultContext()
 	cobra.EnableCommandSorting = false
 	rootCmd := &cobra.Command{
-		Use:               "bcd",
-		Short:             "Band-consumer Daemon (server)",
+		Use:               "meid",
+		Short:             "Meichain Daemon (server)",
 		PersistentPreRunE: server.PersistentPreRunEFn(ctx),
 	}
 
@@ -87,7 +87,7 @@ func newApp(logger log.Logger, db dbm.DB, traceStore io.Writer) abci.Application
 		skipUpgradeHeights[int64(h)] = true
 	}
 
-	return app.NewBandConsumerApp(
+	return app.NewMeichainApp(
 		logger, db, traceStore, true, invCheckPeriod, skipUpgradeHeights,
 		viper.GetString(flags.FlagHome),
 		baseapp.SetPruning(store.NewPruningOptionsFromString(viper.GetString("pruning"))),
@@ -103,7 +103,7 @@ func exportAppStateAndTMValidators(
 ) (json.RawMessage, []tmtypes.GenesisValidator, error) {
 
 	if height != -1 {
-		bcapp := app.NewBandConsumerApp(logger, db, traceStore, false, uint(1), map[int64]bool{}, "")
+		bcapp := app.NewMeichainApp(logger, db, traceStore, false, uint(1), map[int64]bool{}, "")
 		err := bcapp.LoadHeight(height)
 		if err != nil {
 			return nil, nil, err
@@ -112,6 +112,6 @@ func exportAppStateAndTMValidators(
 		return bcapp.ExportAppStateAndValidators(forZeroHeight, jailWhiteList)
 	}
 
-	bcapp := app.NewBandConsumerApp(logger, db, traceStore, true, uint(1), map[int64]bool{}, "")
+	bcapp := app.NewMeichainApp(logger, db, traceStore, true, uint(1), map[int64]bool{}, "")
 	return bcapp.ExportAppStateAndValidators(forZeroHeight, jailWhiteList)
 }

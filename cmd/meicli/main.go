@@ -24,7 +24,7 @@ import (
 	"github.com/tendermint/go-amino"
 	"github.com/tendermint/tendermint/libs/cli"
 
-	"github.com/bandprotocol/band-consumer/app"
+	"github.com/tharamalai/meichain/app"
 )
 
 var (
@@ -52,8 +52,8 @@ func main() {
 	// with the cdc
 
 	rootCmd := &cobra.Command{
-		Use:   "bccli",
-		Short: "Command line interface for interacting with bcd",
+		Use:   "meicli",
+		Short: "Command line interface for interacting with meid",
 	}
 
 	// Add --chain-id to persistent flags and mark it required
