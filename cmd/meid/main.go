@@ -103,15 +103,15 @@ func exportAppStateAndTMValidators(
 ) (json.RawMessage, []tmtypes.GenesisValidator, error) {
 
 	if height != -1 {
-		bcapp := app.NewMeichainApp(logger, db, traceStore, false, uint(1), map[int64]bool{}, "")
-		err := bcapp.LoadHeight(height)
+		mapp := app.NewMeichainApp(logger, db, traceStore, false, uint(1), map[int64]bool{}, "")
+		err := mapp.LoadHeight(height)
 		if err != nil {
 			return nil, nil, err
 		}
 
-		return bcapp.ExportAppStateAndValidators(forZeroHeight, jailWhiteList)
+		return mapp.ExportAppStateAndValidators(forZeroHeight, jailWhiteList)
 	}
 
-	bcapp := app.NewMeichainApp(logger, db, traceStore, true, uint(1), map[int64]bool{}, "")
-	return bcapp.ExportAppStateAndValidators(forZeroHeight, jailWhiteList)
+	mapp := app.NewMeichainApp(logger, db, traceStore, true, uint(1), map[int64]bool{}, "")
+	return mapp.ExportAppStateAndValidators(forZeroHeight, jailWhiteList)
 }

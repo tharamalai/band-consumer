@@ -31,7 +31,6 @@ const (
 
 // GetTxCmd returns the transaction commands for this module
 func GetTxCmd(storeKey string, cdc *codec.Codec) *cobra.Command {
-	fmt.Println("Module name", types.ModuleName)
 	meiCdpCmd := &cobra.Command{
 		Use:                        types.ModuleName,
 		Short:                      "meicdp transaction subcommands",
