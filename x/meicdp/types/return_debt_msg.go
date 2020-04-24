@@ -26,7 +26,7 @@ func NewMsgReturnDebt(
 func (msg MsgReturnDebt) Route() string { return RouterKey }
 
 // Type implements the sdk.Msg interface for MsgReturnDebt.
-func (msg MsgReturnDebt) Type() string { return "meicdp" }
+func (msg MsgReturnDebt) Type() string { return "return_debt" }
 
 // ValidateBasic implements the sdk.Msg interface for MsgReturnDebt.
 func (msg MsgReturnDebt) ValidateBasic() error {

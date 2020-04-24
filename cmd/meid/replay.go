@@ -94,7 +94,7 @@ func replayTxs(rootDir string) error {
 
 	// Application
 	fmt.Fprintln(os.Stderr, "Creating application")
-	bcapp := app.NewMeichainApp(
+	mapp := app.NewMeichainApp(
 		ctx.Logger, appDB, traceStoreWriter, true, uint(1), map[int64]bool{}, "",
 		baseapp.SetPruning(store.PruneEverything), // nothing
 	)
@@ -111,7 +111,7 @@ func replayTxs(rootDir string) error {
 	}
 	// tmsm.SaveState(tmDB, genState)
 
-	cc := proxy.NewLocalClientCreator(bcapp)
+	cc := proxy.NewLocalClientCreator(mapp)
 	proxyApp := proxy.NewAppConns(cc)
 	err = proxyApp.Start()
 	if err != nil {

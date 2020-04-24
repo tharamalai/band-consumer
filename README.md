@@ -47,13 +47,13 @@ This Cosmos-SDK project is not related to the [React-Cosmos](https://github.com/
 SetCDPbyAddress
 ```
 Input: sdk.AccAddress, cdp
-Output: nil, error
+Output: error
 ```
 
 GetCDPbyAddress
 ```
 Input: Address
-Output: CDP, nil
+Output: CDP, error
 ```
 
 SetMessage

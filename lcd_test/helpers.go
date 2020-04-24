@@ -83,7 +83,7 @@ func InitializeLCD(
 	logger = log.NewFilter(logger, log.AllowError())
 
 	db := dbm.NewMemDB()
-	bcapp := app.NewMeichainApp(logger, db, nil, true, 0, map[int64]bool{}, "", baseapp.SetPruning(store.PruneNothing))
+	mapp := app.NewMeichainApp(logger, db, nil, true, 0, map[int64]bool{}, "", baseapp.SetPruning(store.PruneNothing))
 
 	genDoc, valConsPubKeys, valOperAddrs, privVal, err := defaultGenesis(config, nValidators, initAddrs, minting)
 	if err != nil {
@@ -108,7 +108,7 @@ func InitializeLCD(
 	// TODO Set to false once the upstream Tendermint proof verification issue is fixed.
 	viper.Set(flags.FlagTrustNode, true)
 
-	node, err := startTM(config, logger, genDoc, privVal, bcapp)
+	node, err := startTM(config, logger, genDoc, privVal, mapp)
 	if err != nil {
 		return
 	}
