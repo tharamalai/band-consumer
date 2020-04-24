@@ -27,8 +27,10 @@ func NewHandler(keeper Keeper) sdk.Handler {
 
 		case MsgLockCollateral:
 			return handleMsgLockCollateral(ctx, keeper, msg)
-		case MsgReturnDebt:
+
+		case types.MsgReturnDebt:
 			return handleMsgReturnDebt(ctx, keeper, msg)
+
 		default:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unrecognized %s message type: %T", ModuleName, msg)
 		}
@@ -99,4 +101,9 @@ func handleMsgReturnDebt(ctx sdk.Context, keeper Keeper, msg MsgReturnDebt) (*sd
 	}
 
 	return &sdk.Result{}, nil
+}
+
+func handleSetSourceChannel(ctx sdk.Context, msg types.MsgSetSourceChannel, keeper Keeper) (*sdk.Result, error) {
+	keeper.SetChannel(ctx, msg.ChainName, msg.SourcePort, msg.SourceChannel)
+	return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
 }
