@@ -88,25 +88,25 @@ DebtAmount: sdk.Coins (Mei)
 LockAtomMsg
 ```
 LockAmount: sdk.Coins
-Owner: sdk.AccAddress
+Sender: sdk.AccAddress
 ```
 
 UnlockAtomMsg (Required: ATOM price)
 ```
 UnlockAmount: sdk.Coins
-Owner: sdk.AccAddress
+Sender: sdk.AccAddress
 ```
 
 ReturnMeiMsg
 ```
 ReturnAmount: sdk.Coins
-Owner: sdk.AccAddress
+Sender: sdk.AccAddress
 ```
 
 BorrowMeiMsg (Required: ATOM price)
 ```
 BorrowAmount: sdk.Coins
-Owner: sdk.AccAddress
+Sender: sdk.AccAddress
 ```
 
 LiquidatedMsg
