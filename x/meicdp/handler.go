@@ -45,8 +45,6 @@ func handleMsgLockCollateral(ctx sdk.Context, keeper Keeper, msg types.MsgLockCo
 	//  new collateral
 	cdp.CollateralAmount = cdp.CollateralAmount + msg.Amount
 
-	// TODO: Pay fee
-
 	// Store CDP
 	keeper.SetCDP(ctx, cdp)
 
