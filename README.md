@@ -53,7 +53,7 @@ Output: error
 GetCDPbyAddress
 ```
 Input: Address
-Output: CDP, error
+Output: CDP
 ```
 
 SetMessage
