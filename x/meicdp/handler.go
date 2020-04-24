@@ -283,25 +283,24 @@ func handleOracleRespondPacketData(ctx sdk.Context, keeper Keeper, packet oracle
 
 	switch msg := msg.(type) {
 	case types.MsgUnlockCollateral:
-		err := handleMsgUnlockCollatearl(ctx, keeper, msg)
+		err := handleMsgUnlockCollatearl(ctx, keeper, msg, result)
 		if err != nil {
 			return nil, err
 		}
 
 	case types.MsgBorrowDebt:
-		handleMsgBorrowDebt(ctx, keeper, msg)
-		err := handleMsgBorrowDebt(ctx, keeper, msg)
+		err := handleMsgBorrowDebt(ctx, keeper, msg, result)
 		if err != nil {
 			return nil, err
 		}
 	}
-	// TODO: Add each packet handler of each message type
+
 	return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
 
 }
 
 // handleMsgUnlockCollatearl handles the unlock collateral message after receives oracle packet
-func handleMsgUnlockCollatearl(ctx sdk.Context, keeper Keeper, msg types.MsgUnlockCollateral) error {
+func handleMsgUnlockCollatearl(ctx sdk.Context, keeper Keeper, msg types.MsgUnlockCollateral, packetResult types.Result) error {
 	cdp, err := keeper.GetCDP(ctx, msg.Sender)
 	if err != nil {
 		return err
@@ -329,7 +328,7 @@ func handleMsgUnlockCollatearl(ctx sdk.Context, keeper Keeper, msg types.MsgUnlo
 }
 
 // handleMsgBorrowDebt handles the borrow debt message after receives oracle packet
-func handleMsgBorrowDebt(ctx sdk.Context, keeper Keeper, msg types.MsgBorrowDebt) error {
+func handleMsgBorrowDebt(ctx sdk.Context, keeper Keeper, msg types.MsgBorrowDebt, packetResult types.Result) error {
 	cdp, err := keeper.GetCDP(ctx, msg.Sender)
 	if err != nil {
 		return err
