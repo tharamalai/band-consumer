@@ -65,8 +65,6 @@ func GetCmdReadCDP(queryRoute string, cdc *codec.Codec) *cobra.Command {
 				nil,
 			)
 
-			fmt.Println("res", string(res))
-
 			if err != nil {
 				return err
 			}

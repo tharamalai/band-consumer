@@ -154,7 +154,6 @@ $ %s tx meicdp lock 100000uatom
 			if err != nil {
 				return err
 			}
-			fmt.Println("amount", amount)
 
 			msg := types.NewMsgLockCollateral(
 				amount,
@@ -196,7 +195,6 @@ $ %s tx meicdp unlock 100000uatom
 			if err != nil {
 				return err
 			}
-			fmt.Println("amount", amount)
 
 			msg := types.NewMsgUnlockCollateral(
 				amount,
