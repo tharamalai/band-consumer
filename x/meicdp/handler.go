@@ -1,13 +1,11 @@
 package meicdp
 
 import (
-	"encoding/hex"
 	"fmt"
 
 	"github.com/bandprotocol/bandchain/chain/x/oracle"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	channel "github.com/cosmos/cosmos-sdk/x/ibc/04-channel"
 	channeltypes "github.com/cosmos/cosmos-sdk/x/ibc/04-channel/types"
 	"github.com/tharamalai/meichain/x/meicdp/types"
 )
@@ -17,39 +15,6 @@ func NewHandler(keeper Keeper) sdk.Handler {
 	return func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
 		ctx = ctx.WithEventManager(sdk.NewEventManager())
 		switch msg := msg.(type) {
-		case MsgRequestData:
-			sourceChannelEnd, found := keeper.ChannelKeeper.GetChannel(ctx, "meichain", msg.SourceChannel)
-			if !found {
-				return nil, sdkerrors.Wrapf(
-					sdkerrors.ErrUnknownRequest,
-					"unknown channel %s port meichain",
-					msg.SourceChannel,
-				)
-			}
-			destinationPort := sourceChannelEnd.Counterparty.PortID
-			destinationChannel := sourceChannelEnd.Counterparty.ChannelID
-			sequence, found := keeper.ChannelKeeper.GetNextSequenceSend(
-				ctx, "meichain", msg.SourceChannel,
-			)
-			if !found {
-				return nil, sdkerrors.Wrapf(
-					sdkerrors.ErrUnknownRequest,
-					"unknown sequence number for channel %s port oracle",
-					msg.SourceChannel,
-				)
-			}
-			packet := oracle.NewOracleRequestPacketData(
-				msg.ClientID, msg.OracleScriptID, hex.EncodeToString(msg.Calldata),
-				msg.AskCount, msg.MinCount,
-			)
-			err := keeper.ChannelKeeper.SendPacket(ctx, channel.NewPacket(packet.GetBytes(),
-				sequence, "meichain", msg.SourceChannel, destinationPort, destinationChannel,
-				1000000000, // Arbitrarily high timeout for now
-			))
-			if err != nil {
-				return nil, err
-			}
-			return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
 		case channeltypes.MsgPacket:
 			var responseData oracle.OracleResponsePacketData
 			if err := types.ModuleCdc.UnmarshalJSON(msg.GetData(), &responseData); err == nil {
