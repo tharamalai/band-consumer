@@ -59,13 +59,13 @@ Output: CDP
 SetMessage
 ```
 Input: msg
-Output: nil, error
+Output: error
 ```
 
 GetMessageByID
 ```
 Input: ID
-Output: msg, nil
+Output: msg
 ```
 
 ## Struct
