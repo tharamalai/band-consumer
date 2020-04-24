@@ -229,7 +229,7 @@ func NewMeichainApp(
 		app.ibcKeeper.ChannelKeeper, app.bankKeeper, app.supplyKeeper)
 
 	app.meicdpKeeper = meicdp.NewKeeper(
-		app.cdc, keys[meicdp.StoreKey], app.ibcKeeper.ChannelKeeper, app.bankKeeper,
+		app.cdc, keys[meicdp.StoreKey], app.ibcKeeper.ChannelKeeper, app.supplyKeeper,
 	)
 
 	// register the staking hooks

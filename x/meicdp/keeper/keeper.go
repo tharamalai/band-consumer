@@ -14,17 +14,17 @@ import (
 type Keeper struct {
 	storeKey      sdk.StoreKey
 	cdc           *codec.Codec
-	BankKeeper    types.BankKeeper
+	SupplyKeeper  types.SupplyKeeper
 	ChannelKeeper types.ChannelKeeper
 }
 
 // NewKeeper creates a new Mei CDP Keeper instance.
-func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, channelKeeper types.ChannelKeeper, bankKeeper types.BankKeeper) Keeper {
+func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, channelKeeper types.ChannelKeeper, supplyKeeper types.SupplyKeeper) Keeper {
 	return Keeper{
 		storeKey:      key,
 		cdc:           cdc,
 		ChannelKeeper: channelKeeper,
-		BankKeeper:    bankKeeper,
+		SupplyKeeper:  supplyKeeper,
 	}
 }
 

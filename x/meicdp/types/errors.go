@@ -13,4 +13,5 @@ var (
 	ErrInvalidState           = sdkerrors.Register(ModuleName, 6, "InvalidState")
 	ErrBadWasmExecution       = sdkerrors.Register(ModuleName, 7, "BadWasmExecution")
 	ErrUnmarshalJSON          = sdkerrors.Register(ModuleName, 8, "InvalidCDPJSONData")
+	ErrBurnCoin               = sdkerrors.Register(ModuleName, 9, "BurnCoinFail")
 )

@@ -39,29 +39,27 @@ func handleMsgLockCollateral(ctx sdk.Context, keeper Keeper, msg types.MsgLockCo
 
 	cdp := keeper.GetCDP(ctx, msg.Sender)
 
-	// Accumulate collateral on CDP
 	lockAmount := sdk.NewCoin(types.AtomUnit, sdk.NewInt(int64(msg.Amount)))
 	lockAmountCoins := sdk.NewCoins(lockAmount)
 
-	//  New collateral
+	//  Accumulate collateral on CDP
 	lockAmountInt := new(big.Int).SetUint64(msg.Amount)
 	collateralAmountInt := new(big.Int).SetUint64(cdp.CollateralAmount)
 	collateralAmountInt.Add(collateralAmountInt, lockAmountInt)
 	if !collateralAmountInt.IsUint64() {
-		return nil, sdkerrors.Wrapf(types.ErrBadDataValue, "invalid lock amount. collateral must more than or equals 0.")
+		return nil, sdkerrors.Wrapf(types.ErrInvalidBasicMsg, "invalid lock amount. collateral must more than or equals 0.")
 	}
 
 	cdp.CollateralAmount = collateralAmountInt.Uint64()
 
+	// Transfer collateral to the module account. Transaction fails if sender's balance is insufficient.
+	err := keeper.SupplyKeeper.SendCoinsFromAccountToModule(ctx, msg.Sender, ModuleName, lockAmountCoins)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInsufficientFunds, "can't transfer tokens from sender to CDP")
+	}
+
 	// Store CDP
 	keeper.SetCDP(ctx, cdp)
-
-	// Transfer collateral to the module account. Transaction fails if sender's balance is insufficient.
-	moduleAddress := types.GetMeiCDPAddress()
-	err := keeper.BankKeeper.SendCoins(ctx, msg.Sender, moduleAddress, lockAmountCoins)
-	if err != nil {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInsufficientFunds, "insufficient fund")
-	}
 
 	return &sdk.Result{}, nil
 }
@@ -79,21 +77,25 @@ func handleMsgReturnDebt(ctx sdk.Context, keeper Keeper, msg types.MsgReturnDebt
 	debtAmountInt := new(big.Int).SetUint64(cdp.DebtAmount)
 	debtAmountInt.Sub(debtAmountInt, returnAmountInt)
 	if !debtAmountInt.IsUint64() {
-		return nil, sdkerrors.Wrapf(types.ErrBadDataValue, "invalid return amount. debt must more than or equals 0.")
+		return nil, sdkerrors.Wrapf(types.ErrInvalidBasicMsg, "invalid return amount. debt must more than or equals 0.")
 	}
-
 	cdp.DebtAmount = debtAmountInt.Uint64()
 
 	// TODO: Pay fee
 
+	// Transfer Mei from user to CDP. Transaction fails if sender's balance is insufficient.
+	err := keeper.SupplyKeeper.SendCoinsFromAccountToModule(ctx, msg.Sender, ModuleName, returnAmountCoins)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInsufficientFunds, "can't transfer tokens from sender to CDP")
+	}
+
 	// Store CDP
 	keeper.SetCDP(ctx, cdp)
 
-	// Transfer Mei from user to CDP. Transaction fails if sender's balance is insufficient.
-	moduleAddress := types.GetMeiCDPAddress()
-	err := keeper.BankKeeper.SendCoins(ctx, msg.Sender, moduleAddress, returnAmountCoins)
+	// CDP burn returned coins
+	err = keeper.SupplyKeeper.BurnCoins(ctx, ModuleName, returnAmountCoins)
 	if err != nil {
-		return nil, err
+		return nil, sdkerrors.Wrapf(types.ErrBurnCoin, "burn coin fail")
 	}
 
 	return &sdk.Result{}, nil
