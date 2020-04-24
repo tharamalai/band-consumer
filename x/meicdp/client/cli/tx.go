@@ -66,7 +66,8 @@ $ %s tx meicdp lock 100000uatom
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(authclient.GetTxEncoder(cdc))
 
-			amount, err := strconv.ParseUint(args[0], 10, 64)
+			amountInput := strings.Split(args[0], types.AtomUnit)
+			amount, err := strconv.ParseUint(amountInput[0], 10, 64)
 			if err != nil {
 				return err
 			}
@@ -107,7 +108,8 @@ $ %s tx meicdp unlock 100000uatom
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(authclient.GetTxEncoder(cdc))
 
-			amount, err := strconv.ParseUint(args[0], 10, 64)
+			amountInput := strings.Split(args[0], types.AtomUnit)
+			amount, err := strconv.ParseUint(amountInput[0], 10, 64)
 			if err != nil {
 				return err
 			}
@@ -148,7 +150,8 @@ $ %s tx meicdp return 100000umei
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(authclient.GetTxEncoder(cdc))
 
-			amount, err := strconv.ParseUint(args[0], 10, 64)
+			amountInput := strings.Split(args[0], types.MeiUnit)
+			amount, err := strconv.ParseUint(amountInput[0], 10, 64)
 			if err != nil {
 				return err
 			}
@@ -189,7 +192,8 @@ $ %s tx meicdp borrow 100000umei
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(authclient.GetTxEncoder(cdc))
 
-			amount, err := strconv.ParseUint(args[0], 10, 64)
+			amountInput := strings.Split(args[0], types.MeiUnit)
+			amount, err := strconv.ParseUint(amountInput[0], 10, 64)
 			if err != nil {
 				return err
 			}

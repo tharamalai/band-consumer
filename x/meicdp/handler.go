@@ -2,6 +2,7 @@ package meicdp
 
 import (
 	"fmt"
+	"math/big"
 
 	"github.com/bandprotocol/bandchain/chain/x/oracle"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -42,8 +43,15 @@ func handleMsgLockCollateral(ctx sdk.Context, keeper Keeper, msg types.MsgLockCo
 	lockAmount := sdk.NewCoin(types.AtomUnit, sdk.NewInt(int64(msg.Amount)))
 	lockAmountCoins := sdk.NewCoins(lockAmount)
 
-	//  new collateral
-	cdp.CollateralAmount = cdp.CollateralAmount + msg.Amount
+	//  New collateral
+	lockAmountInt := new(big.Int).SetUint64(msg.Amount)
+	collateralAmountInt := new(big.Int).SetUint64(cdp.CollateralAmount)
+	collateralAmountInt.Add(collateralAmountInt, lockAmountInt)
+	if !collateralAmountInt.IsUint64() {
+		return nil, sdkerrors.Wrapf(types.ErrBadDataValue, "invalid lock amount. collateral must more than or equals 0.")
+	}
+
+	cdp.CollateralAmount = collateralAmountInt.Uint64()
 
 	// Store CDP
 	keeper.SetCDP(ctx, cdp)
@@ -66,8 +74,15 @@ func handleMsgReturnDebt(ctx sdk.Context, keeper Keeper, msg types.MsgReturnDebt
 	returnAmount := sdk.NewCoin(types.MeiUnit, sdk.NewInt(int64(msg.Amount)))
 	returnAmountCoins := sdk.NewCoins(returnAmount)
 
-	// new debt
-	cdp.DebtAmount = cdp.DebtAmount - msg.Amount
+	// New debt
+	returnAmountInt := new(big.Int).SetUint64(msg.Amount)
+	debtAmountInt := new(big.Int).SetUint64(cdp.DebtAmount)
+	debtAmountInt.Sub(debtAmountInt, returnAmountInt)
+	if !debtAmountInt.IsUint64() {
+		return nil, sdkerrors.Wrapf(types.ErrBadDataValue, "invalid return amount. debt must more than or equals 0.")
+	}
+
+	cdp.DebtAmount = debtAmountInt.Uint64()
 
 	// TODO: Pay fee
 
