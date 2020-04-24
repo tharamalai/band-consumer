@@ -306,13 +306,28 @@ func handleMsgUnlockCollatearl(ctx sdk.Context, keeper Keeper, msg types.MsgUnlo
 		return err
 	}
 
-	// TODO: Calculate new collateral ratio
-
 	newCollateral := cdp.CollateralAmount.Sub(msg.Amount)
 	fmt.Println("newCollateral", newCollateral)
 	cdp.CollateralAmount = newCollateral
-
 	fmt.Println("cdp", cdp)
+
+	// Calculate new collateral ratio. If collateral is lower than 150 percent then returns error.
+	collateralPerUSD := float64(packetResult.Px)
+	collateralAmountFloat, err := strconv.ParseFloat(cdp.CollateralAmount.AmountOf(types.AtomUnit).String(), 64)
+	if err != nil {
+		return err
+	}
+	discountCollateralValue := collateralAmountFloat * collateralPerUSD
+	debtAmount := cdp.DebtAmount.AmountOf(types.MeiUnit)
+	debtAmountFloat, err := strconv.ParseFloat(debtAmount.String(), 64)
+	if err != nil {
+		return err
+	}
+
+	collateralRatio := calculateCollateralRatio(discountCollateralValue, debtAmountFloat)
+	if collateralRatio < 150 {
+		return sdkerrors.Wrapf(types.ErrTooLowCollateralRatio, fmt.Sprintf("collateral rate is too low. (%f%)", collateralRatio))
+	}
 
 	// Store CDP
 	keeper.SetCDP(ctx, cdp)
@@ -321,7 +336,7 @@ func handleMsgUnlockCollatearl(ctx sdk.Context, keeper Keeper, msg types.MsgUnlo
 	moduleAddress := types.GetMeiCDPAddress()
 	err = keeper.BankKeeper.SendCoins(ctx, moduleAddress, msg.Sender, msg.Amount)
 	if err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInsufficientFunds, "insufficient fund")
+		return sdkerrors.ErrInsufficientFunds
 	}
 
 	return nil
@@ -334,13 +349,25 @@ func handleMsgBorrowDebt(ctx sdk.Context, keeper Keeper, msg types.MsgBorrowDebt
 		return err
 	}
 
-	// TODO: Calculate new collateral ratio
-
 	newDebt := cdp.DebtAmount.Add(msg.Amount...)
 	fmt.Println("newDebt", newDebt)
 	cdp.DebtAmount = newDebt
-
 	fmt.Println("cdp", cdp)
+
+	// Calculate new collateral ratio. If collateral is lower than 150 percent then returns error.
+	collateralPerUSD := float64(packetResult.Px)
+	collateralAmountFloat, err := strconv.ParseFloat(cdp.CollateralAmount.AmountOf(types.AtomUnit).String(), 64)
+	if err != nil {
+		return err
+	}
+	discountCollateralValue := collateralAmountFloat * collateralPerUSD
+	debtAmount := newDebt.AmountOf(MeiUnit)
+	debtAmountFloat, err := strconv.ParseFloat(debtAmount.String(), 64)
+
+	collateralRatio := calculateCollateralRatio(discountCollateralValue, debtAmountFloat)
+	if collateralRatio < 150 {
+		return sdkerrors.Wrapf(types.ErrTooLowCollateralRatio, fmt.Sprintf("collateral rate is too low. (%f%)", collateralRatio))
+	}
 
 	// Store CDP
 	keeper.SetCDP(ctx, cdp)
@@ -349,7 +376,7 @@ func handleMsgBorrowDebt(ctx sdk.Context, keeper Keeper, msg types.MsgBorrowDebt
 	moduleAddress := types.GetMeiCDPAddress()
 	err = keeper.BankKeeper.SendCoins(ctx, moduleAddress, msg.Sender, msg.Amount)
 	if err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInsufficientFunds, "insufficient fund")
+		return sdkerrors.ErrInsufficientFunds
 	}
 
 	return nil
