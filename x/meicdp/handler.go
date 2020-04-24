@@ -283,7 +283,7 @@ func handleOracleRespondPacketData(ctx sdk.Context, keeper Keeper, packet oracle
 
 	switch msg := msg.(type) {
 	case types.MsgUnlockCollateral:
-		fmt.Println("MsgUnlockCollateral", msg, result)
+		handleMsgUnlockCollatearl(ctx, keeper, msg)
 
 	case types.MsgBorrowDebt:
 		fmt.Println("MsgBorrowBebt", msg, result)
@@ -292,4 +292,32 @@ func handleOracleRespondPacketData(ctx sdk.Context, keeper Keeper, packet oracle
 	// TODO: Add each packet handler of each message type
 	return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
 
+}
+
+// handleMsgUnlockCollatearl handles the unlock collateral message after receives oracle packet
+func handleMsgUnlockCollatearl(ctx sdk.Context, keeper Keeper, msg types.MsgUnlockCollateral) error {
+	cdp, err := keeper.GetCDP(ctx, msg.Sender)
+	if err != nil {
+		return err
+	}
+
+	// TODO: Calculate new collateral ratio
+
+	newCollateral := cdp.CollateralAmount.Sub(msg.Amount)
+	fmt.Println("newCollateral", newCollateral)
+	cdp.CollateralAmount = newCollateral
+
+	fmt.Println("cdp", cdp)
+
+	// Store CDP
+	keeper.SetCDP(ctx, cdp)
+
+	// Move collateral from CDP module to sender account
+	moduleAddress := types.GetMeiCDPAddress()
+	err = keeper.BankKeeper.SendCoins(ctx, moduleAddress, msg.Sender, msg.Amount)
+	if err != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrInsufficientFunds, "insufficient fund")
+	}
+
+	return nil
 }
