@@ -26,7 +26,7 @@ func NewMsgUnlockCollateral(
 func (msg MsgUnlockCollateral) Route() string { return RouterKey }
 
 // Type implements the sdk.Msg interface for MsgUnlockCollateral.
-func (msg MsgUnlockCollateral) Type() string { return "meicdp" }
+func (msg MsgUnlockCollateral) Type() string { return "unlock_collateral" }
 
 // ValidateBasic implements the sdk.Msg interface for MsgUnlockCollateral.
 func (msg MsgUnlockCollateral) ValidateBasic() error {
