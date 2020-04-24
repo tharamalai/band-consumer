@@ -63,7 +63,7 @@ func handleMsgReturnDebt(ctx sdk.Context, keeper Keeper, msg types.MsgReturnDebt
 	cdp := keeper.GetCDP(ctx, msg.Sender)
 
 	// Subtract debt on CDP
-	returnAmount := sdk.NewCoin(types.AtomUnit, sdk.NewInt(int64(msg.Amount)))
+	returnAmount := sdk.NewCoin(types.MeiUnit, sdk.NewInt(int64(msg.Amount)))
 	returnAmountCoins := sdk.NewCoins(returnAmount)
 
 	// new debt
