@@ -17,6 +17,12 @@ const (
 
 	// StoreKey to be used when creating the KVStore
 	StoreKey = ModuleName
+
+	// AtomUnit is unit of ATOM
+	AtomUnit = "uatom"
+
+	// MeiUnit is unit of MEI
+	MeiUnit = "umei"
 )
 
 var (

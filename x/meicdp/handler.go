@@ -74,15 +74,18 @@ func handleMsgLockCollateral(ctx sdk.Context, keeper Keeper, msg types.MsgLockCo
 	cdp := keeper.GetCDP(ctx, msg.Sender)
 
 	// Accumulate collateral on CDP
-	newCollateral := cdp.CollateralAmount.Add(msg.Amount...)
-	cdp.CollateralAmount = newCollateral
+	lockAmount := sdk.NewCoin(types.AtomUnit, sdk.NewInt(int64(msg.Amount)))
+	lockAmountCoins := sdk.NewCoins(lockAmount)
+
+	//  new collateral
+	cdp.CollateralAmount = cdp.CollateralAmount + msg.Amount
 
 	// Store CDP
 	keeper.SetCDP(ctx, cdp)
 
 	// Transfer collateral to the module account. Transaction fails if sender's balance is insufficient.
 	moduleAddress := types.GetMeiCDPAddress()
-	err := keeper.BankKeeper.SendCoins(ctx, msg.Sender, moduleAddress, msg.Amount)
+	err := keeper.BankKeeper.SendCoins(ctx, msg.Sender, moduleAddress, lockAmountCoins)
 	if err != nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrInsufficientFunds, "insufficient fund")
 	}
@@ -95,15 +98,18 @@ func handleMsgReturnDebt(ctx sdk.Context, keeper Keeper, msg types.MsgReturnDebt
 	cdp := keeper.GetCDP(ctx, msg.Sender)
 
 	// Subtract debt on CDP
-	newDebt := cdp.DebtAmount.Sub(msg.Amount)
-	cdp.DebtAmount = newDebt
+	returnAmount := sdk.NewCoin(types.AtomUnit, sdk.NewInt(int64(msg.Amount)))
+	returnAmountCoins := sdk.NewCoins(returnAmount)
+
+	// new debt
+	cdp.DebtAmount = cdp.DebtAmount - msg.Amount
 
 	// Store CDP
 	keeper.SetCDP(ctx, cdp)
 
 	// Transfer Mei from user to CDP. Transaction fails if sender's balance is insufficient.
 	moduleAddress := types.GetMeiCDPAddress()
-	err := keeper.BankKeeper.SendCoins(ctx, msg.Sender, moduleAddress, msg.Amount)
+	err := keeper.BankKeeper.SendCoins(ctx, msg.Sender, moduleAddress, returnAmountCoins)
 	if err != nil {
 		return nil, err
 	}

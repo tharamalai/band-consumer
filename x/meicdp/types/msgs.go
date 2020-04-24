@@ -81,13 +81,13 @@ func (msg MsgRequestData) GetSignBytes() []byte {
 
 // MsgBorrowDebt is a message for borrow debt of Sender
 type MsgBorrowDebt struct {
-	Amount sdk.Coins
+	Amount uint64
 	Sender sdk.AccAddress
 }
 
 // NewMsgBorrowDebt creates a new MsgBorrowDebt instance.
 func NewMsgBorrowDebt(
-	amount sdk.Coins,
+	amount uint64,
 	sender sdk.AccAddress,
 ) MsgBorrowDebt {
 	return MsgBorrowDebt{
@@ -107,8 +107,8 @@ func (msg MsgBorrowDebt) ValidateBasic() error {
 	if msg.Sender.Empty() {
 		return sdkerrors.Wrapf(ErrInvalidBasicMsg, "MsgBorrowDebt: Sender address must not be empty.")
 	}
-	if msg.Amount.Empty() {
-		return sdkerrors.Wrapf(ErrInvalidBasicMsg, "MsgBorrowDebt: Borrow amount must not be empty.")
+	if msg.Amount <= 0 {
+		return sdkerrors.Wrapf(ErrInvalidBasicMsg, "MsgBorrowDebt: Borrow amount must more than 0.")
 	}
 	return nil
 }
@@ -126,13 +126,13 @@ func (msg MsgBorrowDebt) GetSignBytes() []byte {
 
 // MsgLockCollateral is a message for lock collaterral of Sender
 type MsgLockCollateral struct {
-	Amount sdk.Coins
+	Amount uint64
 	Sender sdk.AccAddress
 }
 
 // NewMsgLockCollateral creates a new MsgLockCollateral instance.
 func NewMsgLockCollateral(
-	amount sdk.Coins,
+	amount uint64,
 	sender sdk.AccAddress,
 ) MsgLockCollateral {
 	return MsgLockCollateral{
@@ -152,8 +152,8 @@ func (msg MsgLockCollateral) ValidateBasic() error {
 	if msg.Sender.Empty() {
 		return sdkerrors.Wrapf(ErrInvalidBasicMsg, "MsgLockCollateral: Sender address must not be empty.")
 	}
-	if msg.Amount.Empty() {
-		return sdkerrors.Wrapf(ErrInvalidBasicMsg, "MsgLockCollateral: Lock amount must not be empty.")
+	if msg.Amount <= 0 {
+		return sdkerrors.Wrapf(ErrInvalidBasicMsg, "MsgLockCollateral: Lock amount must more than 0.")
 	}
 	return nil
 }
@@ -171,13 +171,13 @@ func (msg MsgLockCollateral) GetSignBytes() []byte {
 
 // MsgReturnDebt is a message for return debt of Sender
 type MsgReturnDebt struct {
-	Amount sdk.Coins
+	Amount uint64
 	Sender sdk.AccAddress
 }
 
 // NewMsgReturnDebt creates a new MsgReturnDebt instance.
 func NewMsgReturnDebt(
-	amount sdk.Coins,
+	amount uint64,
 	sender sdk.AccAddress,
 ) MsgReturnDebt {
 	return MsgReturnDebt{
@@ -197,8 +197,8 @@ func (msg MsgReturnDebt) ValidateBasic() error {
 	if msg.Sender.Empty() {
 		return sdkerrors.Wrapf(ErrInvalidBasicMsg, "MsgReturnDebt: Sender address must not be empty.")
 	}
-	if msg.Amount.Empty() {
-		return sdkerrors.Wrapf(ErrInvalidBasicMsg, "MsgReturnDebt: Return amount must not be empty.")
+	if msg.Amount <= 0 {
+		return sdkerrors.Wrapf(ErrInvalidBasicMsg, "MsgReturnDebt: Return amount must more than 0.")
 	}
 	return nil
 }
@@ -216,13 +216,13 @@ func (msg MsgReturnDebt) GetSignBytes() []byte {
 
 // MsgUnlockCollateral is a message for unlocking collaterral of Sender
 type MsgUnlockCollateral struct {
-	Amount sdk.Coins
+	Amount uint64
 	Sender sdk.AccAddress
 }
 
 // NewMsgUnlockCollateral creates a new MsgUnlockCollateral instance.
 func NewMsgUnlockCollateral(
-	amount sdk.Coins,
+	amount uint64,
 	sender sdk.AccAddress,
 ) MsgUnlockCollateral {
 	return MsgUnlockCollateral{
@@ -242,8 +242,8 @@ func (msg MsgUnlockCollateral) ValidateBasic() error {
 	if msg.Sender.Empty() {
 		return sdkerrors.Wrapf(ErrInvalidBasicMsg, "MsgUnlockCollateral: Sender address must not be empty.")
 	}
-	if msg.Amount.Empty() {
-		return sdkerrors.Wrapf(ErrInvalidBasicMsg, "MsgUnlockCollateral: Unlock amount must not be empty.")
+	if msg.Amount <= 0 {
+		return sdkerrors.Wrapf(ErrInvalidBasicMsg, "MsgUnlockCollateral: Unlock amount must more than 0.")
 	}
 	return nil
 }

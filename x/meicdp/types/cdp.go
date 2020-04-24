@@ -6,15 +6,15 @@ import (
 
 //CDP is a Collateralized Debt Position of an user account
 type CDP struct {
-	CollateralAmount sdk.Coins      `json:"collateralAmount"`
-	DebtAmount       sdk.Coins      `json:"debtAmount"`
+	CollateralAmount uint64         `json:"collateralAmount"`
+	DebtAmount       uint64         `json:"debtAmount"`
 	Owner            sdk.AccAddress `json:"owner"`
 }
 
 //NewCDP creates a new CDP instance.
 func NewCDP(
-	collateralAmount sdk.Coins,
-	debtAmount sdk.Coins,
+	collateralAmount uint64,
+	debtAmount uint64,
 	owner sdk.AccAddress,
 ) CDP {
 	return CDP{
