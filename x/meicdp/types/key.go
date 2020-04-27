@@ -23,6 +23,9 @@ const (
 
 	// MeiUnit is unit of MEI
 	MeiUnit = "umei"
+
+	// CosmosHubChain Cosmos Hub chain ID
+	CosmosHubChain = "band-cosmoshub"
 )
 
 var (

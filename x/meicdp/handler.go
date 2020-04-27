@@ -28,8 +28,11 @@ func NewHandler(keeper Keeper) sdk.Handler {
 		case MsgLockCollateral:
 			return handleMsgLockCollateral(ctx, keeper, msg)
 
-		case types.MsgReturnDebt:
+		case MsgReturnDebt:
 			return handleMsgReturnDebt(ctx, keeper, msg)
+
+		case MsgSetSourceChannel:
+			return handleSetSourceChannel(ctx, keeper, msg)
 
 		default:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unrecognized %s message type: %T", ModuleName, msg)
@@ -39,9 +42,16 @@ func NewHandler(keeper Keeper) sdk.Handler {
 
 func handleMsgLockCollateral(ctx sdk.Context, keeper Keeper, msg MsgLockCollateral) (*sdk.Result, error) {
 
+	channelID, err := keeper.GetChannel(ctx, CosmosHubChain, "transfer")
+	if err != nil {
+		return nil, sdkerrors.Wrapf(types.ErrInvalidChannel, fmt.Sprintf("channel of %s chain not found", CosmosHubChain))
+	}
+
+	denom := fmt.Sprintf("transfer/%s/%s", channelID, types.AtomUnit)
+
 	cdp := keeper.GetCDP(ctx, msg.Sender)
 
-	lockAmount := sdk.NewCoin(types.AtomUnit, sdk.NewInt(int64(msg.Amount)))
+	lockAmount := sdk.NewCoin(denom, sdk.NewInt(int64(msg.Amount)))
 	lockAmountCoins := sdk.NewCoins(lockAmount)
 
 	//  Accumulate collateral on CDP
@@ -55,9 +65,9 @@ func handleMsgLockCollateral(ctx sdk.Context, keeper Keeper, msg MsgLockCollater
 	cdp.CollateralAmount = collateralAmountInt.Uint64()
 
 	// Transfer collateral to the module account. Transaction fails if sender's balance is insufficient.
-	err := keeper.SupplyKeeper.SendCoinsFromAccountToModule(ctx, msg.Sender, ModuleName, lockAmountCoins)
+	err = keeper.SupplyKeeper.SendCoinsFromAccountToModule(ctx, msg.Sender, ModuleName, lockAmountCoins)
 	if err != nil {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInsufficientFunds, "can't transfer tokens from sender to CDP")
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInsufficientFunds, "can't transfer %s tokens from sender to CDP", denom)
 	}
 
 	// Store CDP
@@ -103,7 +113,7 @@ func handleMsgReturnDebt(ctx sdk.Context, keeper Keeper, msg MsgReturnDebt) (*sd
 	return &sdk.Result{}, nil
 }
 
-func handleSetSourceChannel(ctx sdk.Context, msg types.MsgSetSourceChannel, keeper Keeper) (*sdk.Result, error) {
+func handleSetSourceChannel(ctx sdk.Context, keeper Keeper, msg types.MsgSetSourceChannel) (*sdk.Result, error) {
 	keeper.SetChannel(ctx, msg.ChainName, msg.SourcePort, msg.SourceChannel)
 	return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
 }

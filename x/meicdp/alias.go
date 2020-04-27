@@ -6,9 +6,10 @@ import (
 )
 
 const (
-	ModuleName = types.ModuleName
-	RouterKey  = types.RouterKey
-	StoreKey   = types.StoreKey
+	ModuleName     = types.ModuleName
+	RouterKey      = types.RouterKey
+	StoreKey       = types.StoreKey
+	CosmosHubChain = types.CosmosHubChain
 )
 
 var (
@@ -23,4 +24,5 @@ type (
 	MsgUnlockCollateral = types.MsgUnlockCollateral
 	MsgBorrowDebt       = types.MsgBorrowDebt
 	MsgReturnDebt       = types.MsgReturnDebt
+	MsgSetSourceChannel = types.MsgSetSourceChannel
 )
