@@ -4,17 +4,15 @@ import (
 	"math/big"
 )
 
-func calculateCollateralRatio(discountedCollateralValue *big.Int, totalDebtAmount *big.Int) *big.Float {
+func calculateCollateralRatio(discountedCollateralValue *big.Float, totalDebtAmount *big.Float) *big.Float {
 	// // TODO: calculate ratio
-	// discountedCollateralValueFloat := new(big.Float).SetInt(discountedCollateralValue)
-	// totalDebtAmountFloat := new(big.Float).SetInt(totalDebtAmount)
-	// toPercent := new(big.Float).SetFloat64(100)
+	toPercent := new(big.Float).SetFloat64(100)
 
-	// collateralRatio := new(big.Float)
-	// collateralRatio.Quo(discountedCollateralValueFloat, totalDebtAmountFloat)
-	// collateralRatio.Mul(collateralRatio, toPercent)
+	collateralRatio := new(big.Float)
+	collateralRatio.Quo(discountedCollateralValue, totalDebtAmountFloat)
+	collateralRatio.Mul(collateralRatio, toPercent)
 
 	//Mock
-	collateralRatio := new(big.Float).SetFloat64(151)
+	// collateralRatio := new(big.Float).SetFloat64(151)
 	return collateralRatio
 }

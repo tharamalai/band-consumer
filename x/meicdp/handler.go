@@ -304,16 +304,17 @@ func handleMsgUnlockCollatearl(ctx sdk.Context, keeper Keeper, msg types.MsgUnlo
 	cdp.CollateralAmount = collateralAmountUint64.Uint64()
 
 	// Calculate new collateral ratio. If collateral is lower than 150 percent then returns error.
-	conllateralPriceUint64 := new(big.Int).SetUint64(collateralPrice)
-	conllateralMultiplierUint64 := new(big.Int).SetUint64(100)
-	collateralPricePerUSDUint64 := new(big.Int).Mul(conllateralPriceUint64, conllateralMultiplierUint64)
+	conllateralPriceFloat64 := new(big.Float).SetUint64(collateralPrice)
+	conllateralMultiplierFloat64 := new(big.Float).SetFloat64(100)
+	collateralPricePerUSDFloat64 := new(big.Float).Quo(conllateralPriceFloat64, conllateralMultiplierFloat64)
 
-	discountCollateralValueUint64 := new(big.Int).Mul(collateralAmountUint64, collateralPricePerUSDUint64)
+	collateralAmountFloat64 := new(big.Float).SetInt(collateralAmountUint64)
+	discountCollateralValueUint64 := new(big.Float).Mul(collateralAmountFloat64, collateralPricePerUSDFloat64)
 
 	debtAmount := cdp.DebtAmount
-	deptAmountUInt64 := new(big.Int).SetUint64(debtAmount)
+	deptAmountFloat64 := new(big.Float).SetUint64(debtAmount)
 
-	collateralRatioFloat := calculateCollateralRatio(discountCollateralValueUint64, deptAmountUInt64)
+	collateralRatioFloat := calculateCollateralRatio(discountCollateralValueUint64, deptAmountFloat64)
 	minimunRatioFloat := new(big.Float).SetFloat64(150)
 	collateralRatio, _ := collateralRatioFloat.Float64()
 	if collateralRatioFloat.Cmp(minimunRatioFloat) == -1 {
@@ -347,16 +348,18 @@ func handleMsgBorrowDebt(ctx sdk.Context, keeper Keeper, msg types.MsgBorrowDebt
 	}
 
 	cdp.DebtAmount = debtAmountUint64.Uint64()
-	collateralAmountCDPUint64 := new(big.Int).SetUint64(cdp.CollateralAmount)
 
 	// Calculate new collateral ratio. If collateral is lower than 150 percent then returns error.
-	conllateralPriceUint64 := new(big.Int).SetUint64(collateralPrice)
-	conllateralMultiplierUint64 := new(big.Int).SetUint64(100)
-	collateralPricePerUSDUint64 := new(big.Int).Mul(conllateralPriceUint64, conllateralMultiplierUint64)
+	conllateralPriceFloat64 := new(big.Float).SetUint64(collateralPrice)
+	conllateralMultiplierFloat64 := new(big.Float).SetFloat64(100)
+	collateralPricePerUSDFloat64 := new(big.Float).Quo(conllateralPriceFloat64, conllateralMultiplierFloat64)
 
-	discountCollateralValueUint64 := new(big.Int).Mul(collateralAmountCDPUint64, collateralPricePerUSDUint64)
+	collateralAmountFloat64 := new(big.Float).SetUint64(cdp.CollateralAmount)
+	discountCollateralValueUint64 := new(big.Float).Mul(collateralAmountFloat64, collateralPricePerUSDFloat64)
 
-	collateralRatioFloat := calculateCollateralRatio(discountCollateralValueUint64, debtAmountUint64)
+	deptAmountFloat64 := new(big.Float).SetInt(debtAmountUint64)
+
+	collateralRatioFloat := calculateCollateralRatio(discountCollateralValueUint64, deptAmountFloat64)
 	minimunRatioFloat := new(big.Float).SetFloat64(150)
 	collateralRatio, _ := collateralRatioFloat.Float64()
 	if collateralRatioFloat.Cmp(minimunRatioFloat) == -1 {
