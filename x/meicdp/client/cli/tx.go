@@ -57,7 +57,7 @@ func GetCmdLockCollateral(cdc *codec.Codec) *cobra.Command {
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Lock collateral to the CDP.
 Example:
-$ %s tx meicdp lock 100000uatom
+$ %s tx meicdp lock 100000
 `,
 				version.ClientName, version.ClientName,
 			),
@@ -67,8 +67,7 @@ $ %s tx meicdp lock 100000uatom
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(authclient.GetTxEncoder(cdc))
 
-			amountInput := strings.Split(args[0], types.AtomUnit)
-			amount, err := strconv.ParseUint(amountInput[0], 10, 64)
+			amount, err := strconv.ParseUint(args[0], 10, 64)
 			if err != nil {
 				return err
 			}
@@ -99,7 +98,7 @@ func GetCmdUnlockCollateral(cdc *codec.Codec) *cobra.Command {
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Unlock collateral from the CDP.
 Example:
-$ %s tx meicdp unlock 100000uatom
+$ %s tx meicdp unlock 100000
 `,
 				version.ClientName, version.ClientName,
 			),
@@ -109,8 +108,7 @@ $ %s tx meicdp unlock 100000uatom
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(authclient.GetTxEncoder(cdc))
 
-			amountInput := strings.Split(args[0], types.AtomUnit)
-			amount, err := strconv.ParseUint(amountInput[0], 10, 64)
+			amount, err := strconv.ParseUint(args[0], 10, 64)
 			if err != nil {
 				return err
 			}
@@ -141,7 +139,7 @@ func GetCmdReturnDebt(cdc *codec.Codec) *cobra.Command {
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Return debt to the CDP.
 Example:
-$ %s tx meicdp return 100000umei
+$ %s tx meicdp return 100000
 `,
 				version.ClientName, version.ClientName,
 			),
@@ -151,8 +149,7 @@ $ %s tx meicdp return 100000umei
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(authclient.GetTxEncoder(cdc))
 
-			amountInput := strings.Split(args[0], types.MeiUnit)
-			amount, err := strconv.ParseUint(amountInput[0], 10, 64)
+			amount, err := strconv.ParseUint(args[0], 10, 64)
 			if err != nil {
 				return err
 			}
@@ -183,7 +180,7 @@ func GetCmdBorrowDebt(cdc *codec.Codec) *cobra.Command {
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Borrow debt from the CDP.
 Example:
-$ %s tx meicdp borrow 100000umei
+$ %s tx meicdp borrow 100000
 `,
 				version.ClientName, version.ClientName,
 			),
@@ -193,8 +190,7 @@ $ %s tx meicdp borrow 100000umei
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(authclient.GetTxEncoder(cdc))
 
-			amountInput := strings.Split(args[0], types.MeiUnit)
-			amount, err := strconv.ParseUint(amountInput[0], 10, 64)
+			amount, err := strconv.ParseUint(args[0], 10, 64)
 			if err != nil {
 				return err
 			}
