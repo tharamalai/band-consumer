@@ -146,7 +146,7 @@ func handleMsgLockCollateral(ctx sdk.Context, keeper Keeper, msg MsgLockCollater
 	// Transfer collateral to the module account. Transaction fails if sender's balance is insufficient.
 	err = keeper.SupplyKeeper.SendCoinsFromAccountToModule(ctx, msg.Sender, ModuleName, lockAmountCoins)
 	if err != nil {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInsufficientFunds, "can't transfer %s tokens from sender to CDP", denom)
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInsufficientFunds, "can't transfer %s coins from sender to CDP", denom)
 	}
 
 	// Store CDP
@@ -177,7 +177,7 @@ func handleMsgReturnDebt(ctx sdk.Context, keeper Keeper, msg MsgReturnDebt) (*sd
 	// Transfer Mei from user to CDP. Transaction fails if sender's balance is insufficient.
 	err := keeper.SupplyKeeper.SendCoinsFromAccountToModule(ctx, msg.Sender, ModuleName, returnAmountCoins)
 	if err != nil {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInsufficientFunds, "can't transfer tokens from sender to CDP")
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInsufficientFunds, "can't transfer coins from sender to CDP")
 	}
 
 	// Store CDP
@@ -322,7 +322,7 @@ func handleMsgUnlockCollatearl(ctx sdk.Context, keeper Keeper, msg types.MsgUnlo
 
 	err = keeper.SupplyKeeper.SendCoinsFromModuleToAccount(ctx, ModuleName, msg.Sender, unlockAmountCoins)
 	if err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInsufficientFunds, "can't transfer tokens from CDP module to sender")
+		return sdkerrors.Wrapf(sdkerrors.ErrInsufficientFunds, "can't transfer coins from CDP module to sender")
 	}
 
 	// Store CDP
@@ -335,35 +335,48 @@ func handleMsgUnlockCollatearl(ctx sdk.Context, keeper Keeper, msg types.MsgUnlo
 func handleMsgBorrowDebt(ctx sdk.Context, keeper Keeper, msg types.MsgBorrowDebt, collateralPrice uint64) error {
 	cdp := keeper.GetCDP(ctx, msg.Sender)
 
-	// newDebt := cdp.DebtAmount.Add(msg.Amount...)
-	// fmt.Println("newDebt", newDebt)
-	// cdp.DebtAmount = newDebt
-	// fmt.Println("cdp", cdp)
+	borrowAmount := sdk.NewCoin(types.MeiUnit, sdk.NewInt(int64(msg.Amount)))
+	borrowAmountCoins := sdk.NewCoins(borrowAmount)
+
+	// Accumurate debt on CDP
+	borrowAmountInt := new(big.Int).SetUint64(msg.Amount)
+	debtAmountUint64 := new(big.Int).SetUint64(cdp.DebtAmount)
+	debtAmountUint64.Add(debtAmountUint64, borrowAmountInt)
+	if !debtAmountUint64.IsUint64() {
+		return sdkerrors.Wrapf(types.ErrInvalidBasicMsg, "invalid unlock amount. collateral must more than or equals 0.")
+	}
+
+	cdp.DebtAmount = debtAmountUint64.Uint64()
+	collateralAmountCDPUint64 := new(big.Int).SetUint64(cdp.CollateralAmount)
 
 	// Calculate new collateral ratio. If collateral is lower than 150 percent then returns error.
-	// collateralPerUSD := float64(packetResult.Px)
-	// collateralAmountFloat, err := strconv.ParseFloat(cdp.CollateralAmount.AmountOf(types.AtomUnit).String(), 64)
-	// if err != nil {
-	// 	return err
-	// }
-	// discountCollateralValue := collateralAmountFloat * collateralPerUSD
-	// debtAmount := newDebt.AmountOf(MeiUnit)
-	// debtAmountFloat, err := strconv.ParseFloat(debtAmount.String(), 64)
+	conllateralPriceUint64 := new(big.Int).SetUint64(collateralPrice)
+	conllateralMultiplierUint64 := new(big.Int).SetUint64(100)
+	collateralPricePerUSDUint64 := new(big.Int).Mul(conllateralPriceUint64, conllateralMultiplierUint64)
 
-	// collateralRatio := calculateCollateralRatio(discountCollateralValue, debtAmountFloat)
-	// if collateralRatio < 150 {
-	// 	return sdkerrors.Wrapf(types.ErrTooLowCollateralRatio, fmt.Sprintf("collateral rate is too low. (%f%)", collateralRatio))
-	// }
+	discountCollateralValueUint64 := new(big.Int).Mul(collateralAmountCDPUint64, collateralPricePerUSDUint64)
+
+	collateralRatioFloat := calculateCollateralRatio(discountCollateralValueUint64, debtAmountUint64)
+	minimunRatioFloat := new(big.Float).SetFloat64(150)
+	collateralRatio, _ := collateralRatioFloat.Float64()
+	if collateralRatioFloat.Cmp(minimunRatioFloat) == -1 {
+		return sdkerrors.Wrapf(types.ErrTooLowCollateralRatio, fmt.Sprintf("collateral rate is too low. (%f%)", collateralRatio))
+	}
+
+	// CDP mint Mei coins
+	err := keeper.SupplyKeeper.MintCoins(ctx, ModuleName, borrowAmountCoins)
+	if err != nil {
+		return sdkerrors.Wrapf(types.ErrMintCoin, "mint coin fail")
+	}
+
+	// CDP sends coin from module to sender
+	err = keeper.SupplyKeeper.SendCoinsFromModuleToAccount(ctx, ModuleName, msg.Sender, borrowAmountCoins)
+	if err != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrInsufficientFunds, "can't transfer coins from CDP module to sender")
+	}
 
 	// Store CDP
 	keeper.SetCDP(ctx, cdp)
-
-	// // Move debt from CDP module to sender account
-	// moduleAddress := types.GetMeiCDPAddress()
-	// err = keeper.BankKeeper.SendCoins(ctx, moduleAddress, msg.Sender, msg.Amount)
-	// if err != nil {
-	// 	return sdkerrors.ErrInsufficientFunds
-	// }
 
 	return nil
 }
