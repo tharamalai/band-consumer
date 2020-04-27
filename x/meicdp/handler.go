@@ -284,40 +284,50 @@ func handleOracleRespondPacketData(ctx sdk.Context, keeper Keeper, packet oracle
 
 // handleMsgUnlockCollatearl handles the unlock collateral message after receives oracle packet
 func handleMsgUnlockCollatearl(ctx sdk.Context, keeper Keeper, msg types.MsgUnlockCollateral, collateralPrice uint64) error {
+
+	cosmosHubChannelID, err := keeper.GetChannel(ctx, CosmosHubChain, "transfer")
+	denom := fmt.Sprintf("transfer/%s/%s", cosmosHubChannelID, types.AtomUnit)
+
 	cdp := keeper.GetCDP(ctx, msg.Sender)
 
-	// newCollateral := cdp.CollateralAmount.Sub(msg.Amount)
-	// fmt.Println("newCollateral", newCollateral)
-	// cdp.CollateralAmount = newCollateral
-	// fmt.Println("cdp", cdp)
+	unlockAmount := sdk.NewCoin(denom, sdk.NewInt(int64(msg.Amount)))
+	unlockAmountCoins := sdk.NewCoins(unlockAmount)
+
+	// Subtract collateral on CDP
+	unlockAmountInt := new(big.Int).SetUint64(msg.Amount)
+	collateralAmountUint64 := new(big.Int).SetUint64(cdp.CollateralAmount)
+	collateralAmountUint64.Sub(collateralAmountUint64, unlockAmountInt)
+	if !collateralAmountUint64.IsUint64() {
+		return sdkerrors.Wrapf(types.ErrInvalidBasicMsg, "invalid unlock amount. collateral must more than or equals 0.")
+	}
+
+	cdp.CollateralAmount = collateralAmountUint64.Uint64()
 
 	// Calculate new collateral ratio. If collateral is lower than 150 percent then returns error.
-	// collateralPerUSD := float64(packetResult.Px)
-	// collateralAmountFloat, err := strconv.ParseFloat(cdp.CollateralAmount.AmountOf(types.AtomUnit).String(), 64)
-	// if err != nil {
-	// 	return err
-	// }
-	// discountCollateralValue := collateralAmountFloat * collateralPerUSD
-	// debtAmount := cdp.DebtAmount.AmountOf(types.MeiUnit)
-	// debtAmountFloat, err := strconv.ParseFloat(debtAmount.String(), 64)
-	// if err != nil {
-	// 	return err
-	// }
+	conllateralPriceUint64 := new(big.Int).SetUint64(collateralPrice)
+	conllateralMultiplierUint64 := new(big.Int).SetUint64(100)
+	collateralPricePerUSDUint64 := conllateralPriceUint64.Mul(conllateralPriceUint64, conllateralMultiplierUint64)
 
-	// collateralRatio := calculateCollateralRatio(discountCollateralValue, debtAmountFloat)
-	// if collateralRatio < 150 {
-	// 	return sdkerrors.Wrapf(types.ErrTooLowCollateralRatio, fmt.Sprintf("collateral rate is too low. (%f%)", collateralRatio))
-	// }
+	discountCollateralValueUint64 := collateralAmountUint64
+	discountCollateralValueUint64.Mul(discountCollateralValueUint64, collateralPricePerUSDUint64)
+
+	debtAmount := cdp.DebtAmount
+	deptAmountUInt64 := new(big.Int).SetUint64(debtAmount)
+
+	collateralRatioFloat := calculateCollateralRatio(discountCollateralValueUint64, deptAmountUInt64)
+	minimunRatioFloat := new(big.Float).SetFloat64(150)
+	collateralRatio, _ := collateralRatioFloat.Float64()
+	if collateralRatioFloat.Cmp(minimunRatioFloat) == -1 {
+		return sdkerrors.Wrapf(types.ErrTooLowCollateralRatio, fmt.Sprintf("collateral rate is too low. (%f%)", collateralRatio))
+	}
+
+	err = keeper.SupplyKeeper.SendCoinsFromModuleToAccount(ctx, ModuleName, msg.Sender, unlockAmountCoins)
+	if err != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrInsufficientFunds, "can't transfer tokens from CDP module to sender")
+	}
 
 	// Store CDP
 	keeper.SetCDP(ctx, cdp)
-
-	// Move collateral from CDP module to sender account
-	// moduleAddress := types.GetMeiCDPAddress()
-	// err = keeper.BankKeeper.SendCoins(ctx, moduleAddress, msg.Sender, msg.Amount)
-	// if err != nil {
-	// 	return sdkerrors.ErrInsufficientFunds
-	// }
 
 	return nil
 }
