@@ -39,7 +39,7 @@ func NewHandler(keeper Keeper) sdk.Handler {
 			// setup oracle request
 			bandChainID := "bandchain"
 			port := "meicdp"
-			oracleScriptID := oracle.OracleScriptID(3)
+			oracleScriptID := oracle.OracleScriptID(1)
 			clientID := fmt.Sprintf("Msg:%d", msgCount)
 			calldata := make([]byte, 8)
 			binary.LittleEndian.PutUint64(calldata, 1000000)
@@ -201,26 +201,26 @@ func requestOracle(ctx sdk.Context, keeper Keeper, dataReq DataRequest) error {
 
 	channelID, err := keeper.GetChannel(ctx, dataReq.ChainID, dataReq.Port)
 
-	sourceChannelEnd, found := keeper.ChannelKeeper.GetChannel(ctx, "meichain", channelID)
+	sourceChannelEnd, found := keeper.ChannelKeeper.GetChannel(ctx, dataReq.Port, channelID)
 	if !found {
 		return sdkerrors.Wrapf(
 			sdkerrors.ErrUnknownRequest,
 			"unknown channel %s port meichain",
-			channelID,
+			dataReq.Port,
 		)
 	}
 
 	destinationPort := sourceChannelEnd.Counterparty.PortID
 	destinationChannel := sourceChannelEnd.Counterparty.ChannelID
 	sequence, found := keeper.ChannelKeeper.GetNextSequenceSend(
-		ctx, "meichain", channelID,
+		ctx, dataReq.Port, channelID,
 	)
 
 	if !found {
 		return sdkerrors.Wrapf(
 			sdkerrors.ErrUnknownRequest,
 			"unknown sequence number for channel %s port oracle",
-			channelID,
+			dataReq.Port,
 		)
 	}
 
@@ -230,7 +230,7 @@ func requestOracle(ctx sdk.Context, keeper Keeper, dataReq DataRequest) error {
 	)
 
 	err = keeper.ChannelKeeper.SendPacket(ctx, channel.NewPacket(packet.GetBytes(),
-		sequence, "meichain", channelID, destinationPort, destinationChannel,
+		sequence, dataReq.Port, channelID, destinationPort, destinationChannel,
 		1000000000, // Arbitrarily high timeout for now
 	))
 
@@ -258,6 +258,8 @@ func handleOracleRespondPacketData(ctx sdk.Context, keeper Keeper, packet oracle
 	if err != nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot decode orable result data")
 	}
+
+	fmt.Println("collateralPrice", collateralPrice)
 
 	msg, err := keeper.GetMsg(ctx, msgID)
 	if err != nil {
