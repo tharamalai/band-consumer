@@ -26,7 +26,7 @@ func NewMsgBorrowDebt(
 func (msg MsgBorrowDebt) Route() string { return RouterKey }
 
 // Type implements the sdk.Msg interface for MsgBorrowDebt.
-func (msg MsgBorrowDebt) Type() string { return "meichain/borrow_debt" }
+func (msg MsgBorrowDebt) Type() string { return "borrow_debt" }
 
 // ValidateBasic implements the sdk.Msg interface for MsgBorrowDebt.
 func (msg MsgBorrowDebt) ValidateBasic() error {
