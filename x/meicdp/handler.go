@@ -261,7 +261,7 @@ func handleOracleRespondPacketData(ctx sdk.Context, keeper Keeper, packet oracle
 
 	msg, err := keeper.GetMsg(ctx, msgID)
 	if err != nil {
-		return nil, err
+		return nil, sdkerrors.Wrapf(types.ErrMsgNotFound, "cannot get stored message")
 	}
 
 	switch msg := msg.(type) {
@@ -278,7 +278,7 @@ func handleOracleRespondPacketData(ctx sdk.Context, keeper Keeper, packet oracle
 		}
 	}
 
-	return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
+	return &sdk.Result{}, nil
 
 }
 
@@ -369,7 +369,7 @@ func handleMsgBorrowDebt(ctx sdk.Context, keeper Keeper, msg types.MsgBorrowDebt
 		return sdkerrors.Wrapf(types.ErrMintCoin, "mint coin fail")
 	}
 
-	// CDP sends coin from module to sender
+	// CDP send coins from module to sender
 	err = keeper.SupplyKeeper.SendCoinsFromModuleToAccount(ctx, ModuleName, msg.Sender, borrowAmountCoins)
 	if err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInsufficientFunds, "can't transfer coins from CDP module to sender")

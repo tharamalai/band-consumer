@@ -18,4 +18,5 @@ var (
 	ErrInvalidChannel         = sdkerrors.Register(ModuleName, 11, "InvalidChannel")
 	ErrUnknownClientID        = sdkerrors.Register(ModuleName, 12, "UnknownClientID")
 	ErrTooLowCollateralRatio  = sdkerrors.Register(ModuleName, 13, "TooLowCollateralRatio")
+	ErrMsgNotFound            = sdkerrors.Register(ModuleName, 14, "MsgNotFound")
 )
