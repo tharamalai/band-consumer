@@ -209,7 +209,7 @@ func NewMsgSetSourceChannel(
 func (msg MsgSetSourceChannel) Route() string { return RouterKey }
 
 // Type implements the sdk.Msg interface for MsgSetSourceChannel.
-func (msg MsgSetSourceChannel) Type() string { return "meicdp" }
+func (msg MsgSetSourceChannel) Type() string { return "set_channel" }
 
 // ValidateBasic implements the sdk.Msg interface for MsgSetSourceChannel.
 func (msg MsgSetSourceChannel) ValidateBasic() error {
