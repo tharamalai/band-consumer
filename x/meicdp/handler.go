@@ -306,10 +306,9 @@ func handleMsgUnlockCollatearl(ctx sdk.Context, keeper Keeper, msg types.MsgUnlo
 	// Calculate new collateral ratio. If collateral is lower than 150 percent then returns error.
 	conllateralPriceUint64 := new(big.Int).SetUint64(collateralPrice)
 	conllateralMultiplierUint64 := new(big.Int).SetUint64(100)
-	collateralPricePerUSDUint64 := conllateralPriceUint64.Mul(conllateralPriceUint64, conllateralMultiplierUint64)
+	collateralPricePerUSDUint64 := new(big.Int).Mul(conllateralPriceUint64, conllateralMultiplierUint64)
 
-	discountCollateralValueUint64 := collateralAmountUint64
-	discountCollateralValueUint64.Mul(discountCollateralValueUint64, collateralPricePerUSDUint64)
+	discountCollateralValueUint64 := new(big.Int).Mul(collateralAmountUint64, collateralPricePerUSDUint64)
 
 	debtAmount := cdp.DebtAmount
 	deptAmountUInt64 := new(big.Int).SetUint64(debtAmount)
