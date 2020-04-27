@@ -1,93 +1,19 @@
 package types
 
 import (
-	"github.com/bandprotocol/bandchain/chain/x/oracle"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-// MsgRequestData is a message for requesting a new data request to an existing oracle script.
-type MsgRequestData struct {
-	OracleScriptID oracle.OracleScriptID `json:"oracleScriptID"`
-	SourceChannel  string                `json:"sourceChannel"`
-	ClientID       string                `json:"clientID"`
-	Calldata       []byte                `json:"calldata"`
-	AskCount       int64                 `json:"askCount"`
-	MinCount       int64                 `json:"minCount"`
-	Sender         sdk.AccAddress        `json:"sender"`
-}
-
-// NewMsgRequestData creates a new MsgRequestData instance.
-func NewMsgRequestData(
-	oracleScriptID oracle.OracleScriptID,
-	sourceChannel string,
-	clientID string,
-	calldata []byte,
-	askCount int64,
-	minCount int64,
-	sender sdk.AccAddress,
-) MsgRequestData {
-	return MsgRequestData{
-		OracleScriptID: oracleScriptID,
-		SourceChannel:  sourceChannel,
-		Calldata:       calldata,
-		AskCount:       askCount,
-		MinCount:       minCount,
-		ClientID:       clientID,
-		Sender:         sender,
-	}
-}
-
-// Route implements the sdk.Msg interface for MsgRequestData.
-func (msg MsgRequestData) Route() string { return RouterKey }
-
-// Type implements the sdk.Msg interface for MsgRequestData.
-func (msg MsgRequestData) Type() string { return "consuming" }
-
-// ValidateBasic implements the sdk.Msg interface for MsgRequestData.
-func (msg MsgRequestData) ValidateBasic() error {
-	if msg.Sender.Empty() {
-		return sdkerrors.Wrapf(ErrInvalidBasicMsg, "MsgRequestData: Sender address must not be empty.")
-	}
-	if msg.OracleScriptID <= 0 {
-		return sdkerrors.Wrapf(ErrInvalidBasicMsg, "MsgRequestData: Oracle script id (%d) must be positive.", msg.OracleScriptID)
-	}
-	if msg.AskCount <= 0 {
-		return sdkerrors.Wrapf(ErrInvalidBasicMsg,
-			"MsgRequestData: Ask validator count (%d) must be positive.",
-			msg.AskCount,
-		)
-	}
-	if msg.AskCount < msg.MinCount {
-		return sdkerrors.Wrapf(ErrInvalidBasicMsg,
-			"MsgRequestData: Request validator count (%d) must not be less than minimum validator count (%d).",
-			msg.AskCount,
-			msg.MinCount,
-		)
-	}
-	return nil
-}
-
-// GetSigners implements the sdk.Msg interface for MsgRequestData.
-func (msg MsgRequestData) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{msg.Sender}
-}
-
-// GetSignBytes implements the sdk.Msg interface for MsgRequestData.
-func (msg MsgRequestData) GetSignBytes() []byte {
-	bz := ModuleCdc.MustMarshalJSON(msg)
-	return sdk.MustSortJSON(bz)
-}
-
 // MsgBorrowDebt is a message for borrow debt of Sender
 type MsgBorrowDebt struct {
-	Amount sdk.Coins
+	Amount uint64
 	Sender sdk.AccAddress
 }
 
 // NewMsgBorrowDebt creates a new MsgBorrowDebt instance.
 func NewMsgBorrowDebt(
-	amount sdk.Coins,
+	amount uint64,
 	sender sdk.AccAddress,
 ) MsgBorrowDebt {
 	return MsgBorrowDebt{
@@ -107,8 +33,8 @@ func (msg MsgBorrowDebt) ValidateBasic() error {
 	if msg.Sender.Empty() {
 		return sdkerrors.Wrapf(ErrInvalidBasicMsg, "MsgBorrowDebt: Sender address must not be empty.")
 	}
-	if msg.Amount.Empty() {
-		return sdkerrors.Wrapf(ErrInvalidBasicMsg, "MsgBorrowDebt: Borrow amount must not be empty.")
+	if msg.Amount <= 0 {
+		return sdkerrors.Wrapf(ErrInvalidBasicMsg, "MsgBorrowDebt: Borrow amount must more than 0.")
 	}
 	return nil
 }
@@ -126,13 +52,13 @@ func (msg MsgBorrowDebt) GetSignBytes() []byte {
 
 // MsgLockCollateral is a message for lock collaterral of Sender
 type MsgLockCollateral struct {
-	Amount sdk.Coins
+	Amount uint64
 	Sender sdk.AccAddress
 }
 
 // NewMsgLockCollateral creates a new MsgLockCollateral instance.
 func NewMsgLockCollateral(
-	amount sdk.Coins,
+	amount uint64,
 	sender sdk.AccAddress,
 ) MsgLockCollateral {
 	return MsgLockCollateral{
@@ -152,8 +78,8 @@ func (msg MsgLockCollateral) ValidateBasic() error {
 	if msg.Sender.Empty() {
 		return sdkerrors.Wrapf(ErrInvalidBasicMsg, "MsgLockCollateral: Sender address must not be empty.")
 	}
-	if msg.Amount.Empty() {
-		return sdkerrors.Wrapf(ErrInvalidBasicMsg, "MsgLockCollateral: Lock amount must not be empty.")
+	if msg.Amount <= 0 {
+		return sdkerrors.Wrapf(ErrInvalidBasicMsg, "MsgLockCollateral: Lock amount must more than 0.")
 	}
 	return nil
 }
@@ -171,13 +97,13 @@ func (msg MsgLockCollateral) GetSignBytes() []byte {
 
 // MsgReturnDebt is a message for return debt of Sender
 type MsgReturnDebt struct {
-	Amount sdk.Coins
+	Amount uint64
 	Sender sdk.AccAddress
 }
 
 // NewMsgReturnDebt creates a new MsgReturnDebt instance.
 func NewMsgReturnDebt(
-	amount sdk.Coins,
+	amount uint64,
 	sender sdk.AccAddress,
 ) MsgReturnDebt {
 	return MsgReturnDebt{
@@ -197,8 +123,8 @@ func (msg MsgReturnDebt) ValidateBasic() error {
 	if msg.Sender.Empty() {
 		return sdkerrors.Wrapf(ErrInvalidBasicMsg, "MsgReturnDebt: Sender address must not be empty.")
 	}
-	if msg.Amount.Empty() {
-		return sdkerrors.Wrapf(ErrInvalidBasicMsg, "MsgReturnDebt: Return amount must not be empty.")
+	if msg.Amount <= 0 {
+		return sdkerrors.Wrapf(ErrInvalidBasicMsg, "MsgReturnDebt: Return amount must more than 0.")
 	}
 	return nil
 }
@@ -216,13 +142,13 @@ func (msg MsgReturnDebt) GetSignBytes() []byte {
 
 // MsgUnlockCollateral is a message for unlocking collaterral of Sender
 type MsgUnlockCollateral struct {
-	Amount sdk.Coins
+	Amount uint64
 	Sender sdk.AccAddress
 }
 
 // NewMsgUnlockCollateral creates a new MsgUnlockCollateral instance.
 func NewMsgUnlockCollateral(
-	amount sdk.Coins,
+	amount uint64,
 	sender sdk.AccAddress,
 ) MsgUnlockCollateral {
 	return MsgUnlockCollateral{
@@ -242,8 +168,8 @@ func (msg MsgUnlockCollateral) ValidateBasic() error {
 	if msg.Sender.Empty() {
 		return sdkerrors.Wrapf(ErrInvalidBasicMsg, "MsgUnlockCollateral: Sender address must not be empty.")
 	}
-	if msg.Amount.Empty() {
-		return sdkerrors.Wrapf(ErrInvalidBasicMsg, "MsgUnlockCollateral: Unlock amount must not be empty.")
+	if msg.Amount <= 0 {
+		return sdkerrors.Wrapf(ErrInvalidBasicMsg, "MsgUnlockCollateral: Unlock amount must more than 0.")
 	}
 	return nil
 }
@@ -255,6 +181,49 @@ func (msg MsgUnlockCollateral) GetSigners() []sdk.AccAddress {
 
 // GetSignBytes implements the sdk.Msg interface for MsgUnlockCollateral.
 func (msg MsgUnlockCollateral) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(msg)
+	return sdk.MustSortJSON(bz)
+}
+
+// MsgSetSoruceChannel is a message for setting source channel to other chain
+type MsgSetSourceChannel struct {
+	ChainName     string         `json:"chain_name"`
+	SourcePort    string         `json:"source_port"`
+	SourceChannel string         `json:"source_channel"`
+	Signer        sdk.AccAddress `json:"signer"`
+}
+
+func NewMsgSetSourceChannel(
+	chainName, sourcePort, sourceChannel string,
+	signer sdk.AccAddress,
+) MsgSetSourceChannel {
+	return MsgSetSourceChannel{
+		ChainName:     chainName,
+		SourcePort:    sourcePort,
+		SourceChannel: sourceChannel,
+		Signer:        signer,
+	}
+}
+
+// Route implements the sdk.Msg interface for MsgSetSourceChannel.
+func (msg MsgSetSourceChannel) Route() string { return RouterKey }
+
+// Type implements the sdk.Msg interface for MsgSetSourceChannel.
+func (msg MsgSetSourceChannel) Type() string { return "set_channel" }
+
+// ValidateBasic implements the sdk.Msg interface for MsgSetSourceChannel.
+func (msg MsgSetSourceChannel) ValidateBasic() error {
+	// TODO: Add validate basic
+	return nil
+}
+
+// GetSigners implements the sdk.Msg interface for MsgSetSourceChannel.
+func (msg MsgSetSourceChannel) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{msg.Signer}
+}
+
+// GetSignBytes implements the sdk.Msg interface for MsgSetSourceChannel.
+func (msg MsgSetSourceChannel) GetSignBytes() []byte {
 	bz := ModuleCdc.MustMarshalJSON(msg)
 	return sdk.MustSortJSON(bz)
 }

@@ -87,26 +87,26 @@ DebtAmount: sdk.Coins (Mei)
 ## Message Structure
 LockAtomMsg
 ```
-LockAmount: sdk.Coins
-Owner: sdk.AccAddress
+LockAmount: uint64
+Sender: sdk.AccAddress
 ```
 
 UnlockAtomMsg (Required: ATOM price)
 ```
-UnlockAmount: sdk.Coins
-Owner: sdk.AccAddress
+UnlockAmount: uint64
+Sender: sdk.AccAddress
 ```
 
 ReturnMeiMsg
 ```
-ReturnAmount: sdk.Coins
-Owner: sdk.AccAddress
+ReturnAmount: uint64
+Sender: sdk.AccAddress
 ```
 
 BorrowMeiMsg (Required: ATOM price)
 ```
-BorrowAmount: sdk.Coins
-Owner: sdk.AccAddress
+BorrowAmount: uint64
+Sender: sdk.AccAddress
 ```
 
 LiquidatedMsg
@@ -135,7 +135,8 @@ ReturnMeiMsgHandler
 1. Get CDP by address from keeper
 2. Subtract MEI Amount from debt amount on CDP
 3. Update CDP into keeper
-4. Move Mei from CDP module account to sender account
+4. Move Mei from sender account account to CDP Module
+5. Burn returned Mei
 
 BorrowMeiMsgHandler
 1. Get CDP by address from keeper

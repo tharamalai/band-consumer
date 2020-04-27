@@ -16,8 +16,10 @@ type ChannelKeeper interface {
 	TimeoutExecuted(ctx sdk.Context, packet channelexported.PacketI) error
 }
 
-// BankKeeper defines the expected bank keeper
-type BankKeeper interface {
-	AddCoins(ctx sdk.Context, addr sdk.AccAddress, amt sdk.Coins) (sdk.Coins, error)
-	SendCoins(ctx sdk.Context, from sdk.AccAddress, to sdk.AccAddress, amt sdk.Coins) error
+// SupplyKeeper defines the expected supply keeper
+type SupplyKeeper interface {
+	SendCoinsFromModuleToAccount(ctx sdk.Context, senderModule string, recipientAddr sdk.AccAddress, amt sdk.Coins) error
+	SendCoinsFromAccountToModule(ctx sdk.Context, senderAddr sdk.AccAddress, recipientModule string, amt sdk.Coins) error
+	MintCoins(ctx sdk.Context, moduleName string, amt sdk.Coins) error
+	BurnCoins(ctx sdk.Context, moduleName string, amt sdk.Coins) error
 }

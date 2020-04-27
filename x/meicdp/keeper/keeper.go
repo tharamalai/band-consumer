@@ -14,17 +14,17 @@ import (
 type Keeper struct {
 	storeKey      sdk.StoreKey
 	cdc           *codec.Codec
-	BankKeeper    types.BankKeeper
+	SupplyKeeper  types.SupplyKeeper
 	ChannelKeeper types.ChannelKeeper
 }
 
 // NewKeeper creates a new Mei CDP Keeper instance.
-func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, channelKeeper types.ChannelKeeper, bankKeeper types.BankKeeper) Keeper {
+func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, channelKeeper types.ChannelKeeper, supplyKeeper types.SupplyKeeper) Keeper {
 	return Keeper{
 		storeKey:      key,
 		cdc:           cdc,
 		ChannelKeeper: channelKeeper,
-		BankKeeper:    bankKeeper,
+		SupplyKeeper:  supplyKeeper,
 	}
 }
 
@@ -51,6 +51,13 @@ func (k Keeper) HasResult(ctx sdk.Context, requestID oracle.RequestID) bool {
 	return store.Has(types.ResultStoreKey(requestID))
 }
 
+// SetCDP - set CDP into the store
+func (k Keeper) SetCDP(ctx sdk.Context, cdp types.CDP) {
+	store := ctx.KVStore(k.storeKey)
+	c := k.cdc.MustMarshalBinaryBare(cdp)
+	store.Set(types.CDPStoreKey(cdp.Owner), c)
+}
+
 //GetCDP - get CDP of user account from the store
 func (k Keeper) GetCDP(ctx sdk.Context, account sdk.AccAddress) types.CDP {
 	store := ctx.KVStore(k.storeKey)
@@ -61,13 +68,7 @@ func (k Keeper) GetCDP(ctx sdk.Context, account sdk.AccAddress) types.CDP {
 		return cdp
 	}
 
-	atomToken := sdk.NewCoin("uatom", sdk.NewInt(0))
-	collateralCoins := sdk.NewCoins(atomToken)
-
-	meiToken := sdk.NewCoin("mei", sdk.NewInt(0))
-	debtCoins := sdk.NewCoins(meiToken)
-
-	return types.NewCDP(collateralCoins, debtCoins, account)
+	return types.NewCDP(0, 0, account)
 }
 
 // HasCDP - has CDP of this account on the store
@@ -120,4 +121,25 @@ func (k Keeper) GetNextMsgCount(ctx sdk.Context) uint64 {
 	bz := sdk.Uint64ToBigEndian(msgCount + 1)
 	store.Set(types.MsgCountStoreKey, bz)
 	return msgCount + 1
+}
+
+// SetChannel stores default channel for the chain to the store
+func (k Keeper) SetChannel(ctx sdk.Context, chainName string, port string, channel string) {
+	store := ctx.KVStore(k.storeKey)
+	store.Set(types.ChannelStoreKey(chainName, port), []byte(channel))
+}
+
+// GetChannel returns default channel for the chain
+func (k Keeper) GetChannel(ctx sdk.Context, chainName string, port string) (string, error) {
+	store := ctx.KVStore(k.storeKey)
+	if !k.HasChannel(ctx, chainName, port) {
+		return "", sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "channel not found")
+	}
+	return string(store.Get(types.ChannelStoreKey(chainName, port))), nil
+}
+
+// HasChannel - has default channel for the chain
+func (k Keeper) HasChannel(ctx sdk.Context, chainName string, port string) bool {
+	store := ctx.KVStore(k.storeKey)
+	return store.Has(types.ChannelStoreKey(chainName, port))
 }
