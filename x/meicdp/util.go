@@ -9,7 +9,7 @@ func calculateCollateralRatio(discountedCollateralValue *big.Float, totalDebtAmo
 	toPercent := new(big.Float).SetFloat64(100)
 
 	collateralRatio := new(big.Float)
-	collateralRatio.Quo(discountedCollateralValue, totalDebtAmountFloat)
+	collateralRatio.Quo(discountedCollateralValue, totalDebtAmount)
 	collateralRatio.Mul(collateralRatio, toPercent)
 
 	//Mock
