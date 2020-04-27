@@ -5,7 +5,6 @@ import (
 
 	"github.com/bandprotocol/bandchain/chain/x/oracle"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/tendermint/tendermint/crypto"
 )
 
 const (
@@ -79,9 +78,4 @@ func uint64ToBytes(num uint64) []byte {
 	result := make([]byte, 8)
 	binary.BigEndian.PutUint64(result, num)
 	return result
-}
-
-// GetMeiCDPAddress returns Mei CDP Address
-func GetMeiCDPAddress() sdk.AccAddress {
-	return sdk.AccAddress(crypto.AddressHash([]byte("MeiCDP")))
 }
