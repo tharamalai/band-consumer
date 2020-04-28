@@ -40,7 +40,7 @@ func NewHandler(keeper Keeper) sdk.Handler {
 			multiplier = multiplier.Exp(multiplier, atomDecimal, new(big.Int).SetInt64(0))
 
 			// setup oracle request
-			bandChainID := "bandchain"
+			bandChainID := "ibc-bandchain"
 			port := "meicdp"
 			oracleScriptID := oracle.OracleScriptID(1)
 			clientID := fmt.Sprintf("Msg:%d", msgCount)
@@ -80,7 +80,7 @@ func NewHandler(keeper Keeper) sdk.Handler {
 			multiplier = multiplier.Exp(multiplier, atomDecimal, new(big.Int).SetInt64(0))
 
 			// setup oracle request
-			bandChainID := "bandchain"
+			bandChainID := "ibc-bandchain"
 			port := "meicdp"
 			oracleScriptID := oracle.OracleScriptID(1)
 			clientID := fmt.Sprintf("Msg:%d", msgCount)
@@ -296,14 +296,17 @@ func handleMsgUnlockCollatearl(ctx sdk.Context, keeper Keeper, msg types.MsgUnlo
 	denom := fmt.Sprintf("transfer/%s/%s", cosmosHubChannelID, types.AtomUnit)
 
 	cdp := keeper.GetCDP(ctx, msg.Sender)
+	fmt.Println("cdp", cdp)
 
 	unlockAmount := sdk.NewCoin(denom, sdk.NewInt(int64(msg.Amount)))
 	unlockAmountCoins := sdk.NewCoins(unlockAmount)
+	fmt.Println("unlockAmountCoins", unlockAmountCoins)
 
 	// Subtract collateral on CDP
 	unlockAmountInt := new(big.Int).SetUint64(msg.Amount)
 	collateralAmountUint64 := new(big.Int).SetUint64(cdp.CollateralAmount)
 	collateralAmountUint64.Sub(collateralAmountUint64, unlockAmountInt)
+	fmt.Println("collateralAmountUint64", collateralAmountUint64)
 	if !collateralAmountUint64.IsUint64() {
 		return sdkerrors.Wrapf(types.ErrInvalidBasicMsg, "invalid unlock amount. collateral must more than or equals 0.")
 	}
@@ -314,16 +317,20 @@ func handleMsgUnlockCollatearl(ctx sdk.Context, keeper Keeper, msg types.MsgUnlo
 	conllateralPriceFloat64 := new(big.Float).SetUint64(collateralPrice)
 	conllateralMultiplierFloat64 := new(big.Float).SetFloat64(100)
 	collateralPricePerUSDFloat64 := new(big.Float).Quo(conllateralPriceFloat64, conllateralMultiplierFloat64)
+	fmt.Println("collateralPricePerUSDFloat64", collateralPricePerUSDFloat64)
 
 	collateralAmountFloat64 := new(big.Float).SetInt(collateralAmountUint64)
 	discountCollateralValueUint64 := new(big.Float).Mul(collateralAmountFloat64, collateralPricePerUSDFloat64)
+	fmt.Println("discountCollateralValueUint64", discountCollateralValueUint64)
 
 	debtAmount := cdp.DebtAmount
 	deptAmountFloat64 := new(big.Float).SetUint64(debtAmount)
+	fmt.Println("deptAmountFloat64", deptAmountFloat64)
 
 	collateralRatioFloat := calculateCollateralRatio(discountCollateralValueUint64, deptAmountFloat64)
 	minimunRatioFloat := new(big.Float).SetFloat64(150)
 	collateralRatio, _ := collateralRatioFloat.Float64()
+	fmt.Println("collateralRatio", collateralRatio)
 	if collateralRatioFloat.Cmp(minimunRatioFloat) == -1 {
 		return sdkerrors.Wrapf(types.ErrTooLowCollateralRatio, fmt.Sprintf("collateral rate is too low. (%f%)", collateralRatio))
 	}
