@@ -37,6 +37,18 @@ const (
 
 	// MeiDecimal is decimal of MEI
 	MeiDecimal = 18
+
+	// AtomUnitPerAtom is amount of atom unit per one atom (10^6)
+	AtomUnitPerAtom = 1000000
+
+	// MeiUnitPerMei is amount of mei unit per one mei (10^18)
+	MeiUnitPerMei = 1000000000000000000
+
+	// AtomMultiplier is multiplier of Atom price request
+	AtomMultiplier = 1000000
+
+	// MinimumCollateralRatio is 150%
+	MinimumCollateralRatio = 150
 )
 
 var (

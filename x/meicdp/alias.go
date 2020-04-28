@@ -6,14 +6,18 @@ import (
 )
 
 const (
-	ModuleName     = types.ModuleName
-	RouterKey      = types.RouterKey
-	StoreKey       = types.StoreKey
-	CosmosHubChain = types.CosmosHubChain
-	AtomSymbol     = types.AtomSymbol
-	MeiSymbol      = types.MeiSymbol
-	AtomDecimal    = types.AtomDecimal
-	MeiDecimal     = types.MeiDecimal
+	ModuleName             = types.ModuleName
+	RouterKey              = types.RouterKey
+	StoreKey               = types.StoreKey
+	CosmosHubChain         = types.CosmosHubChain
+	AtomSymbol             = types.AtomSymbol
+	MeiSymbol              = types.MeiSymbol
+	AtomDecimal            = types.AtomDecimal
+	MeiDecimal             = types.MeiDecimal
+	AtomMultiplier         = types.AtomMultiplier
+	AtomUnitPerAtom        = types.AtomUnitPerAtom
+	MeiUnitPerMei          = types.MeiUnitPerMei
+	MinimumCollateralRatio = types.MinimumCollateralRatio
 )
 
 var (
