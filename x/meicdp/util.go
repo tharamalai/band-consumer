@@ -1,6 +1,7 @@
 package meicdp
 
 import (
+	"encoding/hex"
 	"math/big"
 
 	"github.com/tharamalai/meichain/x/meicdp/types"
@@ -20,9 +21,9 @@ func calculateCollateralRatio(discountedCollateralValue *big.Float, totalDebtAmo
 }
 
 // encodeRequestParams returns byte array of encoded request coin price
-func encodeRequestParams(coinName string, multiplier uint64) []byte {
+func encodeRequestParams(coinName string, multiplier uint64) string {
 	encoder := types.NewEncoder()
 	encoder.EncodeString(coinName)
 	encoder.EncodeU64(multiplier)
-	return encoder.GetEncodedData()
+	return hex.EncodeToString(encoder.GetEncodedData())
 }

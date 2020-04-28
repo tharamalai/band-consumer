@@ -42,7 +42,7 @@ func NewHandler(keeper Keeper) sdk.Handler {
 			// setup oracle request
 			bandChainID := "ibc-bandchain"
 			port := "meicdp"
-			oracleScriptID := oracle.OracleScriptID(1)
+			oracleScriptID := oracle.OracleScriptID(2)
 			clientID := fmt.Sprintf("Msg:%d", msgCount)
 			calldata := encodeRequestParams(AtomSymbol, multiplier.Uint64())
 			askCount := int64(1)
@@ -82,7 +82,7 @@ func NewHandler(keeper Keeper) sdk.Handler {
 			// setup oracle request
 			bandChainID := "ibc-bandchain"
 			port := "meicdp"
-			oracleScriptID := oracle.OracleScriptID(1)
+			oracleScriptID := oracle.OracleScriptID(2)
 			clientID := fmt.Sprintf("Msg:%d", msgCount)
 			calldata := encodeRequestParams(AtomSymbol, multiplier.Uint64())
 			askCount := int64(1)
@@ -230,7 +230,7 @@ func requestOracle(ctx sdk.Context, keeper Keeper, dataReq DataRequest) error {
 	}
 
 	packet := oracle.NewOracleRequestPacketData(
-		dataReq.ClientID, dataReq.OracleScriptID, string(dataReq.Calldata),
+		dataReq.ClientID, dataReq.OracleScriptID, dataReq.Calldata,
 		dataReq.AskCount, dataReq.MinCount,
 	)
 
