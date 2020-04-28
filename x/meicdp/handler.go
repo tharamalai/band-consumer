@@ -1,7 +1,6 @@
 package meicdp
 
 import (
-	"encoding/binary"
 	"fmt"
 	"math/big"
 	"strconv"
@@ -76,13 +75,16 @@ func NewHandler(keeper Keeper) sdk.Handler {
 		case types.MsgBorrowDebt:
 			msgCount := keeper.GetMsgCount(ctx)
 
+			multiplier := new(big.Int).SetInt64(10)
+			atomDecimal := new(big.Int).SetInt64(AtomDecimal)
+			multiplier = multiplier.Exp(multiplier, atomDecimal, new(big.Int).SetInt64(0))
+
 			// setup oracle request
 			bandChainID := "bandchain"
 			port := "meicdp"
 			oracleScriptID := oracle.OracleScriptID(1)
 			clientID := fmt.Sprintf("Msg:%d", msgCount)
-			calldata := make([]byte, 8)
-			binary.LittleEndian.PutUint64(calldata, 1000000)
+			calldata := encodeRequestParams(AtomSymbol, multiplier.Uint64())
 			askCount := int64(1)
 			minCount := int64(1)
 
