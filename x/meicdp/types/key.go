@@ -25,6 +25,18 @@ const (
 
 	// CosmosHubChain Cosmos Hub chain ID
 	CosmosHubChain = "band-cosmoshub"
+
+	// AtomSymbol is symbol of ATOM
+	AtomSymbol = "ATOM"
+
+	// MeiSymbol is symbol of MEI
+	MeiSymbol = "MEI"
+
+	// AtomDecimal is decimal of ATOM
+	AtomDecimal = 6
+
+	// MeiDecimal is decimal of MEI
+	MeiDecimal = 18
 )
 
 var (

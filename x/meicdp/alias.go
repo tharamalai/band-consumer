@@ -10,6 +10,10 @@ const (
 	RouterKey      = types.RouterKey
 	StoreKey       = types.StoreKey
 	CosmosHubChain = types.CosmosHubChain
+	AtomSymbol     = types.AtomSymbol
+	MeiSymbol      = types.MeiSymbol
+	AtomDecimal    = types.AtomDecimal
+	MeiDecimal     = types.MeiDecimal
 )
 
 var (
@@ -27,4 +31,5 @@ type (
 	MsgSetSourceChannel = types.MsgSetSourceChannel
 	DataRequest         = types.DataRequest
 	Decoder             = types.Decoder
+	Encoder             = types.Encoder
 )
