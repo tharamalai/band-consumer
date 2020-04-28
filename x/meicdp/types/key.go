@@ -49,6 +49,15 @@ const (
 
 	// MinimumCollateralRatio is 150%
 	MinimumCollateralRatio = 150
+
+	//BandChainID - Bandchain ID
+	BandChainID = "ibc-bandchain"
+
+	//MeiCdpPort is port for recieving packet
+	MeiCdpPort = "meicdp"
+
+	//OracleScriptID is crypto price script (Borsh version)
+	OracleScriptID = 2
 )
 
 var (

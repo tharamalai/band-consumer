@@ -1,6 +1,7 @@
 package meicdp
 
 import (
+	"encoding/hex"
 	"fmt"
 	"math/big"
 	"strconv"
@@ -24,7 +25,11 @@ func NewHandler(keeper Keeper) sdk.Handler {
 			if err := types.ModuleCdc.UnmarshalJSON(msg.GetData(), &responseData); err == nil {
 				fmt.Println("I GOT DATA", responseData.Result, responseData.ResolveTime)
 
-				handleOracleRespondPacketData(ctx, keeper, responseData)
+				err := handleOracleRespondPacketData(ctx, keeper, responseData)
+				if err != nil {
+					return nil, sdkerrors.Wrapf(types.ErrRequestOracleData, "error while handle response oracle data: %v", err)
+				}
+
 				return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
 			}
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal oracle packet data")
@@ -33,99 +38,77 @@ func NewHandler(keeper Keeper) sdk.Handler {
 			return handleMsgLockCollateral(ctx, keeper, msg)
 
 		case MsgUnlockCollateral:
-			// msgCount := keeper.GetMsgCount(ctx)
+			msgCount := keeper.GetMsgCount(ctx)
 
 			// setup oracle request
-			// bandChainID := "ibc-bandchain"
-			// port := "meicdp"
-			// oracleScriptID := oracle.OracleScriptID(2)
-			// clientID := fmt.Sprintf("Msg:%d", msgCount)
-			// calldata := encodeRequestParams(AtomSymbol, AtomMultiplier)
-			// askCount := int64(1)
-			// minCount := int64(1)
+			bandChainID := BandChainID
+			port := MeiCdpPort
+			oracleScriptID := oracle.OracleScriptID(OracleScriptID)
+			clientID := fmt.Sprintf("Msg:%d", msgCount)
+			calldata := encodeRequestParams(AtomSymbol, AtomMultiplier)
+			askCount := int64(1)
+			minCount := int64(1)
 
-			// channelID, err := keeper.GetChannel(ctx, bandChainID, port)
+			channelID, err := keeper.GetChannel(ctx, bandChainID, port)
 
-			// dataRequest := types.NewDataRequest(
-			// 	oracleScriptID,
-			// 	channelID,
-			// 	bandChainID,
-			// 	port,
-			// 	clientID,
-			// 	calldata,
-			// 	askCount,
-			// 	minCount,
-			// 	msg.Sender,
-			// )
+			dataRequest := types.NewDataRequest(
+				oracleScriptID,
+				channelID,
+				bandChainID,
+				port,
+				clientID,
+				calldata,
+				askCount,
+				minCount,
+				msg.Sender,
+			)
 
-			// // Set message to the store for waiting the oracle response packet.
-			// keeper.SetMsg(ctx, msgCount, msg)
+			// Set message to the store for waiting the oracle response packet.
+			keeper.SetMsg(ctx, msgCount, msg)
 
-			// err = requestOracle(ctx, keeper, dataRequest)
-			// if err != nil {
-			// 	return nil, err
-			// }
-
-			// TODO: remove this Transfer collateral to the module account. Transaction fails if sender's balance is insufficient.
-			denom := fmt.Sprintf("transfer//%s", types.AtomUnit)
-			lockAmount := sdk.NewCoin(denom, sdk.NewInt(int64(msg.Amount)))
-			lockAmountCoins := sdk.NewCoins(lockAmount)
-			err := keeper.SupplyKeeper.MintCoins(ctx, ModuleName, lockAmountCoins)
+			err = requestOracle(ctx, keeper, dataRequest)
 			if err != nil {
-				return nil, sdkerrors.Wrapf(types.ErrMintCoin, "mint coin fail")
-			}
-
-			err = handleMsgUnlockCollateral(ctx, keeper, msg, 279250)
-			if err != nil {
-				fmt.Println(err)
-				return nil, sdkerrors.Wrapf(sdkerrors.ErrInsufficientFunds, "error %v", err)
+				return nil, sdkerrors.Wrapf(types.ErrRequestOracleData, "error while request oracle data: %v", err)
 			}
 
 			return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
 
 		case MsgBorrowDebt:
-			// msgCount := keeper.GetMsgCount(ctx)
+			msgCount := keeper.GetMsgCount(ctx)
 
-			// multiplier := new(big.Int).SetInt64(10)
-			// atomDecimal := new(big.Int).SetInt64(AtomDecimal)
-			// multiplier = multiplier.Exp(multiplier, atomDecimal, new(big.Int).SetInt64(0))
+			multiplier := new(big.Int).SetInt64(10)
+			atomDecimal := new(big.Int).SetInt64(AtomDecimal)
+			multiplier = multiplier.Exp(multiplier, atomDecimal, new(big.Int).SetInt64(0))
 
-			// // setup oracle request
-			// bandChainID := "ibc-bandchain"
-			// port := "meicdp"
-			// oracleScriptID := oracle.OracleScriptID(2)
-			// clientID := fmt.Sprintf("Msg:%d", msgCount)
-			// calldata := encodeRequestParams(AtomSymbol, multiplier.Uint64())
-			// askCount := int64(1)
-			// minCount := int64(1)
+			// setup oracle request
+			bandChainID := BandChainID
+			port := MeiCdpPort
+			oracleScriptID := oracle.OracleScriptID(OracleScriptID)
+			clientID := fmt.Sprintf("Msg:%d", msgCount)
+			calldata := encodeRequestParams(AtomSymbol, multiplier.Uint64())
+			askCount := int64(1)
+			minCount := int64(1)
 
-			// channelID, err := keeper.GetChannel(ctx, bandChainID, port)
+			channelID, err := keeper.GetChannel(ctx, bandChainID, port)
 
-			// dataRequest := types.NewDataRequest(
-			// 	oracleScriptID,
-			// 	channelID,
-			// 	bandChainID,
-			// 	port,
-			// 	clientID,
-			// 	calldata,
-			// 	askCount,
-			// 	minCount,
-			// 	msg.Sender,
-			// )
+			dataRequest := types.NewDataRequest(
+				oracleScriptID,
+				channelID,
+				bandChainID,
+				port,
+				clientID,
+				calldata,
+				askCount,
+				minCount,
+				msg.Sender,
+			)
 
-			// // Set message to the store for waiting the oracle response packet.
-			// keeper.SetMsg(ctx, msgCount, msg)
+			// Set message to the store for waiting the oracle response packet.
+			keeper.SetMsg(ctx, msgCount, msg)
 
-			// err = requestOracle(ctx, keeper, dataRequest)
-			// if err != nil {
-			// 	return nil, err
-			// }
-
-			// TODO: remove this Transfer collateral to the module account. Transaction fails if sender's balance is insufficient.
-			err := handleMsgBorrowDebt(ctx, keeper, msg, 279250)
+			err = requestOracle(ctx, keeper, dataRequest)
 			if err != nil {
-				fmt.Println(err)
-				return nil, sdkerrors.Wrapf(sdkerrors.ErrInsufficientFunds, "error %v", err)
+				return nil, sdkerrors.Wrapf(types.ErrRequestOracleData, "error while request oracle data: %v", err)
 			}
 
 			return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
@@ -264,46 +247,50 @@ func requestOracle(ctx sdk.Context, keeper Keeper, dataReq DataRequest) error {
 	return nil
 }
 
-func handleOracleRespondPacketData(ctx sdk.Context, keeper Keeper, packet oracle.OracleResponsePacketData) (*sdk.Result, error) {
+func handleOracleRespondPacketData(ctx sdk.Context, keeper Keeper, packet oracle.OracleResponsePacketData) error {
 	clientID := strings.Split(packet.ClientID, ":")
 	if len(clientID) != 2 {
-		return nil, sdkerrors.Wrapf(types.ErrUnknownClientID, "unknown client id %s", packet.ClientID)
+		return sdkerrors.Wrapf(types.ErrUnknownClientID, "unknown client id %s", packet.ClientID)
 	}
 
 	msgID, err := strconv.ParseUint(clientID[1], 10, 64)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	decoder := types.NewDecoder([]byte(packet.Result))
+	rawResult, err := hex.DecodeString(packet.Result)
+	if err != nil {
+		return err
+	}
 
+	decoder := types.NewDecoder(rawResult)
 	collateralPrice, err := decoder.DecodeU64()
 	if err != nil {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot decode orable result data")
+		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot decode orable result data")
 	}
 
 	fmt.Println("collateralPrice", collateralPrice)
 
 	msg, err := keeper.GetMsg(ctx, msgID)
 	if err != nil {
-		return nil, sdkerrors.Wrapf(types.ErrMsgNotFound, "cannot get stored message")
+		return sdkerrors.Wrapf(types.ErrMsgNotFound, "cannot get stored message")
 	}
 
 	switch msg := msg.(type) {
 	case types.MsgUnlockCollateral:
 		err := handleMsgUnlockCollateral(ctx, keeper, msg, collateralPrice)
 		if err != nil {
-			return nil, err
+			return err
 		}
 
 	case types.MsgBorrowDebt:
 		err := handleMsgBorrowDebt(ctx, keeper, msg, collateralPrice)
 		if err != nil {
-			return nil, err
+			return err
 		}
 	}
 
-	return &sdk.Result{}, nil
+	return nil
 
 }
 
