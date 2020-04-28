@@ -23,16 +23,21 @@ func NewHandler(keeper Keeper) sdk.Handler {
 		case channeltypes.MsgPacket:
 			var responseData oracle.OracleResponsePacketData
 			if err := types.ModuleCdc.UnmarshalJSON(msg.GetData(), &responseData); err == nil {
-				fmt.Println("I GOT DATA", responseData.Result, responseData.ResolveTime)
-
 				err := handleOracleRespondPacketData(ctx, keeper, responseData)
 				if err != nil {
-					return nil, sdkerrors.Wrapf(types.ErrRequestOracleData, "error while handle response oracle data: %v", err)
+					return nil, sdkerrors.Wrapf(
+						types.ErrRequestOracleData,
+						"error while handle response oracle data: %v",
+						err,
+					)
 				}
 
 				return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
 			}
-			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal oracle packet data")
+			return nil, sdkerrors.Wrapf(
+				sdkerrors.ErrUnknownRequest,
+				"cannot unmarshal oracle packet data",
+			)
 
 		case MsgLockCollateral:
 			return handleMsgLockCollateral(ctx, keeper, msg)
@@ -40,7 +45,7 @@ func NewHandler(keeper Keeper) sdk.Handler {
 		case MsgUnlockCollateral:
 			msgCount := keeper.GetMsgCount(ctx)
 
-			// setup oracle request
+			// Setup oracle request
 			bandChainID := BandChainID
 			port := MeiCdpPort
 			oracleScriptID := oracle.OracleScriptID(OracleScriptID)
@@ -68,7 +73,11 @@ func NewHandler(keeper Keeper) sdk.Handler {
 
 			err = requestOracle(ctx, keeper, dataRequest)
 			if err != nil {
-				return nil, sdkerrors.Wrapf(types.ErrRequestOracleData, "error while request oracle data: %v", err)
+				return nil, sdkerrors.Wrapf(
+					types.ErrRequestOracleData,
+					"error while request oracle data: %v",
+					err,
+				)
 			}
 
 			return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
@@ -80,7 +89,7 @@ func NewHandler(keeper Keeper) sdk.Handler {
 			atomDecimal := new(big.Int).SetInt64(AtomDecimal)
 			multiplier = multiplier.Exp(multiplier, atomDecimal, new(big.Int).SetInt64(0))
 
-			// setup oracle request
+			// Setup oracle request
 			bandChainID := BandChainID
 			port := MeiCdpPort
 			oracleScriptID := oracle.OracleScriptID(OracleScriptID)
@@ -108,7 +117,11 @@ func NewHandler(keeper Keeper) sdk.Handler {
 
 			err = requestOracle(ctx, keeper, dataRequest)
 			if err != nil {
-				return nil, sdkerrors.Wrapf(types.ErrRequestOracleData, "error while request oracle data: %v", err)
+				return nil, sdkerrors.Wrapf(
+					types.ErrRequestOracleData,
+					"error while request oracle data: %v",
+					err,
+				)
 			}
 
 			return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
@@ -120,7 +133,12 @@ func NewHandler(keeper Keeper) sdk.Handler {
 			return handleSetSourceChannel(ctx, keeper, msg)
 
 		default:
-			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unrecognized %s message type: %T", ModuleName, msg)
+			return nil, sdkerrors.Wrapf(
+				sdkerrors.ErrUnknownRequest,
+				"unrecognized %s message type: %T",
+				ModuleName,
+				msg,
+			)
 		}
 	}
 }
@@ -129,7 +147,10 @@ func handleMsgLockCollateral(ctx sdk.Context, keeper Keeper, msg MsgLockCollater
 
 	channelID, err := keeper.GetChannel(ctx, CosmosHubChain, "transfer")
 	if err != nil {
-		return nil, sdkerrors.Wrapf(types.ErrInvalidChannel, fmt.Sprintf("channel of %s chain not found", CosmosHubChain))
+		return nil, sdkerrors.Wrapf(
+			types.ErrInvalidChannel,
+			fmt.Sprintf("channel of %s chain not found", CosmosHubChain),
+		)
 	}
 
 	denom := fmt.Sprintf("transfer/%s/%s", channelID, types.AtomUnit)
@@ -144,7 +165,10 @@ func handleMsgLockCollateral(ctx sdk.Context, keeper Keeper, msg MsgLockCollater
 	collateralAmountInt := new(big.Int).SetUint64(cdp.CollateralAmount)
 	collateralAmountInt.Add(collateralAmountInt, lockAmountInt)
 	if !collateralAmountInt.IsUint64() {
-		return nil, sdkerrors.Wrapf(types.ErrInvalidBasicMsg, "invalid lock amount. collateral must more than or equals 0.")
+		return nil, sdkerrors.Wrapf(
+			types.ErrInvalidBasicMsg,
+			"invalid lock amount. collateral must more than or equals 0.",
+		)
 	}
 
 	cdp.CollateralAmount = collateralAmountInt.Uint64()
@@ -152,7 +176,11 @@ func handleMsgLockCollateral(ctx sdk.Context, keeper Keeper, msg MsgLockCollater
 	// Transfer collateral to the module account. Transaction fails if sender's balance is insufficient.
 	err = keeper.SupplyKeeper.SendCoinsFromAccountToModule(ctx, msg.Sender, ModuleName, lockAmountCoins)
 	if err != nil {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInsufficientFunds, "can't transfer %s coins from sender to CDP", denom)
+		return nil, sdkerrors.Wrapf(
+			sdkerrors.ErrInsufficientFunds,
+			"can't transfer %s coins from sender to CDP",
+			denom,
+		)
 	}
 
 	// Store CDP
@@ -174,7 +202,10 @@ func handleMsgReturnDebt(ctx sdk.Context, keeper Keeper, msg MsgReturnDebt) (*sd
 	debtAmountInt := new(big.Int).SetUint64(cdp.DebtAmount)
 	debtAmountInt.Sub(debtAmountInt, returnAmountInt)
 	if !debtAmountInt.IsUint64() {
-		return nil, sdkerrors.Wrapf(types.ErrInvalidBasicMsg, "invalid return amount. debt must more than or equals 0.")
+		return nil, sdkerrors.Wrapf(
+			types.ErrInvalidBasicMsg,
+			"invalid return amount. debt must more than or equals 0.",
+		)
 	}
 	cdp.DebtAmount = debtAmountInt.Uint64()
 
@@ -183,7 +214,10 @@ func handleMsgReturnDebt(ctx sdk.Context, keeper Keeper, msg MsgReturnDebt) (*sd
 	// Transfer Mei from user to CDP. Transaction fails if sender's balance is insufficient.
 	err := keeper.SupplyKeeper.SendCoinsFromAccountToModule(ctx, msg.Sender, ModuleName, returnAmountCoins)
 	if err != nil {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInsufficientFunds, "can't transfer coins from sender to CDP")
+		return nil, sdkerrors.Wrapf(
+			sdkerrors.ErrInsufficientFunds,
+			"can't transfer coins from sender to CDP",
+		)
 	}
 
 	// Store CDP
@@ -192,7 +226,10 @@ func handleMsgReturnDebt(ctx sdk.Context, keeper Keeper, msg MsgReturnDebt) (*sd
 	// CDP burn returned coins
 	err = keeper.SupplyKeeper.BurnCoins(ctx, ModuleName, returnAmountCoins)
 	if err != nil {
-		return nil, sdkerrors.Wrapf(types.ErrBurnCoin, "burn coin fail")
+		return nil, sdkerrors.Wrapf(
+			types.ErrBurnCoin,
+			"burn coin fail",
+		)
 	}
 
 	return &sdk.Result{}, nil
@@ -250,7 +287,11 @@ func requestOracle(ctx sdk.Context, keeper Keeper, dataReq DataRequest) error {
 func handleOracleRespondPacketData(ctx sdk.Context, keeper Keeper, packet oracle.OracleResponsePacketData) error {
 	clientID := strings.Split(packet.ClientID, ":")
 	if len(clientID) != 2 {
-		return sdkerrors.Wrapf(types.ErrUnknownClientID, "unknown client id %s", packet.ClientID)
+		return sdkerrors.Wrapf(
+			types.ErrUnknownClientID,
+			"unknown client id %s",
+			packet.ClientID,
+		)
 	}
 
 	msgID, err := strconv.ParseUint(clientID[1], 10, 64)
@@ -266,14 +307,18 @@ func handleOracleRespondPacketData(ctx sdk.Context, keeper Keeper, packet oracle
 	decoder := types.NewDecoder(rawResult)
 	collateralPrice, err := decoder.DecodeU64()
 	if err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot decode orable result data")
+		return sdkerrors.Wrapf(
+			sdkerrors.ErrUnknownRequest,
+			"cannot decode orable result data",
+		)
 	}
-
-	fmt.Println("collateralPrice", collateralPrice)
 
 	msg, err := keeper.GetMsg(ctx, msgID)
 	if err != nil {
-		return sdkerrors.Wrapf(types.ErrMsgNotFound, "cannot get stored message")
+		return sdkerrors.Wrapf(
+			types.ErrMsgNotFound,
+			"cannot get stored message",
+		)
 	}
 
 	switch msg := msg.(type) {
@@ -301,22 +346,21 @@ func handleMsgUnlockCollateral(ctx sdk.Context, keeper Keeper, msg types.MsgUnlo
 	denom := fmt.Sprintf("transfer/%s/%s", cosmosHubChannelID, types.AtomUnit)
 
 	cdp := keeper.GetCDP(ctx, msg.Sender)
-	fmt.Println("cdp", cdp)
 
 	unlockAmount := sdk.NewCoin(denom, sdk.NewInt(int64(msg.Amount)))
 	unlockAmountCoins := sdk.NewCoins(unlockAmount)
-	fmt.Println("unlockAmountCoins", unlockAmountCoins)
 
 	// Subtract collateral on CDP
 	unlockAmountInt := new(big.Int).SetUint64(msg.Amount)
 	collateralAmount := new(big.Int).SetUint64(cdp.CollateralAmount)
 	collateralAmount.Sub(collateralAmount, unlockAmountInt)
-	fmt.Println("collateralAmount", collateralAmount)
 
 	minimumCollateralAmount := new(big.Int).SetUint64(0)
-	fmt.Println("collateralAmount.Cmp(minimumCollateralAmount) ", collateralAmount.Cmp(minimumCollateralAmount))
 	if collateralAmount.Cmp(minimumCollateralAmount) == -1 {
-		return sdkerrors.Wrapf(types.ErrInvalidBasicMsg, "invalid unlock amount. collateral must more than or equals 0.")
+		return sdkerrors.Wrapf(
+			types.ErrInvalidBasicMsg,
+			"invalid unlock amount. collateral must more than or equals 0.",
+		)
 	}
 
 	cdp.CollateralAmount = collateralAmount.Uint64()
@@ -324,15 +368,16 @@ func handleMsgUnlockCollateral(ctx sdk.Context, keeper Keeper, msg types.MsgUnlo
 	// Calculate new collateral ratio. If collateral is lower than 150 percent then returns error.
 	debtAmount := new(big.Int).SetUint64(cdp.DebtAmount)
 	minimumDebtAmount := new(big.Int).SetUint64(0)
-	fmt.Println("DebtAmount", cdp.DebtAmount)
 	if debtAmount.Cmp(minimumDebtAmount) > 0 {
 
 		collateralRatioFloat := calculateCollateralRatioOfCDP(cdp, collateralPrice, AtomMultiplier)
 		minimunRatio := new(big.Float).SetFloat64(MinimumCollateralRatio)
 		collateralRatio, _ := collateralRatioFloat.Float64()
-		fmt.Println("collateralRatio", collateralRatio)
 		if collateralRatioFloat.Cmp(minimunRatio) == -1 {
-			return sdkerrors.Wrapf(types.ErrTooLowCollateralRatio, fmt.Sprintf("collateral rate is too low. (%f%)", collateralRatio))
+			return sdkerrors.Wrapf(
+				types.ErrTooLowCollateralRatio,
+				fmt.Sprintf("collateral rate is too low. (%f%)", collateralRatio),
+			)
 		}
 	}
 
@@ -360,35 +405,45 @@ func handleMsgBorrowDebt(ctx sdk.Context, keeper Keeper, msg types.MsgBorrowDebt
 	debtAmountUint64.Add(debtAmountUint64, borrowAmountInt)
 	minimumDebtAmount := new(big.Int).SetUint64(0)
 	if debtAmountUint64.Cmp(minimumDebtAmount) == -1 {
-		return sdkerrors.Wrapf(types.ErrInvalidBasicMsg, "invalid borrow amount. debt must more than or equals 0.")
+		return sdkerrors.Wrapf(
+			types.ErrInvalidBasicMsg,
+			"invalid borrow amount. debt must more than or equals 0.",
+		)
 	}
 
 	cdp.DebtAmount = debtAmountUint64.Uint64()
 
 	// Calculate new collateral ratio. If collateral is lower than 150 percent then returns error.
 	debtAmount := new(big.Int).SetUint64(cdp.DebtAmount)
-	fmt.Println("DebtAmount", cdp.DebtAmount)
 	if debtAmount.Cmp(minimumDebtAmount) > 0 {
 
 		collateralRatioFloat := calculateCollateralRatioOfCDP(cdp, collateralPrice, AtomMultiplier)
 		minimunRatio := new(big.Float).SetFloat64(MinimumCollateralRatio)
 		collateralRatio, _ := collateralRatioFloat.Float64()
-		fmt.Println("collateralRatio", collateralRatio)
 		if collateralRatioFloat.Cmp(minimunRatio) == -1 {
-			return sdkerrors.Wrapf(types.ErrTooLowCollateralRatio, fmt.Sprintf("collateral rate is too low. (%f%)", collateralRatio))
+			return sdkerrors.Wrapf(
+				types.ErrTooLowCollateralRatio,
+				fmt.Sprintf("collateral rate is too low. (%f%)", collateralRatio),
+			)
 		}
 	}
 
 	// CDP mint Mei coins
 	err := keeper.SupplyKeeper.MintCoins(ctx, ModuleName, borrowAmountCoins)
 	if err != nil {
-		return sdkerrors.Wrapf(types.ErrMintCoin, "mint coin fail")
+		return sdkerrors.Wrapf(
+			types.ErrMintCoin,
+			"mint coin fail",
+		)
 	}
 
 	// CDP send coins from module to sender
 	err = keeper.SupplyKeeper.SendCoinsFromModuleToAccount(ctx, ModuleName, msg.Sender, borrowAmountCoins)
 	if err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInsufficientFunds, "can't transfer coins from CDP module to sender")
+		return sdkerrors.Wrapf(
+			sdkerrors.ErrInsufficientFunds,
+			"can't transfer coins from CDP module to sender",
+		)
 	}
 
 	// Store CDP
