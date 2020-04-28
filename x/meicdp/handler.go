@@ -84,41 +84,48 @@ func NewHandler(keeper Keeper) sdk.Handler {
 			return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
 
 		case MsgBorrowDebt:
-			msgCount := keeper.GetMsgCount(ctx)
+			// msgCount := keeper.GetMsgCount(ctx)
 
-			multiplier := new(big.Int).SetInt64(10)
-			atomDecimal := new(big.Int).SetInt64(AtomDecimal)
-			multiplier = multiplier.Exp(multiplier, atomDecimal, new(big.Int).SetInt64(0))
+			// multiplier := new(big.Int).SetInt64(10)
+			// atomDecimal := new(big.Int).SetInt64(AtomDecimal)
+			// multiplier = multiplier.Exp(multiplier, atomDecimal, new(big.Int).SetInt64(0))
 
-			// setup oracle request
-			bandChainID := "ibc-bandchain"
-			port := "meicdp"
-			oracleScriptID := oracle.OracleScriptID(2)
-			clientID := fmt.Sprintf("Msg:%d", msgCount)
-			calldata := encodeRequestParams(AtomSymbol, multiplier.Uint64())
-			askCount := int64(1)
-			minCount := int64(1)
+			// // setup oracle request
+			// bandChainID := "ibc-bandchain"
+			// port := "meicdp"
+			// oracleScriptID := oracle.OracleScriptID(2)
+			// clientID := fmt.Sprintf("Msg:%d", msgCount)
+			// calldata := encodeRequestParams(AtomSymbol, multiplier.Uint64())
+			// askCount := int64(1)
+			// minCount := int64(1)
 
-			channelID, err := keeper.GetChannel(ctx, bandChainID, port)
+			// channelID, err := keeper.GetChannel(ctx, bandChainID, port)
 
-			dataRequest := types.NewDataRequest(
-				oracleScriptID,
-				channelID,
-				bandChainID,
-				port,
-				clientID,
-				calldata,
-				askCount,
-				minCount,
-				msg.Sender,
-			)
+			// dataRequest := types.NewDataRequest(
+			// 	oracleScriptID,
+			// 	channelID,
+			// 	bandChainID,
+			// 	port,
+			// 	clientID,
+			// 	calldata,
+			// 	askCount,
+			// 	minCount,
+			// 	msg.Sender,
+			// )
 
-			// Set message to the store for waiting the oracle response packet.
-			keeper.SetMsg(ctx, msgCount, msg)
+			// // Set message to the store for waiting the oracle response packet.
+			// keeper.SetMsg(ctx, msgCount, msg)
 
-			err = requestOracle(ctx, keeper, dataRequest)
+			// err = requestOracle(ctx, keeper, dataRequest)
+			// if err != nil {
+			// 	return nil, err
+			// }
+
+			// TODO: remove this Transfer collateral to the module account. Transaction fails if sender's balance is insufficient.
+			err := handleMsgBorrowDebt(ctx, keeper, msg, 279250)
 			if err != nil {
-				return nil, err
+				fmt.Println(err)
+				return nil, sdkerrors.Wrapf(sdkerrors.ErrInsufficientFunds, "error %v", err)
 			}
 
 			return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
@@ -327,6 +334,7 @@ func handleMsgUnlockCollateral(ctx sdk.Context, keeper Keeper, msg types.MsgUnlo
 
 	cdp.CollateralAmount = collateralAmount.Uint64()
 
+	// Calculate new collateral ratio. If collateral is lower than 150 percent then returns error.
 	debtAmount := new(big.Int).SetUint64(cdp.DebtAmount)
 	minimumDebtAmount := new(big.Int).SetUint64(0)
 	fmt.Println("DebtAmount", cdp.DebtAmount)
@@ -363,25 +371,25 @@ func handleMsgBorrowDebt(ctx sdk.Context, keeper Keeper, msg types.MsgBorrowDebt
 	borrowAmountInt := new(big.Int).SetUint64(msg.Amount)
 	debtAmountUint64 := new(big.Int).SetUint64(cdp.DebtAmount)
 	debtAmountUint64.Add(debtAmountUint64, borrowAmountInt)
-	if !debtAmountUint64.IsUint64() {
-		return sdkerrors.Wrapf(types.ErrInvalidBasicMsg, "invalid unlock amount. collateral must more than or equals 0.")
+	minimumDebtAmount := new(big.Int).SetUint64(0)
+	if debtAmountUint64.Cmp(minimumDebtAmount) == -1 {
+		return sdkerrors.Wrapf(types.ErrInvalidBasicMsg, "invalid borrow amount. debt must more than or equals 0.")
 	}
 
 	cdp.DebtAmount = debtAmountUint64.Uint64()
 
 	// Calculate new collateral ratio. If collateral is lower than 150 percent then returns error.
-	conllateralPriceFloat64 := new(big.Float).SetUint64(collateralPrice)
-	conllateralMultiplierFloat64 := new(big.Float).SetFloat64(100)
-	collateralPricePerUSDFloat64 := new(big.Float).Quo(conllateralPriceFloat64, conllateralMultiplierFloat64)
+	debtAmount := new(big.Int).SetUint64(cdp.DebtAmount)
+	fmt.Println("DebtAmount", cdp.DebtAmount)
+	if debtAmount.Cmp(minimumDebtAmount) > 0 {
 
-	collateralAmountFloat64 := new(big.Float).SetUint64(cdp.CollateralAmount)
-	discountCollateralValueUint64 := new(big.Float).Mul(collateralAmountFloat64, collateralPricePerUSDFloat64)
-	deptAmountFloat64 := new(big.Float).SetInt(debtAmountUint64)
-	collateralRatioFloat := calculateCollateralRatio(discountCollateralValueUint64, deptAmountFloat64)
-	minimunRatioFloat := new(big.Float).SetFloat64(MinimumCollateralRatio)
-	collateralRatio, _ := collateralRatioFloat.Float64()
-	if collateralRatioFloat.Cmp(minimunRatioFloat) == -1 {
-		return sdkerrors.Wrapf(types.ErrTooLowCollateralRatio, fmt.Sprintf("collateral rate is too low. (%f%)", collateralRatio))
+		collateralRatioFloat := calculateCollateralRatioOfCDP(cdp, collateralPrice, AtomMultiplier)
+		minimunRatio := new(big.Float).SetFloat64(MinimumCollateralRatio)
+		collateralRatio, _ := collateralRatioFloat.Float64()
+		fmt.Println("collateralRatio", collateralRatio)
+		if collateralRatioFloat.Cmp(minimunRatio) == -1 {
+			return sdkerrors.Wrapf(types.ErrTooLowCollateralRatio, fmt.Sprintf("collateral rate is too low. (%f%)", collateralRatio))
+		}
 	}
 
 	// CDP mint Mei coins
