@@ -243,7 +243,7 @@ func requestOracle(ctx sdk.Context, keeper Keeper, dataReq DataRequest) error {
 }
 
 func handleOracleRequestPacketData(ctx sdk.Context, keeper Keeper, msg sdk.Msg, sender sdk.AccAddress) error {
-	msgID := keeper.GetMsgCount(ctx)
+	msgID := keeper.GetNextMsgCount(ctx)
 
 	// Setup oracle request
 	bandChainID := BandChainID
