@@ -269,11 +269,6 @@ func handleOracleRequestPacketData(ctx sdk.Context, keeper Keeper, msg sdk.Msg, 
 }
 
 func handleOracleRespondPacketData(ctx sdk.Context, keeper Keeper, packet oracle.OracleResponsePacketData) error {
-	return sdkerrors.Wrapf(
-		types.ErrUnknownClientID,
-		"unknown client id %s",
-		packet.ClientID,
-	)
 
 	clientID := strings.Split(packet.ClientID, ":")
 	if len(clientID) != 2 {
