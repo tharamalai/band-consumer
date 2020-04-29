@@ -23,7 +23,7 @@ func NewHandler(keeper Keeper) sdk.Handler {
 		case channeltypes.MsgPacket:
 			var responseData oracle.OracleResponsePacketData
 			if err := types.ModuleCdc.UnmarshalJSON(msg.GetData(), &responseData); err == nil {
-				err := handleOracleRespondPacketData(ctx, keeper, responseData)
+				err := handleOracleResponsePacketData(ctx, keeper, responseData)
 				if err != nil {
 					return nil, sdkerrors.Wrapf(
 						types.ErrResponseOracleData,
@@ -283,7 +283,7 @@ func handleOracleRequestPacketData(ctx sdk.Context, keeper Keeper, msg sdk.Msg, 
 	return nil
 }
 
-func handleOracleRespondPacketData(ctx sdk.Context, keeper Keeper, packet oracle.OracleResponsePacketData) error {
+func handleOracleResponsePacketData(ctx sdk.Context, keeper Keeper, packet oracle.OracleResponsePacketData) error {
 
 	clientID := strings.Split(packet.ClientID, ":")
 	if len(clientID) != 2 {
@@ -323,16 +323,10 @@ func handleOracleRespondPacketData(ctx sdk.Context, keeper Keeper, packet oracle
 
 	switch msg := msg.(type) {
 	case MsgUnlockCollateral:
-		err := handleMsgUnlockCollateral(ctx, keeper, msg, collateralPrice)
-		if err != nil {
-			return err
-		}
+		return handleMsgUnlockCollateral(ctx, keeper, msg, collateralPrice)
 
 	case MsgBorrowDebt:
-		err := handleMsgBorrowDebt(ctx, keeper, msg, collateralPrice)
-		if err != nil {
-			return err
-		}
+		return handleMsgBorrowDebt(ctx, keeper, msg, collateralPrice)
 
 	default:
 		return sdkerrors.Wrapf(
@@ -340,8 +334,6 @@ func handleOracleRespondPacketData(ctx sdk.Context, keeper Keeper, packet oracle
 			fmt.Sprintf("invalid message type: %T", msg),
 		)
 	}
-
-	return nil
 
 }
 
