@@ -47,7 +47,7 @@ func NewHandler(keeper Keeper) sdk.Handler {
 
 			// Setup oracle request
 			bandChainID := BandChainID
-			port := MeiCdpPort
+			port := ModuleName
 			oracleScriptID := oracle.OracleScriptID(OracleScriptID)
 			clientID := fmt.Sprintf("Msg:%d", msgCount)
 			calldata := encodeRequestParams(AtomSymbol, AtomMultiplier)
@@ -91,7 +91,7 @@ func NewHandler(keeper Keeper) sdk.Handler {
 
 			// Setup oracle request
 			bandChainID := BandChainID
-			port := MeiCdpPort
+			port := ModuleName
 			oracleScriptID := oracle.OracleScriptID(OracleScriptID)
 			clientID := fmt.Sprintf("Msg:%d", msgCount)
 			calldata := encodeRequestParams(AtomSymbol, multiplier.Uint64())
@@ -285,6 +285,12 @@ func requestOracle(ctx sdk.Context, keeper Keeper, dataReq DataRequest) error {
 }
 
 func handleOracleRespondPacketData(ctx sdk.Context, keeper Keeper, packet oracle.OracleResponsePacketData) error {
+	return sdkerrors.Wrapf(
+		types.ErrUnknownClientID,
+		"unknown client id %s",
+		packet.ClientID,
+	)
+
 	clientID := strings.Split(packet.ClientID, ":")
 	if len(clientID) != 2 {
 		return sdkerrors.Wrapf(

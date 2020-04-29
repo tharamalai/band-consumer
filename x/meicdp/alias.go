@@ -11,7 +11,6 @@ const (
 	StoreKey               = types.StoreKey
 	CosmosHubChain         = types.CosmosHubChain
 	BandChainID            = types.BandChainID
-	MeiCdpPort             = types.MeiCdpPort
 	OracleScriptID         = types.OracleScriptID
 	AtomSymbol             = types.AtomSymbol
 	MeiSymbol              = types.MeiSymbol
