@@ -465,7 +465,7 @@ func handleMsgLiquidate(ctx sdk.Context, keeper Keeper, msg MsgLiquidate, collat
 	collateralRatioFloat := calculateCollateralRatioOfCDP(cdp, collateralPrice, AtomMultiplier)
 	minimunRatio := new(big.Float).SetFloat64(MinimumCollateralRatio)
 	collateralRatio, _ := collateralRatioFloat.Float64()
-	if collateralRatioFloat.Cmp(minimunRatio) == -1 {
+	if collateralRatioFloat.Cmp(minimunRatio) > 0 {
 		return nil, sdkerrors.Wrapf(
 			types.ErrLiquidateCDP,
 			fmt.Sprintf("can't liquidate the cdp. collateral rate is more than %f%%.", collateralRatio),
@@ -515,7 +515,7 @@ func handleMsgLiquidate(ctx sdk.Context, keeper Keeper, msg MsgLiquidate, collat
 			)
 		}
 
-		// CDP send coins from module to sender
+		// CDP return Mei coins from module to sender
 		err = keeper.SupplyKeeper.SendCoinsFromModuleToAccount(ctx, ModuleName, msg.Liquidator, debtCoins)
 		if err != nil {
 			return nil, sdkerrors.Wrapf(
