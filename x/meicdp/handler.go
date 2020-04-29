@@ -386,25 +386,25 @@ func handleMsgUnlockCollateral(ctx sdk.Context, keeper Keeper, msg MsgUnlockColl
 func handleMsgBorrowDebt(ctx sdk.Context, keeper Keeper, msg types.MsgBorrowDebt, collateralPrice uint64) error {
 	cdp := keeper.GetCDP(ctx, msg.Sender)
 
-	borrowAmount := sdk.NewCoin(types.MeiUnit, sdk.NewInt(int64(msg.Amount)))
-	borrowAmountCoins := sdk.NewCoins(borrowAmount)
+	borrowCoin := sdk.NewCoin(types.MeiUnit, sdk.NewInt(int64(msg.Amount)))
+	borrowAmountCoins := sdk.NewCoins(borrowCoin)
 
 	// Accumurate debt on CDP
-	borrowAmountInt := new(big.Int).SetUint64(msg.Amount)
-	debtAmountUint64 := new(big.Int).SetUint64(cdp.DebtAmount)
-	debtAmountUint64.Add(debtAmountUint64, borrowAmountInt)
-	minimumDebtAmount := new(big.Int).SetUint64(0)
-	if debtAmountUint64.Cmp(minimumDebtAmount) == -1 {
+	debtCoin := sdk.NewCoin(types.MeiUnit, sdk.NewInt(int64(cdp.DebtAmount)))
+	debtCoin.Add(borrowCoin)
+
+	if debtCoin.IsNegative() {
 		return sdkerrors.Wrapf(
 			types.ErrInvalidBasicMsg,
 			"invalid borrow amount. debt must more than or equals 0.",
 		)
 	}
 
-	cdp.DebtAmount = debtAmountUint64.Uint64()
+	cdp.DebtAmount = debtCoin.Amount.Uint64()
 
 	// Calculate new collateral ratio. If collateral is lower than 150 percent then returns error.
 	debtAmount := new(big.Int).SetUint64(cdp.DebtAmount)
+	minimumDebtAmount := new(big.Int).SetUint64(0)
 	if debtAmount.Cmp(minimumDebtAmount) > 0 {
 
 		collateralRatioFloat := calculateCollateralRatioOfCDP(cdp, collateralPrice, AtomMultiplier)
