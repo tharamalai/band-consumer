@@ -43,13 +43,13 @@ func NewHandler(keeper Keeper) sdk.Handler {
 			return handleMsgLockCollateral(ctx, keeper, msg)
 
 		case MsgUnlockCollateral:
-			msgCount := keeper.GetMsgCount(ctx)
+			msgID := keeper.GetMsgCount(ctx)
 
 			// Setup oracle request
 			bandChainID := BandChainID
 			port := ModuleName
 			oracleScriptID := oracle.OracleScriptID(OracleScriptID)
-			clientID := fmt.Sprintf("Msg:%d", msgCount)
+			clientID := fmt.Sprintf("Msg:%d", msgID)
 			calldata := encodeRequestParams(AtomSymbol, AtomMultiplier)
 			askCount := int64(1)
 			minCount := int64(1)
@@ -69,7 +69,7 @@ func NewHandler(keeper Keeper) sdk.Handler {
 			)
 
 			// Set message to the store for waiting the oracle response packet.
-			keeper.SetMsg(ctx, msgCount, msg)
+			keeper.SetMsg(ctx, msgID, msg)
 
 			err = requestOracle(ctx, keeper, dataRequest)
 			if err != nil {
@@ -83,7 +83,7 @@ func NewHandler(keeper Keeper) sdk.Handler {
 			return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
 
 		case MsgBorrowDebt:
-			msgCount := keeper.GetMsgCount(ctx)
+			msgID := keeper.GetMsgCount(ctx)
 
 			multiplier := new(big.Int).SetInt64(10)
 			atomDecimal := new(big.Int).SetInt64(AtomDecimal)
@@ -93,7 +93,7 @@ func NewHandler(keeper Keeper) sdk.Handler {
 			bandChainID := BandChainID
 			port := ModuleName
 			oracleScriptID := oracle.OracleScriptID(OracleScriptID)
-			clientID := fmt.Sprintf("Msg:%d", msgCount)
+			clientID := fmt.Sprintf("Msg:%d", msgID)
 			calldata := encodeRequestParams(AtomSymbol, multiplier.Uint64())
 			askCount := int64(1)
 			minCount := int64(1)
@@ -113,7 +113,7 @@ func NewHandler(keeper Keeper) sdk.Handler {
 			)
 
 			// Set message to the store for waiting the oracle response packet.
-			keeper.SetMsg(ctx, msgCount, msg)
+			keeper.SetMsg(ctx, msgID, msg)
 
 			err = requestOracle(ctx, keeper, dataRequest)
 			if err != nil {
