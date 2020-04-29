@@ -97,21 +97,21 @@ func handleMsgLockCollateral(ctx sdk.Context, keeper Keeper, msg MsgLockCollater
 
 	cdp := keeper.GetCDP(ctx, msg.Sender)
 
-	lockAmount := sdk.NewCoin(denom, sdk.NewInt(int64(msg.Amount)))
-	lockAmountCoins := sdk.NewCoins(lockAmount)
+	lockCoin := sdk.NewCoin(denom, sdk.NewInt(int64(msg.Amount)))
+	lockAmountCoins := sdk.NewCoins(lockCoin)
+
+	collateralCoin := sdk.NewCoin(denom, sdk.NewInt(int64(cdp.CollateralAmount)))
 
 	//  Accumulate collateral on CDP
-	lockAmountInt := new(big.Int).SetUint64(msg.Amount)
-	collateralAmountInt := new(big.Int).SetUint64(cdp.CollateralAmount)
-	collateralAmountInt.Add(collateralAmountInt, lockAmountInt)
-	if !collateralAmountInt.IsUint64() {
+	collateralCoin.Add(lockCoin)
+	if collateralCoin.IsNegative() {
 		return nil, sdkerrors.Wrapf(
 			types.ErrInvalidBasicMsg,
 			"invalid lock amount. collateral must more than or equals 0.",
 		)
 	}
 
-	cdp.CollateralAmount = collateralAmountInt.Uint64()
+	cdp.CollateralAmount = collateralCoin.Amount.Uint64()
 
 	// Transfer collateral to the module account. Transaction fails if sender's balance is insufficient.
 	err = keeper.SupplyKeeper.SendCoinsFromAccountToModule(ctx, msg.Sender, ModuleName, lockAmountCoins)
