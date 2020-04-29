@@ -26,7 +26,7 @@ func NewHandler(keeper Keeper) sdk.Handler {
 				err := handleOracleRespondPacketData(ctx, keeper, responseData)
 				if err != nil {
 					return nil, sdkerrors.Wrapf(
-						types.ErrRequestOracleData,
+						types.ErrResponseOracleData,
 						"error while handle response oracle data: %v",
 						err,
 					)
@@ -43,39 +43,11 @@ func NewHandler(keeper Keeper) sdk.Handler {
 			return handleMsgLockCollateral(ctx, keeper, msg)
 
 		case MsgUnlockCollateral:
-			msgID := keeper.GetMsgCount(ctx)
-
-			// Setup oracle request
-			bandChainID := BandChainID
-			port := ModuleName
-			oracleScriptID := oracle.OracleScriptID(OracleScriptID)
-			clientID := fmt.Sprintf("Msg:%d", msgID)
-			calldata := encodeRequestParams(AtomSymbol, AtomMultiplier)
-			askCount := int64(1)
-			minCount := int64(1)
-
-			channelID, err := keeper.GetChannel(ctx, bandChainID, port)
-
-			dataRequest := types.NewDataRequest(
-				oracleScriptID,
-				channelID,
-				bandChainID,
-				port,
-				clientID,
-				calldata,
-				askCount,
-				minCount,
-				msg.Sender,
-			)
-
-			// Set message to the store for waiting the oracle response packet.
-			keeper.SetMsg(ctx, msgID, msg)
-
-			err = requestOracle(ctx, keeper, dataRequest)
+			err := handleOracleRequestPacketData(ctx, keeper, msg, msg.Sender)
 			if err != nil {
 				return nil, sdkerrors.Wrapf(
-					types.ErrRequestOracleData,
-					"error while request oracle data: %v",
+					types.ErrResponseOracleData,
+					"error while handle request oracle data: %v",
 					err,
 				)
 			}
@@ -83,53 +55,22 @@ func NewHandler(keeper Keeper) sdk.Handler {
 			return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
 
 		case MsgBorrowDebt:
-			msgID := keeper.GetMsgCount(ctx)
-
-			multiplier := new(big.Int).SetInt64(10)
-			atomDecimal := new(big.Int).SetInt64(AtomDecimal)
-			multiplier = multiplier.Exp(multiplier, atomDecimal, new(big.Int).SetInt64(0))
-
-			// Setup oracle request
-			bandChainID := BandChainID
-			port := ModuleName
-			oracleScriptID := oracle.OracleScriptID(OracleScriptID)
-			clientID := fmt.Sprintf("Msg:%d", msgID)
-			calldata := encodeRequestParams(AtomSymbol, multiplier.Uint64())
-			askCount := int64(1)
-			minCount := int64(1)
-
-			channelID, err := keeper.GetChannel(ctx, bandChainID, port)
-
-			dataRequest := types.NewDataRequest(
-				oracleScriptID,
-				channelID,
-				bandChainID,
-				port,
-				clientID,
-				calldata,
-				askCount,
-				minCount,
-				msg.Sender,
-			)
-
-			// Set message to the store for waiting the oracle response packet.
-			keeper.SetMsg(ctx, msgID, msg)
-
-			err = requestOracle(ctx, keeper, dataRequest)
+			err := handleOracleRequestPacketData(ctx, keeper, msg, msg.Sender)
 			if err != nil {
 				return nil, sdkerrors.Wrapf(
-					types.ErrRequestOracleData,
-					"error while request oracle data: %v",
+					types.ErrResponseOracleData,
+					"error while handle request oracle data: %v",
 					err,
 				)
 			}
-
 			return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
 
 		case MsgReturnDebt:
 			return handleMsgReturnDebt(ctx, keeper, msg)
 
 		case MsgSetSourceChannel:
+			// TODO: Check permission
+
 			return handleSetSourceChannel(ctx, keeper, msg)
 
 		default:
@@ -243,6 +184,13 @@ func handleSetSourceChannel(ctx sdk.Context, keeper Keeper, msg types.MsgSetSour
 func requestOracle(ctx sdk.Context, keeper Keeper, dataReq DataRequest) error {
 
 	channelID, err := keeper.GetChannel(ctx, dataReq.ChainID, dataReq.Port)
+	if err != nil {
+		return sdkerrors.Wrapf(
+			types.ErrInvalidChannel,
+			"channel %s not found",
+			dataReq.Port,
+		)
+	}
 
 	sourceChannelEnd, found := keeper.ChannelKeeper.GetChannel(ctx, dataReq.Port, channelID)
 	if !found {
@@ -272,13 +220,49 @@ func requestOracle(ctx sdk.Context, keeper Keeper, dataReq DataRequest) error {
 		dataReq.AskCount, dataReq.MinCount,
 	)
 
-	err = keeper.ChannelKeeper.SendPacket(ctx, channel.NewPacket(packet.GetBytes(),
+	return keeper.ChannelKeeper.SendPacket(ctx, channel.NewPacket(packet.GetBytes(),
 		sequence, dataReq.Port, channelID, destinationPort, destinationChannel,
 		1000000000, // Arbitrarily high timeout for now
 	))
 
+}
+
+func handleOracleRequestPacketData(ctx sdk.Context, keeper Keeper, msg sdk.Msg, sender sdk.AccAddress) error {
+	msgID := keeper.GetMsgCount(ctx)
+
+	// Setup oracle request
+	bandChainID := BandChainID
+	port := ModuleName
+	oracleScriptID := oracle.OracleScriptID(OracleScriptID)
+	clientID := fmt.Sprintf("Msg:%d", msgID)
+	calldata := encodeRequestParams(AtomSymbol, AtomMultiplier)
+	askCount := int64(1)
+	minCount := int64(1)
+
+	channelID, err := keeper.GetChannel(ctx, bandChainID, port)
+
+	dataRequest := types.NewDataRequest(
+		oracleScriptID,
+		channelID,
+		bandChainID,
+		port,
+		clientID,
+		calldata,
+		askCount,
+		minCount,
+		sender,
+	)
+
+	// Set message to the store for waiting the oracle response packet.
+	keeper.SetMsg(ctx, msgID, msg)
+
+	err = requestOracle(ctx, keeper, dataRequest)
 	if err != nil {
-		return err
+		return sdkerrors.Wrapf(
+			types.ErrRequestOracleData,
+			"error while request oracle data: %v",
+			err,
+		)
 	}
 
 	return nil
@@ -346,7 +330,7 @@ func handleOracleRespondPacketData(ctx sdk.Context, keeper Keeper, packet oracle
 }
 
 // handleMsgUnlockCollateral handles the unlock collateral message after receives oracle packet
-func handleMsgUnlockCollateral(ctx sdk.Context, keeper Keeper, msg types.MsgUnlockCollateral, collateralPrice uint64) error {
+func handleMsgUnlockCollateral(ctx sdk.Context, keeper Keeper, msg MsgUnlockCollateral, collateralPrice uint64) error {
 
 	cosmosHubChannelID, err := keeper.GetChannel(ctx, CosmosHubChain, "transfer")
 	denom := fmt.Sprintf("transfer/%s/%s", cosmosHubChannelID, types.AtomUnit)
