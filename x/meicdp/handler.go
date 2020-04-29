@@ -40,7 +40,15 @@ func NewHandler(keeper Keeper) sdk.Handler {
 			)
 
 		case MsgLockCollateral:
-			return handleMsgLockCollateral(ctx, keeper, msg)
+			result, err := handleMsgLockCollateral(ctx, keeper, msg)
+			if err != nil {
+				return nil, sdkerrors.Wrapf(
+					types.ErrInvalidBasicMsg,
+					"error while handle lock msg: %v",
+					err,
+				)
+			}
+			return result, nil
 
 		case MsgUnlockCollateral:
 			err := handleOracleRequestPacketData(ctx, keeper, msg, msg.Sender)
@@ -65,7 +73,15 @@ func NewHandler(keeper Keeper) sdk.Handler {
 			return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
 
 		case MsgReturnDebt:
-			return handleMsgReturnDebt(ctx, keeper, msg)
+			result, err := handleMsgReturnDebt(ctx, keeper, msg)
+			if err != nil {
+				return nil, sdkerrors.Wrapf(
+					types.ErrInvalidBasicMsg,
+					"error while handle return msg: %v",
+					err,
+				)
+			}
+			return result, nil
 
 		case MsgSetSourceChannel:
 			// TODO: Check permission
@@ -103,7 +119,7 @@ func handleMsgLockCollateral(ctx sdk.Context, keeper Keeper, msg MsgLockCollater
 	collateralCoin := sdk.NewCoin(denom, sdk.NewInt(int64(cdp.CollateralAmount)))
 
 	//  Accumulate collateral on CDP
-	collateralCoin.Add(lockCoin)
+	collateralCoin = collateralCoin.Add(lockCoin)
 	if collateralCoin.IsNegative() {
 		return nil, sdkerrors.Wrapf(
 			types.ErrInvalidBasicMsg,
@@ -140,7 +156,7 @@ func handleMsgReturnDebt(ctx sdk.Context, keeper Keeper, msg MsgReturnDebt) (*sd
 	debtCoin := sdk.NewCoin(types.MeiUnit, sdk.NewInt(int64(cdp.DebtAmount)))
 
 	// New debt
-	debtCoin.Sub(returnCoin)
+	debtCoin = debtCoin.Sub(returnCoin)
 	if debtCoin.IsNegative() {
 		return nil, sdkerrors.Wrapf(
 			types.ErrInvalidBasicMsg,
@@ -343,7 +359,7 @@ func handleMsgUnlockCollateral(ctx sdk.Context, keeper Keeper, msg MsgUnlockColl
 	collateralCoin := sdk.NewCoin(denom, sdk.NewInt(int64(cdp.CollateralAmount)))
 
 	// Subtract collateral on CDP
-	collateralCoin.Sub(unlockCoin)
+	collateralCoin := collateralCoin.Sub(unlockCoin)
 	if collateralCoin.IsNegative() {
 		return sdkerrors.Wrapf(
 			types.ErrInvalidBasicMsg,
@@ -389,7 +405,7 @@ func handleMsgBorrowDebt(ctx sdk.Context, keeper Keeper, msg types.MsgBorrowDebt
 
 	// Accumurate debt on CDP
 	debtCoin := sdk.NewCoin(types.MeiUnit, sdk.NewInt(int64(cdp.DebtAmount)))
-	debtCoin.Add(borrowCoin)
+	debtCoin = debtCoin.Add(borrowCoin)
 
 	if debtCoin.IsNegative() {
 		return sdkerrors.Wrapf(
