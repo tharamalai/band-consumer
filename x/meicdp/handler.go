@@ -337,23 +337,21 @@ func handleMsgUnlockCollateral(ctx sdk.Context, keeper Keeper, msg MsgUnlockColl
 
 	cdp := keeper.GetCDP(ctx, msg.Sender)
 
-	unlockAmount := sdk.NewCoin(denom, sdk.NewInt(int64(msg.Amount)))
-	unlockAmountCoins := sdk.NewCoins(unlockAmount)
+	unlockCoin := sdk.NewCoin(denom, sdk.NewInt(int64(msg.Amount)))
+	unlockAmountCoins := sdk.NewCoins(unlockCoin)
+
+	collateralCoin := sdk.NewCoin(denom, sdk.NewInt(int64(cdp.CollateralAmount)))
 
 	// Subtract collateral on CDP
-	unlockAmountInt := new(big.Int).SetUint64(msg.Amount)
-	collateralAmount := new(big.Int).SetUint64(cdp.CollateralAmount)
-	collateralAmount.Sub(collateralAmount, unlockAmountInt)
-
-	minimumCollateralAmount := new(big.Int).SetUint64(0)
-	if collateralAmount.Cmp(minimumCollateralAmount) == -1 {
+	collateralCoin.Sub(unlockCoin)
+	if collateralCoin.IsNegative() {
 		return sdkerrors.Wrapf(
 			types.ErrInvalidBasicMsg,
 			"invalid unlock amount. collateral must more than or equals 0.",
 		)
 	}
 
-	cdp.CollateralAmount = collateralAmount.Uint64()
+	cdp.CollateralAmount = collateralCoin.Amount.Uint64()
 
 	// Calculate new collateral ratio. If collateral is lower than 150 percent then returns error.
 	debtAmount := new(big.Int).SetUint64(cdp.DebtAmount)
