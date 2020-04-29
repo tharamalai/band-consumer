@@ -23,69 +23,28 @@ func NewHandler(keeper Keeper) sdk.Handler {
 		case channeltypes.MsgPacket:
 			var responseData oracle.OracleResponsePacketData
 			if err := types.ModuleCdc.UnmarshalJSON(msg.GetData(), &responseData); err == nil {
-				err := handleOracleResponsePacketData(ctx, keeper, responseData)
-				if err != nil {
-					return nil, sdkerrors.Wrapf(
-						types.ErrResponseOracleData,
-						"error while handle response oracle data: %v",
-						err,
-					)
-				}
-
-				return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
+				return handleOracleResponsePacketData(ctx, keeper, responseData)
 			}
+
 			return nil, sdkerrors.Wrapf(
 				sdkerrors.ErrUnknownRequest,
 				"cannot unmarshal oracle packet data",
 			)
 
 		case MsgLockCollateral:
-			result, err := handleMsgLockCollateral(ctx, keeper, msg)
-			if err != nil {
-				return nil, sdkerrors.Wrapf(
-					types.ErrInvalidBasicMsg,
-					"error while handle lock msg: %v",
-					err,
-				)
-			}
-			return result, nil
+			return handleMsgLockCollateral(ctx, keeper, msg)
 
 		case MsgUnlockCollateral:
-			err := handleOracleRequestPacketData(ctx, keeper, msg, msg.Sender)
-			if err != nil {
-				return nil, sdkerrors.Wrapf(
-					types.ErrResponseOracleData,
-					"error while handle request oracle data: %v",
-					err,
-				)
-			}
-			return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
+			return handleOracleRequestPacketData(ctx, keeper, msg, msg.Sender)
 
 		case MsgBorrowDebt:
-			err := handleOracleRequestPacketData(ctx, keeper, msg, msg.Sender)
-			if err != nil {
-				return nil, sdkerrors.Wrapf(
-					types.ErrResponseOracleData,
-					"error while handle request oracle data: %v",
-					err,
-				)
-			}
-			return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
+			return handleOracleRequestPacketData(ctx, keeper, msg, msg.Sender)
 
 		case MsgReturnDebt:
-			result, err := handleMsgReturnDebt(ctx, keeper, msg)
-			if err != nil {
-				return nil, sdkerrors.Wrapf(
-					types.ErrInvalidBasicMsg,
-					"error while handle return msg: %v",
-					err,
-				)
-			}
-			return result, nil
+			return handleMsgReturnDebt(ctx, keeper, msg)
 
 		case MsgSetSourceChannel:
 			// TODO: Check permission
-
 			return handleSetSourceChannel(ctx, keeper, msg)
 
 		default:
@@ -142,7 +101,7 @@ func handleMsgLockCollateral(ctx sdk.Context, keeper Keeper, msg MsgLockCollater
 	// Store CDP
 	keeper.SetCDP(ctx, cdp)
 
-	return &sdk.Result{}, nil
+	return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
 }
 
 func handleMsgReturnDebt(ctx sdk.Context, keeper Keeper, msg MsgReturnDebt) (*sdk.Result, error) {
@@ -188,7 +147,7 @@ func handleMsgReturnDebt(ctx sdk.Context, keeper Keeper, msg MsgReturnDebt) (*sd
 		)
 	}
 
-	return &sdk.Result{}, nil
+	return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
 }
 
 func handleSetSourceChannel(ctx sdk.Context, keeper Keeper, msg types.MsgSetSourceChannel) (*sdk.Result, error) {
@@ -242,7 +201,7 @@ func requestOracle(ctx sdk.Context, keeper Keeper, dataReq DataRequest) error {
 
 }
 
-func handleOracleRequestPacketData(ctx sdk.Context, keeper Keeper, msg sdk.Msg, sender sdk.AccAddress) error {
+func handleOracleRequestPacketData(ctx sdk.Context, keeper Keeper, msg sdk.Msg, sender sdk.AccAddress) (*sdk.Result, error) {
 	msgID := keeper.GetNextMsgCount(ctx)
 
 	// Setup oracle request
@@ -273,21 +232,21 @@ func handleOracleRequestPacketData(ctx sdk.Context, keeper Keeper, msg sdk.Msg, 
 
 	err = requestOracle(ctx, keeper, dataRequest)
 	if err != nil {
-		return sdkerrors.Wrapf(
+		return nil, sdkerrors.Wrapf(
 			types.ErrRequestOracleData,
 			"error while request oracle data: %v",
 			err,
 		)
 	}
 
-	return nil
+	return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
 }
 
-func handleOracleResponsePacketData(ctx sdk.Context, keeper Keeper, packet oracle.OracleResponsePacketData) error {
+func handleOracleResponsePacketData(ctx sdk.Context, keeper Keeper, packet oracle.OracleResponsePacketData) (*sdk.Result, error) {
 
 	clientID := strings.Split(packet.ClientID, ":")
 	if len(clientID) != 2 {
-		return sdkerrors.Wrapf(
+		return nil, sdkerrors.Wrapf(
 			types.ErrUnknownClientID,
 			"unknown client id %s",
 			packet.ClientID,
@@ -296,18 +255,18 @@ func handleOracleResponsePacketData(ctx sdk.Context, keeper Keeper, packet oracl
 
 	msgID, err := strconv.ParseUint(clientID[1], 10, 64)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	rawResult, err := hex.DecodeString(packet.Result)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	decoder := types.NewDecoder(rawResult)
 	collateralPrice, err := decoder.DecodeU64()
 	if err != nil {
-		return sdkerrors.Wrapf(
+		return nil, sdkerrors.Wrapf(
 			sdkerrors.ErrUnknownRequest,
 			"cannot decode orable result data",
 		)
@@ -315,7 +274,7 @@ func handleOracleResponsePacketData(ctx sdk.Context, keeper Keeper, packet oracl
 
 	msg, err := keeper.GetMsg(ctx, msgID)
 	if err != nil {
-		return sdkerrors.Wrapf(
+		return nil, sdkerrors.Wrapf(
 			types.ErrMsgNotFound,
 			"cannot get stored message",
 		)
@@ -329,7 +288,7 @@ func handleOracleResponsePacketData(ctx sdk.Context, keeper Keeper, packet oracl
 		return handleMsgBorrowDebt(ctx, keeper, msg, collateralPrice)
 
 	default:
-		return sdkerrors.Wrapf(
+		return nil, sdkerrors.Wrapf(
 			types.ErrInvalidMsgType,
 			fmt.Sprintf("invalid message type: %T", msg),
 		)
@@ -338,7 +297,7 @@ func handleOracleResponsePacketData(ctx sdk.Context, keeper Keeper, packet oracl
 }
 
 // handleMsgUnlockCollateral handles the unlock collateral message after receives oracle packet
-func handleMsgUnlockCollateral(ctx sdk.Context, keeper Keeper, msg MsgUnlockCollateral, collateralPrice uint64) error {
+func handleMsgUnlockCollateral(ctx sdk.Context, keeper Keeper, msg MsgUnlockCollateral, collateralPrice uint64) (*sdk.Result, error) {
 
 	cosmosHubChannelID, err := keeper.GetChannel(ctx, CosmosHubChain, "transfer")
 	denom := fmt.Sprintf("transfer/%s/%s", cosmosHubChannelID, types.AtomUnit)
@@ -353,7 +312,7 @@ func handleMsgUnlockCollateral(ctx sdk.Context, keeper Keeper, msg MsgUnlockColl
 	// Subtract collateral on CDP
 	collateralCoin = collateralCoin.Sub(unlockCoin)
 	if collateralCoin.IsNegative() {
-		return sdkerrors.Wrapf(
+		return nil, sdkerrors.Wrapf(
 			types.ErrInvalidBasicMsg,
 			"invalid unlock amount. collateral must more than or equals 0.",
 		)
@@ -370,7 +329,7 @@ func handleMsgUnlockCollateral(ctx sdk.Context, keeper Keeper, msg MsgUnlockColl
 		minimunRatio := new(big.Float).SetFloat64(MinimumCollateralRatio)
 		collateralRatio, _ := collateralRatioFloat.Float64()
 		if collateralRatioFloat.Cmp(minimunRatio) == -1 {
-			return sdkerrors.Wrapf(
+			return nil, sdkerrors.Wrapf(
 				types.ErrTooLowCollateralRatio,
 				fmt.Sprintf("collateral rate is too low. (%f%%)", collateralRatio),
 			)
@@ -379,17 +338,17 @@ func handleMsgUnlockCollateral(ctx sdk.Context, keeper Keeper, msg MsgUnlockColl
 
 	err = keeper.SupplyKeeper.SendCoinsFromModuleToAccount(ctx, ModuleName, msg.Sender, unlockAmountCoins)
 	if err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInsufficientFunds, "can't transfer coins from CDP module to sender")
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInsufficientFunds, "can't transfer coins from CDP module to sender")
 	}
 
 	// Store CDP
 	keeper.SetCDP(ctx, cdp)
 
-	return nil
+	return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
 }
 
 // handleMsgBorrowDebt handles the borrow debt message after receives oracle packet
-func handleMsgBorrowDebt(ctx sdk.Context, keeper Keeper, msg types.MsgBorrowDebt, collateralPrice uint64) error {
+func handleMsgBorrowDebt(ctx sdk.Context, keeper Keeper, msg types.MsgBorrowDebt, collateralPrice uint64) (*sdk.Result, error) {
 	cdp := keeper.GetCDP(ctx, msg.Sender)
 
 	borrowCoin := sdk.NewCoin(types.MeiUnit, sdk.NewInt(int64(msg.Amount)))
@@ -400,7 +359,7 @@ func handleMsgBorrowDebt(ctx sdk.Context, keeper Keeper, msg types.MsgBorrowDebt
 	debtCoin = debtCoin.Add(borrowCoin)
 
 	if debtCoin.IsNegative() {
-		return sdkerrors.Wrapf(
+		return nil, sdkerrors.Wrapf(
 			types.ErrInvalidBasicMsg,
 			"invalid borrow amount. debt must more than or equals 0.",
 		)
@@ -417,7 +376,7 @@ func handleMsgBorrowDebt(ctx sdk.Context, keeper Keeper, msg types.MsgBorrowDebt
 		minimunRatio := new(big.Float).SetFloat64(MinimumCollateralRatio)
 		collateralRatio, _ := collateralRatioFloat.Float64()
 		if collateralRatioFloat.Cmp(minimunRatio) == -1 {
-			return sdkerrors.Wrapf(
+			return nil, sdkerrors.Wrapf(
 				types.ErrTooLowCollateralRatio,
 				fmt.Sprintf("collateral rate is too low. (%f%%)", collateralRatio),
 			)
@@ -427,7 +386,7 @@ func handleMsgBorrowDebt(ctx sdk.Context, keeper Keeper, msg types.MsgBorrowDebt
 	// CDP mint Mei coins
 	err := keeper.SupplyKeeper.MintCoins(ctx, ModuleName, borrowAmountCoins)
 	if err != nil {
-		return sdkerrors.Wrapf(
+		return nil, sdkerrors.Wrapf(
 			types.ErrMintCoin,
 			"mint coin fail",
 		)
@@ -436,7 +395,7 @@ func handleMsgBorrowDebt(ctx sdk.Context, keeper Keeper, msg types.MsgBorrowDebt
 	// CDP send coins from module to sender
 	err = keeper.SupplyKeeper.SendCoinsFromModuleToAccount(ctx, ModuleName, msg.Sender, borrowAmountCoins)
 	if err != nil {
-		return sdkerrors.Wrapf(
+		return nil, sdkerrors.Wrapf(
 			sdkerrors.ErrInsufficientFunds,
 			"can't transfer coins from CDP module to sender",
 		)
@@ -445,5 +404,5 @@ func handleMsgBorrowDebt(ctx sdk.Context, keeper Keeper, msg types.MsgBorrowDebt
 	// Store CDP
 	keeper.SetCDP(ctx, cdp)
 
-	return nil
+	return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
 }
