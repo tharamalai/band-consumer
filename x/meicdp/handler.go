@@ -380,7 +380,7 @@ func handleMsgUnlockCollateral(ctx sdk.Context, keeper Keeper, msg MsgUnlockColl
 		if collateralRatioFloat.Cmp(minimunRatio) == -1 {
 			return sdkerrors.Wrapf(
 				types.ErrTooLowCollateralRatio,
-				fmt.Sprintf("collateral rate is too low. (%f%)", collateralRatio),
+				fmt.Sprintf("collateral rate is too low. (%f%%)", collateralRatio),
 			)
 		}
 	}
@@ -427,7 +427,7 @@ func handleMsgBorrowDebt(ctx sdk.Context, keeper Keeper, msg types.MsgBorrowDebt
 		if collateralRatioFloat.Cmp(minimunRatio) == -1 {
 			return sdkerrors.Wrapf(
 				types.ErrTooLowCollateralRatio,
-				fmt.Sprintf("collateral rate is too low. (%f%)", collateralRatio),
+				fmt.Sprintf("collateral rate is too low. (%f%%)", collateralRatio),
 			)
 		}
 	}
