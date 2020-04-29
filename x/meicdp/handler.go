@@ -317,13 +317,13 @@ func handleOracleRespondPacketData(ctx sdk.Context, keeper Keeper, packet oracle
 		if err != nil {
 			return err
 		}
-	}
 
 	default:
 		return sdkerrors.Wrapf(
 			types.ErrInvalidMsgType,
 			fmt.Sprintf("invalid message type: %T", msg),
 		)
+	}
 
 	return nil
 
