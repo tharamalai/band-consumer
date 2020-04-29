@@ -51,7 +51,6 @@ func NewHandler(keeper Keeper) sdk.Handler {
 					err,
 				)
 			}
-
 			return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
 
 		case MsgBorrowDebt:
@@ -307,18 +306,24 @@ func handleOracleRespondPacketData(ctx sdk.Context, keeper Keeper, packet oracle
 	}
 
 	switch msg := msg.(type) {
-	case types.MsgUnlockCollateral:
+	case MsgUnlockCollateral:
 		err := handleMsgUnlockCollateral(ctx, keeper, msg, collateralPrice)
 		if err != nil {
 			return err
 		}
 
-	case types.MsgBorrowDebt:
+	case MsgBorrowDebt:
 		err := handleMsgBorrowDebt(ctx, keeper, msg, collateralPrice)
 		if err != nil {
 			return err
 		}
 	}
+
+	default:
+		return sdkerrors.Wrapf(
+			types.ErrInvalidMsgType,
+			fmt.Sprintf("invalid message type: %T", msg),
+		)
 
 	return nil
 
