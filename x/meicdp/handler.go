@@ -359,7 +359,7 @@ func handleMsgUnlockCollateral(ctx sdk.Context, keeper Keeper, msg MsgUnlockColl
 	collateralCoin := sdk.NewCoin(denom, sdk.NewInt(int64(cdp.CollateralAmount)))
 
 	// Subtract collateral on CDP
-	collateralCoin := collateralCoin.Sub(unlockCoin)
+	collateralCoin = collateralCoin.Sub(unlockCoin)
 	if collateralCoin.IsNegative() {
 		return sdkerrors.Wrapf(
 			types.ErrInvalidBasicMsg,
