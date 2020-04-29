@@ -134,20 +134,20 @@ func handleMsgReturnDebt(ctx sdk.Context, keeper Keeper, msg MsgReturnDebt) (*sd
 	cdp := keeper.GetCDP(ctx, msg.Sender)
 
 	// Subtract debt on CDP
-	returnAmount := sdk.NewCoin(types.MeiUnit, sdk.NewInt(int64(msg.Amount)))
-	returnAmountCoins := sdk.NewCoins(returnAmount)
+	returnCoin := sdk.NewCoin(types.MeiUnit, sdk.NewInt(int64(msg.Amount)))
+	returnAmountCoins := sdk.NewCoins(returnCoin)
+
+	debtCoin := sdk.NewCoin(types.MeiUnit, sdk.NewInt(int64(cdp.DebtAmount)))
 
 	// New debt
-	returnAmountInt := new(big.Int).SetUint64(msg.Amount)
-	debtAmountInt := new(big.Int).SetUint64(cdp.DebtAmount)
-	debtAmountInt.Sub(debtAmountInt, returnAmountInt)
-	if !debtAmountInt.IsUint64() {
+	debtCoin.Sub(returnCoin)
+	if debtCoin.IsNegative() {
 		return nil, sdkerrors.Wrapf(
 			types.ErrInvalidBasicMsg,
 			"invalid return amount. debt must more than or equals 0.",
 		)
 	}
-	cdp.DebtAmount = debtAmountInt.Uint64()
+	cdp.DebtAmount = debtCoin.Amount.Uint64()
 
 	// TODO: Pay fee
 
