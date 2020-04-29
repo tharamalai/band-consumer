@@ -34,6 +34,7 @@ type (
 	MsgUnlockCollateral = types.MsgUnlockCollateral
 	MsgBorrowDebt       = types.MsgBorrowDebt
 	MsgReturnDebt       = types.MsgReturnDebt
+	MsgLiquidate        = types.MsgReturnDebt
 	MsgSetSourceChannel = types.MsgSetSourceChannel
 	DataRequest         = types.DataRequest
 	Decoder             = types.Decoder
