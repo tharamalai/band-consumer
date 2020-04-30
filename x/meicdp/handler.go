@@ -129,10 +129,7 @@ func handleMsgReturnDebt(ctx sdk.Context, keeper Keeper, msg MsgReturnDebt) (*sd
 	// Transfer Mei from user to CDP. Transaction fails if sender's balance is insufficient.
 	err := keeper.SupplyKeeper.SendCoinsFromAccountToModule(ctx, msg.Sender, ModuleName, returnAmountCoins)
 	if err != nil {
-		return nil, sdkerrors.Wrapf(
-			sdkerrors.ErrInsufficientFunds,
-			"can't transfer coins from sender to CDP",
-		)
+		return nil, sdkerrors.ErrInsufficientFunds
 	}
 
 	// Store CDP
@@ -141,10 +138,7 @@ func handleMsgReturnDebt(ctx sdk.Context, keeper Keeper, msg MsgReturnDebt) (*sd
 	// CDP burn returned coins
 	err = keeper.SupplyKeeper.BurnCoins(ctx, ModuleName, returnAmountCoins)
 	if err != nil {
-		return nil, sdkerrors.Wrapf(
-			types.ErrBurnCoin,
-			"burn coin fail",
-		)
+		return nil, types.ErrBurnCoin
 	}
 
 	return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
@@ -331,7 +325,7 @@ func handleMsgUnlockCollateral(ctx sdk.Context, keeper Keeper, msg MsgUnlockColl
 		if collateralRatioFloat.Cmp(minimunRatio) == -1 {
 			return nil, sdkerrors.Wrapf(
 				types.ErrTooLowCollateralRatio,
-				fmt.Sprintf("collateral rate is too low. (%f%%)", collateralRatio),
+				fmt.Sprintf("collateral ratio is too low. (%.2f)", collateralRatio),
 			)
 		}
 	}
@@ -378,7 +372,7 @@ func handleMsgBorrowDebt(ctx sdk.Context, keeper Keeper, msg types.MsgBorrowDebt
 		if collateralRatioFloat.Cmp(minimunRatio) == -1 {
 			return nil, sdkerrors.Wrapf(
 				types.ErrTooLowCollateralRatio,
-				fmt.Sprintf("collateral rate is too low. (%f%%)", collateralRatio),
+				fmt.Sprintf("collateral ratio is too low. (%.2f)", collateralRatio),
 			)
 		}
 	}
@@ -386,10 +380,7 @@ func handleMsgBorrowDebt(ctx sdk.Context, keeper Keeper, msg types.MsgBorrowDebt
 	// CDP mint Mei coins
 	err := keeper.SupplyKeeper.MintCoins(ctx, ModuleName, borrowAmountCoins)
 	if err != nil {
-		return nil, sdkerrors.Wrapf(
-			types.ErrMintCoin,
-			"mint coin fail",
-		)
+		return nil, types.ErrMintCoin
 	}
 
 	// CDP send coins from module to sender
