@@ -43,6 +43,7 @@ func GetTxCmd(storeKey string, cdc *codec.Codec) *cobra.Command {
 		GetCmdUnlockCollateral(cdc),
 		GetCmdReturnDebt(cdc),
 		GetCmdBorrowDebt(cdc),
+		GetCmdLiquidate(cdc),
 		GetCmdSetChannel(cdc),
 	)...)
 

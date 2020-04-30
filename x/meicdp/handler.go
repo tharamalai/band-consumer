@@ -84,6 +84,7 @@ func NewHandler(keeper Keeper) sdk.Handler {
 			return result, nil
 
 		case MsgLiquidate:
+			fmt.Println("test")
 			return handleMsgLiquidate(ctx, keeper, msg, 255555)
 
 		case MsgSetSourceChannel:
@@ -375,7 +376,7 @@ func handleMsgUnlockCollateral(ctx sdk.Context, keeper Keeper, msg MsgUnlockColl
 		if collateralRatioFloat.Cmp(minimunRatio) == -1 {
 			return sdkerrors.Wrapf(
 				types.ErrTooLowCollateralRatio,
-				fmt.Sprintf("collateral rate is too low. (%f%%)", collateralRatio),
+				fmt.Sprintf("collateral rate is too low. (%.2f%%)", collateralRatio),
 			)
 		}
 	}
@@ -422,7 +423,7 @@ func handleMsgBorrowDebt(ctx sdk.Context, keeper Keeper, msg types.MsgBorrowDebt
 		if collateralRatioFloat.Cmp(minimunRatio) == -1 {
 			return sdkerrors.Wrapf(
 				types.ErrTooLowCollateralRatio,
-				fmt.Sprintf("collateral rate is too low. (%f%%)", collateralRatio),
+				fmt.Sprintf("collateral rate is too low. (%.2f%%)", collateralRatio),
 			)
 		}
 	}
@@ -453,13 +454,32 @@ func handleMsgBorrowDebt(ctx sdk.Context, keeper Keeper, msg types.MsgBorrowDebt
 
 // handleMsgLiquidate handles the liquidate message after receives oracle packet
 func handleMsgLiquidate(ctx sdk.Context, keeper Keeper, msg MsgLiquidate, collateralPrice uint64) (*sdk.Result, error) {
-	cdp := keeper.GetCDP(ctx, msg.CdpOwner)
+	// cdp := keeper.GetCDP(ctx, msg.CdpOwner)
+
+	// TODO: Remove this mock
+	mockAccount, err := sdk.AccAddressFromBech32("cosmos1d5cu0hwx6tpg6z9pdxscwwtdv5sjlx9nfqrvqj")
+	if err != nil {
+		return nil, sdkerrors.Wrapf(
+			types.ErrLiquidateCDP,
+			"mock account error",
+		)
+	}
+	fmt.Println("mockAccount", mockAccount)
+
+	cdp := types.NewCDP(
+		uint64(1000000),
+		uint64(1000000000000000000),
+		mockAccount,
+	)
+	fmt.Println("new CDP", cdp)
 
 	collateralCoin := sdk.NewCoin(types.AtomUnit, sdk.NewInt(int64(cdp.CollateralAmount)))
 	collateralCoins := sdk.NewCoins(collateralCoin)
+	fmt.Println("collateralCoins", collateralCoins)
 
 	debtCoin := sdk.NewCoin(types.MeiUnit, sdk.NewInt(int64(cdp.DebtAmount)))
 	debtCoins := sdk.NewCoins(debtCoin)
+	fmt.Println("debtCoins", debtCoins)
 
 	// Calculate new collateral ratio. Collateral ratio must less than 150%
 	collateralRatioFloat := calculateCollateralRatioOfCDP(cdp, collateralPrice, AtomMultiplier)
@@ -468,67 +488,41 @@ func handleMsgLiquidate(ctx sdk.Context, keeper Keeper, msg MsgLiquidate, collat
 	if collateralRatioFloat.Cmp(minimunRatio) > 0 {
 		return nil, sdkerrors.Wrapf(
 			types.ErrLiquidateCDP,
-			fmt.Sprintf("can't liquidate the cdp. collateral rate is more than %f%%.", collateralRatio),
+			fmt.Sprintf("can't liquidate the cdp. collateral ratio is more than %d (%.2f)", MinimumCollateralRatio, collateralRatio),
 		)
 	}
 
+	fmt.Println("collateralRatio", collateralRatio)
+
 	// Transfer Mei from user to CDP. Transaction fails if sender's balance is insufficient.
-	err := keeper.SupplyKeeper.SendCoinsFromAccountToModule(ctx, msg.Liquidator, ModuleName, debtCoins)
+	err = keeper.SupplyKeeper.SendCoinsFromAccountToModule(ctx, msg.Liquidator, ModuleName, debtCoins)
 	if err != nil {
 		return nil, sdkerrors.Wrapf(
 			sdkerrors.ErrInsufficientFunds,
 			"can't transfer coins from liquidater to CDP",
 		)
 	}
-
-	// Burn Mei from liquidator
-	err = keeper.SupplyKeeper.BurnCoins(ctx, ModuleName, debtCoins)
-	if err != nil {
-
-		// If burn coin fail, return Mei to liquidator
-		// CDP send coins from module to sender
-		err = keeper.SupplyKeeper.SendCoinsFromModuleToAccount(ctx, ModuleName, msg.Liquidator, debtCoins)
-		if err != nil {
-			return nil, sdkerrors.Wrapf(
-				sdkerrors.ErrInsufficientFunds,
-				"burn coin fail. can't transfer coins from CDP module to liquidator",
-			)
-		}
-
-		return nil, sdkerrors.Wrapf(
-			types.ErrBurnCoin,
-			"burn coin fail",
-		)
-	}
+	fmt.Println("Paymei", debtCoins)
 
 	// Transfer collateral to liquidator
 	err = keeper.SupplyKeeper.SendCoinsFromModuleToAccount(ctx, ModuleName, msg.Liquidator, collateralCoins)
 	if err != nil {
-
-		// If transfer collateral fail, return Mei to liquidator
-		// CDP mint Mei coins
-		err := keeper.SupplyKeeper.MintCoins(ctx, ModuleName, debtCoins)
-		if err != nil {
-			return nil, sdkerrors.Wrapf(
-				types.ErrMintCoin,
-				"can't transfer coins from CDP module to liquidator. mint coin fail",
-			)
-		}
-
-		// CDP return Mei coins from module to sender
-		err = keeper.SupplyKeeper.SendCoinsFromModuleToAccount(ctx, ModuleName, msg.Liquidator, debtCoins)
-		if err != nil {
-			return nil, sdkerrors.Wrapf(
-				sdkerrors.ErrInsufficientFunds,
-				"can't transfer coins from CDP module to liquidator. transfer Mei coins fail",
-			)
-		}
-
 		return nil, sdkerrors.Wrapf(
 			sdkerrors.ErrInsufficientFunds,
 			"can't transfer coins from CDP module to liquidator",
 		)
 	}
+	fmt.Println("Getcollateral", collateralCoins)
+
+	// Burn Mei from liquidator
+	err = keeper.SupplyKeeper.BurnCoins(ctx, ModuleName, debtCoins)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(
+			types.ErrBurnCoin,
+			"burn coin fail",
+		)
+	}
+	fmt.Println("Burnmei", debtCoins)
 
 	// Set collateral and debt on cdp to zero
 	cdp.CollateralAmount = 0
@@ -536,6 +530,8 @@ func handleMsgLiquidate(ctx sdk.Context, keeper Keeper, msg MsgLiquidate, collat
 
 	// Store CDP
 	keeper.SetCDP(ctx, cdp)
+
+	fmt.Println("cdp", cdp)
 
 	return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
 }
