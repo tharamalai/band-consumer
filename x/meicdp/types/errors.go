@@ -13,7 +13,7 @@ var (
 	ErrInvalidState           = sdkerrors.Register(ModuleName, 6, "InvalidState")
 	ErrBadWasmExecution       = sdkerrors.Register(ModuleName, 7, "BadWasmExecution")
 	ErrUnmarshalJSON          = sdkerrors.Register(ModuleName, 8, "InvalidCDPJSONData")
-	ErrMintCoin               = sdkerrors.Register(ModuleName, 9, "BurnMintFail")
+	ErrMintCoin               = sdkerrors.Register(ModuleName, 9, "MintCoinFail")
 	ErrBurnCoin               = sdkerrors.Register(ModuleName, 10, "BurnCoinFail")
 	ErrInvalidChannel         = sdkerrors.Register(ModuleName, 11, "InvalidChannel")
 	ErrUnknownClientID        = sdkerrors.Register(ModuleName, 12, "UnknownClientID")
