@@ -454,24 +454,7 @@ func handleMsgBorrowDebt(ctx sdk.Context, keeper Keeper, msg types.MsgBorrowDebt
 
 // handleMsgLiquidate handles the liquidate message after receives oracle packet
 func handleMsgLiquidate(ctx sdk.Context, keeper Keeper, msg MsgLiquidate, collateralPrice uint64) (*sdk.Result, error) {
-	// cdp := keeper.GetCDP(ctx, msg.CdpOwner)
-
-	// TODO: Remove this mock
-	mockAccount, err := sdk.AccAddressFromBech32("cosmos1d5cu0hwx6tpg6z9pdxscwwtdv5sjlx9nfqrvqj")
-	if err != nil {
-		return nil, sdkerrors.Wrapf(
-			types.ErrLiquidateCDP,
-			"mock account error",
-		)
-	}
-	fmt.Println("mockAccount", mockAccount)
-
-	cdp := types.NewCDP(
-		uint64(1000000),
-		uint64(1000000000000000000),
-		mockAccount,
-	)
-	fmt.Println("new CDP", cdp)
+	cdp := keeper.GetCDP(ctx, msg.CdpOwner)
 
 	collateralCoin := sdk.NewCoin(types.AtomUnit, sdk.NewInt(int64(cdp.CollateralAmount)))
 	collateralCoins := sdk.NewCoins(collateralCoin)
@@ -495,11 +478,11 @@ func handleMsgLiquidate(ctx sdk.Context, keeper Keeper, msg MsgLiquidate, collat
 	fmt.Println("collateralRatio", collateralRatio)
 
 	// Transfer Mei from user to CDP. Transaction fails if sender's balance is insufficient.
-	err = keeper.SupplyKeeper.SendCoinsFromAccountToModule(ctx, msg.Liquidator, ModuleName, debtCoins)
+	err := keeper.SupplyKeeper.SendCoinsFromAccountToModule(ctx, msg.Liquidator, ModuleName, debtCoins)
 	if err != nil {
 		return nil, sdkerrors.Wrapf(
 			sdkerrors.ErrInsufficientFunds,
-			"can't transfer coins from liquidater to CDP",
+			"can't transfer Mei coins from liquidater to CDP",
 		)
 	}
 	fmt.Println("Paymei", debtCoins)
@@ -509,7 +492,7 @@ func handleMsgLiquidate(ctx sdk.Context, keeper Keeper, msg MsgLiquidate, collat
 	if err != nil {
 		return nil, sdkerrors.Wrapf(
 			sdkerrors.ErrInsufficientFunds,
-			"can't transfer coins from CDP module to liquidator",
+			"can't transfer collateral from CDP module to liquidator",
 		)
 	}
 	fmt.Println("Getcollateral", collateralCoins)
@@ -517,10 +500,7 @@ func handleMsgLiquidate(ctx sdk.Context, keeper Keeper, msg MsgLiquidate, collat
 	// Burn Mei from liquidator
 	err = keeper.SupplyKeeper.BurnCoins(ctx, ModuleName, debtCoins)
 	if err != nil {
-		return nil, sdkerrors.Wrapf(
-			types.ErrBurnCoin,
-			"burn coin fail",
-		)
+		return nil, types.ErrBurnCoin
 	}
 	fmt.Println("Burnmei", debtCoins)
 
