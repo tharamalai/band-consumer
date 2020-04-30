@@ -36,6 +36,7 @@ type (
 	MsgReturnDebt       = types.MsgReturnDebt
 	MsgLiquidate        = types.MsgLiquidate
 	MsgSetSourceChannel = types.MsgSetSourceChannel
+	MsgAddDebtAdmin     = types.MsgAddDebtAdmin
 	DataRequest         = types.DataRequest
 	Decoder             = types.Decoder
 	Encoder             = types.Encoder

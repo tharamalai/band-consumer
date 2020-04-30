@@ -50,6 +50,9 @@ func NewHandler(keeper Keeper) sdk.Handler {
 			// TODO: Check permission
 			return handleSetSourceChannel(ctx, keeper, msg)
 
+		case MsgAddDebtAdmin:
+			return handleAddDebtByAdmin(ctx, keeper, msg)
+
 		default:
 			return nil, sdkerrors.Wrapf(
 				sdkerrors.ErrUnknownRequest,
@@ -473,4 +476,61 @@ func handleMsgLiquidate(ctx sdk.Context, keeper Keeper, msg MsgLiquidate, collat
 	fmt.Println("cdp", cdp)
 
 	return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
+}
+
+//TODO: remove this. testing function.
+func handleAddDebtByAdmin(ctx sdk.Context, keeper Keeper, msg MsgAddDebtAdmin) (*sdk.Result, error) {
+
+	cdp := keeper.GetCDP(ctx, msg.CdpOwner)
+
+	channelID, err := keeper.GetChannel(ctx, CosmosHubChain, "transfer")
+	if err != nil {
+		return nil, sdkerrors.Wrapf(
+			types.ErrInvalidChannel,
+			fmt.Sprintf("channel of %s chain not found", CosmosHubChain),
+		)
+	}
+
+	denom := fmt.Sprintf("transfer/%s/%s", channelID, types.AtomUnit)
+
+	collateralCoin := sdk.NewCoin(denom, sdk.NewInt(int64(1000000)))
+	collateralCoins := sdk.NewCoins(collateralCoin)
+	fmt.Println("collateralCoins", collateralCoins)
+
+	// CDP mint Atom coins
+	err = keeper.SupplyKeeper.MintCoins(ctx, ModuleName, collateralCoins)
+	if err != nil {
+		return nil, types.ErrMintCoin
+	}
+
+	//liquidator should receive mei for liquidate CDP
+	debtCoin := sdk.NewCoin(types.MeiUnit, sdk.NewInt(int64(9000000000000000000)))
+	debtCoins := sdk.NewCoins(debtCoin)
+	fmt.Println("debtCoins", debtCoins)
+
+	// CDP mint Mei coins
+	err = keeper.SupplyKeeper.MintCoins(ctx, ModuleName, debtCoins)
+	if err != nil {
+		return nil, types.ErrMintCoin
+	}
+
+	// Transfer mei to liquidator
+	err = keeper.SupplyKeeper.SendCoinsFromModuleToAccount(ctx, ModuleName, msg.Liquidator, debtCoins)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(
+			sdkerrors.ErrInsufficientFunds,
+			"can't transfer collateral from CDP module to liquidator",
+		)
+	}
+
+	cdp.CollateralAmount = collateralCoin.Amount.Uint64()
+	cdp.DebtAmount = debtCoin.Amount.Uint64()
+
+	// Store CDP
+	keeper.SetCDP(ctx, cdp)
+
+	fmt.Println("cdp", cdp)
+
+	return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
+
 }
