@@ -435,13 +435,13 @@ func handleMsgLiquidate(ctx sdk.Context, keeper Keeper, msg MsgLiquidate, collat
 		)
 	}
 
-	// Transfer Mei from user to CDP. Transaction fails if sender's balance is insufficient.
+	// Transfer Mei from liquidator to CDP. Transaction fails if liquidator's balance is insufficient.
 	err = keeper.SupplyKeeper.SendCoinsFromAccountToModule(ctx, msg.Liquidator, ModuleName, debtCoins)
 	if err != nil {
 		return nil, sdkerrors.ErrInsufficientFunds
 	}
 
-	// Transfer collateral to liquidator
+	// Transfer collateral from CDP to liquidator
 	err = keeper.SupplyKeeper.SendCoinsFromModuleToAccount(ctx, ModuleName, msg.Liquidator, collateralCoins)
 	if err != nil {
 		return nil, sdkerrors.Wrapf(
