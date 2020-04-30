@@ -408,7 +408,17 @@ func handleMsgBorrowDebt(ctx sdk.Context, keeper Keeper, msg types.MsgBorrowDebt
 func handleMsgLiquidate(ctx sdk.Context, keeper Keeper, msg MsgLiquidate, collateralPrice uint64) (*sdk.Result, error) {
 	cdp := keeper.GetCDP(ctx, msg.CdpOwner)
 
-	collateralCoin := sdk.NewCoin(types.AtomUnit, sdk.NewInt(int64(cdp.CollateralAmount)))
+	channelID, err := keeper.GetChannel(ctx, CosmosHubChain, "transfer")
+	if err != nil {
+		return nil, sdkerrors.Wrapf(
+			types.ErrInvalidChannel,
+			fmt.Sprintf("channel of %s chain not found", CosmosHubChain),
+		)
+	}
+
+	denom := fmt.Sprintf("transfer/%s/%s", channelID, types.AtomUnit)
+
+	collateralCoin := sdk.NewCoin(denom, sdk.NewInt(int64(cdp.CollateralAmount)))
 	collateralCoins := sdk.NewCoins(collateralCoin)
 	fmt.Println("collateralCoins", collateralCoins)
 
@@ -430,7 +440,7 @@ func handleMsgLiquidate(ctx sdk.Context, keeper Keeper, msg MsgLiquidate, collat
 	fmt.Println("collateralRatio", collateralRatio)
 
 	// Transfer Mei from user to CDP. Transaction fails if sender's balance is insufficient.
-	err := keeper.SupplyKeeper.SendCoinsFromAccountToModule(ctx, msg.Liquidator, ModuleName, debtCoins)
+	err = keeper.SupplyKeeper.SendCoinsFromAccountToModule(ctx, msg.Liquidator, ModuleName, debtCoins)
 	if err != nil {
 		return nil, sdkerrors.ErrInsufficientFunds
 	}
