@@ -22,33 +22,10 @@ func GetQueryCmd(storeKey string, cdc *codec.Codec) *cobra.Command {
 		RunE:                       client.ValidateCmd,
 	}
 	meiCdpCmd.AddCommand(flags.GetCommands(
-		GetCmdReadResult(storeKey, cdc),
 		GetCmdReadCDP(storeKey, cdc),
 	)...)
 
 	return meiCdpCmd
-}
-
-// GetCmdReadRequest queries request by reqID
-func GetCmdReadResult(queryRoute string, cdc *codec.Codec) *cobra.Command {
-	return &cobra.Command{
-		Use:  "result",
-		Args: cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			reqID := args[0]
-
-			res, _, err := cliCtx.QueryWithData(
-				fmt.Sprintf("custom/%s/result/%s", queryRoute, reqID),
-				nil,
-			)
-			if err != nil {
-				fmt.Printf("read request fail - %s \n", reqID)
-				return nil
-			}
-			return cliCtx.PrintOutput(res)
-		},
-	}
 }
 
 // GetCmdReadCDP - Get CDP by user account
