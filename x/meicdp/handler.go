@@ -44,8 +44,7 @@ func NewHandler(keeper Keeper) sdk.Handler {
 			return handleMsgReturnDebt(ctx, keeper, msg)
 
 		case MsgLiquidate:
-			fmt.Println("test")
-			return handleMsgLiquidate(ctx, keeper, msg, 255555)
+			return handleOracleRequestPacketData(ctx, keeper, msg, msg.Liquidator)
 
 		case MsgSetSourceChannel:
 			// TODO: Check permission
@@ -284,6 +283,9 @@ func handleOracleResponsePacketData(ctx sdk.Context, keeper Keeper, packet oracl
 
 	case MsgBorrowDebt:
 		return handleMsgBorrowDebt(ctx, keeper, msg, collateralPrice)
+
+	case MsgLiquidate:
+		return handleMsgLiquidate(ctx, keeper, msg, collateralPrice)
 
 	default:
 		return nil, sdkerrors.Wrapf(
