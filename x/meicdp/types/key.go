@@ -25,6 +25,36 @@ const (
 
 	// CosmosHubChain Cosmos Hub chain ID
 	CosmosHubChain = "band-cosmoshub"
+
+	// AtomSymbol is symbol of ATOM
+	AtomSymbol = "ATOM"
+
+	// MeiSymbol is symbol of MEI
+	MeiSymbol = "MEI"
+
+	// AtomDecimal is decimal of ATOM
+	AtomDecimal = 6
+
+	// MeiDecimal is decimal of MEI
+	MeiDecimal = 18
+
+	// AtomUnitPerAtom is amount of atom unit per one atom (10^6)
+	AtomUnitPerAtom = 1000000
+
+	// MeiUnitPerMei is amount of mei unit per one mei (10^18)
+	MeiUnitPerMei = 1000000000000000000
+
+	// AtomMultiplier is multiplier of Atom price request
+	AtomMultiplier = 1000000
+
+	// MinimumCollateralRatio is 150%
+	MinimumCollateralRatio = 150
+
+	//BandChainID - Bandchain ID
+	BandChainID = "ibc-bandchain"
+
+	//OracleScriptID is crypto price script (Borsh version)
+	OracleScriptID = 2
 )
 
 var (

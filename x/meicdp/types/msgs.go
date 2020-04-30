@@ -185,6 +185,51 @@ func (msg MsgUnlockCollateral) GetSignBytes() []byte {
 	return sdk.MustSortJSON(bz)
 }
 
+// MsgLiquidate is a message for liquidate CDP
+type MsgLiquidate struct {
+	CdpOwner   sdk.AccAddress
+	Liquidator sdk.AccAddress
+}
+
+// NewMsgLiquidate creates a new MsgLiquidate instance.
+func NewMsgLiquidate(
+	cdpOwner sdk.AccAddress,
+	liquidator sdk.AccAddress,
+) MsgLiquidate {
+	return MsgLiquidate{
+		CdpOwner:   cdpOwner,
+		Liquidator: liquidator,
+	}
+}
+
+// Route implements the sdk.Msg interface for MsgLiquidate.
+func (msg MsgLiquidate) Route() string { return RouterKey }
+
+// Type implements the sdk.Msg interface for MsgLiquidate.
+func (msg MsgLiquidate) Type() string { return "liquidate" }
+
+// ValidateBasic implements the sdk.Msg interface for MsgLiquidate.
+func (msg MsgLiquidate) ValidateBasic() error {
+	if msg.CdpOwner.Empty() {
+		return sdkerrors.Wrapf(ErrInvalidBasicMsg, "MsgLiquidate: CdpOwner address must not be empty.")
+	}
+	if msg.Liquidator.Empty() {
+		return sdkerrors.Wrapf(ErrInvalidBasicMsg, "MsgLiquidate: Liquidator address must not be empty.")
+	}
+	return nil
+}
+
+// GetSigners implements the sdk.Msg interface for MsgLiquidate.
+func (msg MsgLiquidate) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{msg.Liquidator}
+}
+
+// GetSignBytes implements the sdk.Msg interface for MsgLiquidate.
+func (msg MsgLiquidate) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(msg)
+	return sdk.MustSortJSON(bz)
+}
+
 // MsgSetSoruceChannel is a message for setting source channel to other chain
 type MsgSetSourceChannel struct {
 	ChainName     string         `json:"chain_name"`
