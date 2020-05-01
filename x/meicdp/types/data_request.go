@@ -15,7 +15,6 @@ type DataRequest struct {
 	Calldata       string                `json:"calldata"`
 	AskCount       int64                 `json:"askCount"`
 	MinCount       int64                 `json:"minCount"`
-	Sender         sdk.AccAddress        `json:"sender"`
 }
 
 // NewDataRequest creates a new DataRequest instance.
@@ -39,6 +38,5 @@ func NewDataRequest(
 		AskCount:       askCount,
 		MinCount:       minCount,
 		ClientID:       clientID,
-		Sender:         sender,
 	}
 }
