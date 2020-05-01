@@ -43,6 +43,9 @@ func NewHandler(keeper Keeper) sdk.Handler {
 		case MsgReturnDebt:
 			return handleMsgReturnDebt(ctx, keeper, msg)
 
+		case MsgLiquidate:
+			return handleOracleRequestPacketData(ctx, keeper, msg, msg.Liquidator)
+
 		case MsgSetSourceChannel:
 			// TODO: Check permission
 			return handleSetSourceChannel(ctx, keeper, msg)
@@ -281,6 +284,9 @@ func handleOracleResponsePacketData(ctx sdk.Context, keeper Keeper, packet oracl
 	case MsgBorrowDebt:
 		return handleMsgBorrowDebt(ctx, keeper, msg, collateralPrice)
 
+	case MsgLiquidate:
+		return handleMsgLiquidate(ctx, keeper, msg, collateralPrice)
+
 	default:
 		return nil, sdkerrors.Wrapf(
 			types.ErrInvalidMsgType,
@@ -391,6 +397,68 @@ func handleMsgBorrowDebt(ctx sdk.Context, keeper Keeper, msg types.MsgBorrowDebt
 			"can't transfer coins from CDP module to sender",
 		)
 	}
+
+	// Store CDP
+	keeper.SetCDP(ctx, cdp)
+
+	return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
+}
+
+// handleMsgLiquidate handles the liquidate message after receives oracle packet
+func handleMsgLiquidate(ctx sdk.Context, keeper Keeper, msg MsgLiquidate, collateralPrice uint64) (*sdk.Result, error) {
+	cdp := keeper.GetCDP(ctx, msg.CdpOwner)
+
+	channelID, err := keeper.GetChannel(ctx, CosmosHubChain, "transfer")
+	if err != nil {
+		return nil, sdkerrors.Wrapf(
+			types.ErrInvalidChannel,
+			fmt.Sprintf("channel of %s chain not found", CosmosHubChain),
+		)
+	}
+
+	denom := fmt.Sprintf("transfer/%s/%s", channelID, types.AtomUnit)
+
+	collateralCoin := sdk.NewCoin(denom, sdk.NewInt(int64(cdp.CollateralAmount)))
+	collateralCoins := sdk.NewCoins(collateralCoin)
+
+	debtCoin := sdk.NewCoin(types.MeiUnit, sdk.NewInt(int64(cdp.DebtAmount)))
+	debtCoins := sdk.NewCoins(debtCoin)
+
+	// Calculate new collateral ratio. Collateral ratio must less than 150%
+	collateralRatioFloat := calculateCollateralRatioOfCDP(cdp, collateralPrice, AtomMultiplier)
+	minimunRatio := new(big.Float).SetFloat64(MinimumCollateralRatio)
+	collateralRatio, _ := collateralRatioFloat.Float64()
+	if collateralRatioFloat.Cmp(minimunRatio) > 0 {
+		return nil, sdkerrors.Wrapf(
+			types.ErrLiquidateCDP,
+			fmt.Sprintf("can't liquidate the cdp. collateral ratio is more than %d (%.2f)", MinimumCollateralRatio, collateralRatio),
+		)
+	}
+
+	// Transfer Mei from liquidator to CDP. Transaction fails if liquidator's balance is insufficient.
+	err = keeper.SupplyKeeper.SendCoinsFromAccountToModule(ctx, msg.Liquidator, ModuleName, debtCoins)
+	if err != nil {
+		return nil, sdkerrors.ErrInsufficientFunds
+	}
+
+	// Transfer collateral from CDP to liquidator
+	err = keeper.SupplyKeeper.SendCoinsFromModuleToAccount(ctx, ModuleName, msg.Liquidator, collateralCoins)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(
+			sdkerrors.ErrInsufficientFunds,
+			"can't transfer collateral from CDP module to liquidator",
+		)
+	}
+
+	// Burn Mei from liquidator
+	err = keeper.SupplyKeeper.BurnCoins(ctx, ModuleName, debtCoins)
+	if err != nil {
+		return nil, types.ErrBurnCoin
+	}
+
+	// Set collateral and debt on cdp to zero
+	cdp.CollateralAmount = 0
+	cdp.DebtAmount = 0
 
 	// Store CDP
 	keeper.SetCDP(ctx, cdp)

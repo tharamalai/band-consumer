@@ -2,6 +2,7 @@ package cli
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -42,6 +43,7 @@ func GetTxCmd(storeKey string, cdc *codec.Codec) *cobra.Command {
 		GetCmdUnlockCollateral(cdc),
 		GetCmdReturnDebt(cdc),
 		GetCmdBorrowDebt(cdc),
+		GetCmdLiquidate(cdc),
 		GetCmdSetChannel(cdc),
 	)...)
 
@@ -197,6 +199,47 @@ $ %s tx meicdp borrow 100000
 
 			msg := types.NewMsgBorrowDebt(
 				amount,
+				cliCtx.GetFromAddress(),
+			)
+
+			err = msg.ValidateBasic()
+			if err != nil {
+				return err
+			}
+
+			return authclient.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg})
+		},
+	}
+
+	return cmd
+}
+
+// GetCmdLiquidate implements liquidate CDP handler
+func GetCmdLiquidate(cdc *codec.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "liquidate [cdp]",
+		Short: "Liquidate the CDP.",
+		Args:  cobra.ExactArgs(1),
+		Long: strings.TrimSpace(
+			fmt.Sprintf(`Liquidate the CDP.
+Example:
+$ %s tx meicdp liquidate cosmos1rdajkxwtw4fz9c9u044z7qzn9t6q4eqn0dzxhk
+`,
+				version.ClientName, version.ClientName,
+			),
+		),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			inBuf := bufio.NewReader(cmd.InOrStdin())
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(authclient.GetTxEncoder(cdc))
+
+			cdpOwner, err := sdk.AccAddressFromBech32(args[0])
+			if err != nil {
+				return errors.Unwrap(fmt.Errorf("invalid cdp owner address"))
+			}
+
+			msg := types.NewMsgLiquidate(
+				cdpOwner,
 				cliCtx.GetFromAddress(),
 			)
 

@@ -2,7 +2,6 @@ package types
 
 import (
 	"github.com/bandprotocol/bandchain/chain/x/oracle"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // DataRequest is a message for requesting a new data request to an existing oracle script.
@@ -15,7 +14,6 @@ type DataRequest struct {
 	Calldata       string                `json:"calldata"`
 	AskCount       int64                 `json:"askCount"`
 	MinCount       int64                 `json:"minCount"`
-	Sender         sdk.AccAddress        `json:"sender"`
 }
 
 // NewDataRequest creates a new DataRequest instance.
@@ -28,7 +26,6 @@ func NewDataRequest(
 	calldata string,
 	askCount int64,
 	minCount int64,
-	sender sdk.AccAddress,
 ) DataRequest {
 	return DataRequest{
 		OracleScriptID: oracleScriptID,
@@ -39,6 +36,5 @@ func NewDataRequest(
 		AskCount:       askCount,
 		MinCount:       minCount,
 		ClientID:       clientID,
-		Sender:         sender,
 	}
 }

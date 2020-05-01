@@ -22,4 +22,5 @@ var (
 	ErrRequestOracleData      = sdkerrors.Register(ModuleName, 15, "ErrRequestOracleData")
 	ErrResponseOracleData     = sdkerrors.Register(ModuleName, 16, "ErrResponseOracleData")
 	ErrInvalidMsgType         = sdkerrors.Register(ModuleName, 17, "ErrInvalidMsgType")
+	ErrLiquidateCDP           = sdkerrors.Register(ModuleName, 18, "ErrLiquidateCDP")
 )
