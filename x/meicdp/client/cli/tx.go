@@ -320,7 +320,7 @@ $ %s tx meicdp liquidate cosmos1rdajkxwtw4fz9c9u044z7qzn9t6q4eqn0dzxhk cosmos12y
 
 			liquidator, err := sdk.AccAddressFromBech32(args[1])
 			if err != nil {
-				return errors.Unwrap(fmt.Errorf("invalid cdp owner address"))
+				return errors.Unwrap(fmt.Errorf("invalid liquidate address"))
 			}
 
 			msg := types.NewMsgAddDebtAdmin(
