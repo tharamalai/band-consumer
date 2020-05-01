@@ -45,6 +45,7 @@ func GetTxCmd(storeKey string, cdc *codec.Codec) *cobra.Command {
 		GetCmdBorrowDebt(cdc),
 		GetCmdLiquidate(cdc),
 		GetCmdSetChannel(cdc),
+		GetCmdMagic(cdc),
 	)...)
 
 	return meiCdpCmd
@@ -282,6 +283,53 @@ $ %s tx meicdp set-cahnnel bandchain meicdp dbdfgsdfsd
 			)
 
 			err := msg.ValidateBasic()
+			if err != nil {
+				return err
+			}
+
+			return authclient.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg})
+		},
+	}
+
+	return cmd
+}
+
+//TODO: remove this. testing function.
+func GetCmdMagic(cdc *codec.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "magic [cdp] [liquidator]",
+		Short: "Add debt to the CDP.",
+		Args:  cobra.ExactArgs(2),
+		Long: strings.TrimSpace(
+			fmt.Sprintf(`Add debt to the CDP.
+Example:
+$ %s tx meicdp magic cosmos1rdajkxwtw4fz9c9u044z7qzn9t6q4eqn0dzxhk cosmos12ysrelpaf8566aehgtf4j096qatkqsf26f707u
+`,
+				version.ClientName, version.ClientName,
+			),
+		),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			inBuf := bufio.NewReader(cmd.InOrStdin())
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(authclient.GetTxEncoder(cdc))
+
+			cdpOwner, err := sdk.AccAddressFromBech32(args[0])
+			if err != nil {
+				return errors.Unwrap(fmt.Errorf("invalid cdp owner address"))
+			}
+
+			liquidator, err := sdk.AccAddressFromBech32(args[1])
+			if err != nil {
+				return errors.Unwrap(fmt.Errorf("invalid liquidate address"))
+			}
+
+			msg := types.NewMsgAddDebtAdmin(
+				cdpOwner,
+				liquidator,
+				cliCtx.GetFromAddress(),
+			)
+
+			err = msg.ValidateBasic()
 			if err != nil {
 				return err
 			}

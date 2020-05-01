@@ -272,3 +272,44 @@ func (msg MsgSetSourceChannel) GetSignBytes() []byte {
 	bz := ModuleCdc.MustMarshalJSON(msg)
 	return sdk.MustSortJSON(bz)
 }
+
+type MsgAddDebtAdmin struct {
+	CdpOwner   sdk.AccAddress `json:"cdpOwner"`
+	Liquidator sdk.AccAddress `json:"liquidator"`
+	Admin      sdk.AccAddress `json:"admin"`
+}
+
+func NewMsgAddDebtAdmin(
+	cdpOwner sdk.AccAddress,
+	liquidator sdk.AccAddress,
+	admin sdk.AccAddress,
+) MsgAddDebtAdmin {
+	return MsgAddDebtAdmin{
+		CdpOwner:   cdpOwner,
+		Liquidator: liquidator,
+		Admin:      admin,
+	}
+}
+
+// Route implements the sdk.Msg interface for MsgAddDebtAdmin.
+func (msg MsgAddDebtAdmin) Route() string { return RouterKey }
+
+// Type implements the sdk.Msg interface for MsgAddDebtAdmin.
+func (msg MsgAddDebtAdmin) Type() string { return "set_debt" }
+
+// ValidateBasic implements the sdk.Msg interface for MsgAddDebtAdmin.
+func (msg MsgAddDebtAdmin) ValidateBasic() error {
+	// TODO: Add validate basic
+	return nil
+}
+
+// GetSigners implements the sdk.Msg interface for MsgAddDebtAdmin.
+func (msg MsgAddDebtAdmin) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{msg.Admin}
+}
+
+// GetSignBytes implements the sdk.Msg interface for MsgAddDebtAdmin.
+func (msg MsgAddDebtAdmin) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(msg)
+	return sdk.MustSortJSON(bz)
+}

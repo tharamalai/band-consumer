@@ -50,6 +50,9 @@ func NewHandler(keeper Keeper) sdk.Handler {
 			// TODO: Check permission
 			return handleSetSourceChannel(ctx, keeper, msg)
 
+		case MsgAddDebtAdmin:
+			return handleAddDebtByAdmin(ctx, keeper, msg)
+
 		default:
 			return nil, sdkerrors.Wrapf(
 				sdkerrors.ErrUnknownRequest,
@@ -464,4 +467,41 @@ func handleMsgLiquidate(ctx sdk.Context, keeper Keeper, msg MsgLiquidate, collat
 	keeper.SetCDP(ctx, cdp)
 
 	return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
+}
+
+//TODO: remove this. testing function.
+func handleAddDebtByAdmin(ctx sdk.Context, keeper Keeper, msg MsgAddDebtAdmin) (*sdk.Result, error) {
+
+	cdp := keeper.GetCDP(ctx, msg.CdpOwner)
+
+	//liquidator should receive mei for liquidate CDP
+	debtCoin := sdk.NewCoin(types.MeiUnit, sdk.NewInt(int64(9000000000000000000)))
+	debtCoins := sdk.NewCoins(debtCoin)
+
+	// CDP mint Mei coins
+	err := keeper.SupplyKeeper.MintCoins(ctx, ModuleName, debtCoins)
+	if err != nil {
+		return nil, types.ErrMintCoin
+	}
+
+	// Transfer mei to liquidator
+	err = keeper.SupplyKeeper.SendCoinsFromModuleToAccount(ctx, ModuleName, msg.Liquidator, debtCoins)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(
+			sdkerrors.ErrInsufficientFunds,
+			"can't transfer mei from CDP module to liquidator",
+		)
+	}
+
+	// Accumurate debt on CDP
+	debtCoinOnCDP := sdk.NewCoin(types.MeiUnit, sdk.NewInt(int64(cdp.DebtAmount)))
+	debtCoinOnCDP = debtCoinOnCDP.Add(debtCoin)
+
+	cdp.DebtAmount = debtCoinOnCDP.Amount.Uint64()
+
+	// Store CDP
+	keeper.SetCDP(ctx, cdp)
+
+	return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
+
 }
