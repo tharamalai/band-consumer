@@ -303,7 +303,7 @@ func GetCmdMagic(cdc *codec.Codec) *cobra.Command {
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Add debt to the CDP.
 Example:
-$ %s tx meicdp liquidate cosmos1rdajkxwtw4fz9c9u044z7qzn9t6q4eqn0dzxhk cosmos12ysrelpaf8566aehgtf4j096qatkqsf26f707u
+$ %s tx meicdp magic cosmos1rdajkxwtw4fz9c9u044z7qzn9t6q4eqn0dzxhk cosmos12ysrelpaf8566aehgtf4j096qatkqsf26f707u
 `,
 				version.ClientName, version.ClientName,
 			),
