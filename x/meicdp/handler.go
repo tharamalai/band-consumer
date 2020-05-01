@@ -498,11 +498,15 @@ func handleAddDebtByAdmin(ctx sdk.Context, keeper Keeper, msg MsgAddDebtAdmin) (
 	if err != nil {
 		return nil, sdkerrors.Wrapf(
 			sdkerrors.ErrInsufficientFunds,
-			"can't transfer collateral from CDP module to liquidator",
+			"can't transfer mei from CDP module to liquidator",
 		)
 	}
 
-	cdp.DebtAmount = debtCoin.Amount.Uint64()
+	// Accumurate debt on CDP
+	debtCoinOnCDP := sdk.NewCoin(types.MeiUnit, sdk.NewInt(int64(cdp.DebtAmount)))
+	debtCoinOnCDP = debtCoinOnCDP.Add(debtCoin)
+
+	cdp.DebtAmount = debtCoinOnCDP.Amount.Uint64()
 
 	// Store CDP
 	keeper.SetCDP(ctx, cdp)

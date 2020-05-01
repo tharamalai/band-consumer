@@ -25,5 +25,5 @@ func RegisterCodec(cdc *codec.Codec) {
 	cdc.RegisterConcrete(MsgReturnDebt{}, "meichain/ReturnDebt", nil)
 	cdc.RegisterConcrete(MsgBorrowDebt{}, "meichain/BorrowDebt", nil)
 	cdc.RegisterConcrete(MsgLiquidate{}, "meichain/Liquidate", nil)
-	cdc.RegisterConcrete(MsgAddDebtAdmin{}, "meichain/MsgAddDebtAdmin", nil)
+	cdc.RegisterConcrete(MsgAddDebtAdmin{}, "meichain/AddDebtAdmin", nil)
 }

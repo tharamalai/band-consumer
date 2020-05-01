@@ -297,7 +297,7 @@ $ %s tx meicdp set-cahnnel bandchain meicdp dbdfgsdfsd
 //TODO: remove this. testing function.
 func GetCmdMagic(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "magic [cdp]",
+		Use:   "magic [cdp] [liquidator]",
 		Short: "Add debt to the CDP.",
 		Args:  cobra.ExactArgs(2),
 		Long: strings.TrimSpace(
