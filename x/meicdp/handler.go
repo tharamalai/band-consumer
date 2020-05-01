@@ -224,7 +224,6 @@ func handleOracleRequestPacketData(ctx sdk.Context, keeper Keeper, msg sdk.Msg, 
 		calldata,
 		askCount,
 		minCount,
-		sender,
 	)
 
 	// Set message to the store for waiting the oracle response packet.
