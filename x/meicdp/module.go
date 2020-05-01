@@ -11,6 +11,7 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/tharamalai/meichain/x/meicdp/client/cli"
+	"github.com/tharamalai/meichain/x/meicdp/client/rest"
 )
 
 // AppModule Basics object
@@ -41,7 +42,7 @@ func (AppModuleBasic) ValidateGenesis(cdc codec.JSONMarshaler, bz json.RawMessag
 
 // Register rest routes
 func (AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, rtr *mux.Router) {
-	// rest.RegisterRoutes(ctx, rtr, StoreKey)
+	rest.RegisterRoutes(ctx, rtr, StoreKey)
 }
 
 // Get the root query command of this module
