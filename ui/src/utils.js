@@ -75,7 +75,6 @@ export const calculateMaxDebtUSD = (_collateralInUSD) => {
   const allCollateral = Big(3)
   const collateralUSD = Big(_collateralInUSD)
   let maxDebtUSD = allDebt.div(allCollateral)
-  console.log("maxDebtUSD", maxDebtUSD)
   maxDebtUSD = maxDebtUSD.times(collateralUSD)
   return maxDebtUSD.toFixed(2)
 }
