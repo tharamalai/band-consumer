@@ -2,7 +2,7 @@ import React from 'react'
 import { Flex, Text } from 'rebass'
 import colors from 'ui/colors'
 import { useMeichainBalance } from 'hooks/meichain'
-import { findAmount, toMei, MEI_UNIT_SYMBOL } from 'utils'
+import { findTokenBySymbol, toMei, MEI_UNIT_SYMBOL } from 'utils'
 
 export default ({ meiAddress, meichainBalance }) => {
 
@@ -53,7 +53,7 @@ export default ({ meiAddress, meichainBalance }) => {
               color={colors.purple.dark}
             >
               {meichainBalance 
-                ? toMei(findAmount(meichainBalance.result, MEI_UNIT_SYMBOL).amount)
+                ? toMei(findTokenBySymbol(meichainBalance.result, MEI_UNIT_SYMBOL).amount)
                 : "0"
               }
             </Text>
@@ -77,7 +77,7 @@ export default ({ meiAddress, meichainBalance }) => {
             style={{ fontStyle: 'italic' }}
           >
             {meichainBalance 
-              ?`≈ ${toMei(findAmount(meichainBalance.result, MEI_UNIT_SYMBOL).amount)} USD`
+              ?`≈ ${toMei(findTokenBySymbol(meichainBalance.result, MEI_UNIT_SYMBOL).amount)} USD`
               : "0"
             }
           </Text>

@@ -10,7 +10,7 @@ export const ATOM_UNIT_SYMBOL = "uatom"
 
 export const MEI_UNIT_SYMBOL = "umei"
 
-export const findAmount = (tokens, tokenSymbol) => {
+export const findTokenBySymbol = (tokens, tokenSymbol) => {
   if (!tokens) {
     return {
       denom: tokenSymbol,

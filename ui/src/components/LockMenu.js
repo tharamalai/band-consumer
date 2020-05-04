@@ -2,7 +2,7 @@ import React from 'react'
 import { Flex, Text } from 'rebass'
 import colors from 'ui/colors'
 import Button from 'components/Button'
-import { toAtom, findAmount, getMeichainAtomSymbol } from 'utils'
+import { toAtom, findTokenBySymbol, getMeichainAtomSymbol } from 'utils'
 
 export default ({ cdp, meichainBalance }) => (
   <Flex flexDirection="column" width="100%" p="1.8vw">
@@ -15,7 +15,7 @@ export default ({ cdp, meichainBalance }) => (
           color={colors.purple.dark}
         >
           {cdp 
-            ? `${toAtom(findAmount(meichainBalance.result, getMeichainAtomSymbol()).amount)}`
+            ? `${toAtom(findTokenBySymbol(meichainBalance.result, getMeichainAtomSymbol()).amount)}`
             : "0" 
           }
         </Text>
