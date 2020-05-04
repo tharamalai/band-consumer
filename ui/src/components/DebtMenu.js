@@ -6,6 +6,7 @@ import BorrowBtn from 'components/BorrowBtn'
 import ReturnBtn from 'components/ReturnBtn'
 import SendMeiBtn from 'components/SendMeiBtn'
 import CompareBar from 'components/CompareBar'
+import { toAtom, toMei } from 'utils'
 
 const Circle = styled(Flex).attrs(({ color }) => ({
   width: '1.389vw',
@@ -58,7 +59,7 @@ const FeatureStat = ({ color, title, percent, valueInUSD }) => (
   </Flex>
 )
 
-export default () => (
+export default ({ cdp }) => (
   <Container>
     <Flex justifyContent="space-between" width="93%">
       <FeatureStat
@@ -80,7 +81,10 @@ export default () => (
               ml="0.2vw"
               color={colors.purple.dark}
             >
-              9,500.00 MEI
+              {cdp 
+                ? `${toMei(cdp.result.debtAmount)}  MEI`
+                : "0 MEI" 
+              }
             </Text>
           </Flex>
         }
@@ -121,7 +125,10 @@ export default () => (
               ml="0.2vw"
               color={colors.purple.dark}
             >
-              5,000.00 ATOM
+              {cdp 
+                ? `${toAtom(cdp.result.collateralAmount)}  ATOM`
+                : "0 ATOM" 
+              }
             </Text>
           </Flex>
         }
