@@ -26,7 +26,7 @@ export const findAmount = (tokens, tokenSymbol) => {
       amount: "0",
     }
   }
-  
+
   return token
 }
 
@@ -61,4 +61,21 @@ export const toMei = (meiUnitString) => {
 // Meichain atom is atom transfered from cosmoshub
 export const getMeichainAtomSymbol = () => {
   return `transfer/${TRANSFER_CHANNEL}/uatom`
+}
+
+export const calculateDebtPercent = (_debtInUSD, _collateralInUSD) => {
+  const debtUSD = Big(_debtInUSD)
+  const collateralUSD = Big(_collateralInUSD)
+  let debtPercent = debtUSD.div(collateralUSD).times(100)
+  return debtPercent.toFixed(2)
+}
+
+export const calculateMaxDebtUSD = (_collateralInUSD) => {
+  const allDebt = Big(2)
+  const allCollateral = Big(3)
+  const collateralUSD = Big(_collateralInUSD)
+  let maxDebtUSD = allDebt.div(allCollateral)
+  console.log("maxDebtUSD", maxDebtUSD)
+  maxDebtUSD = maxDebtUSD.times(collateralUSD)
+  return maxDebtUSD.toFixed(2)
 }

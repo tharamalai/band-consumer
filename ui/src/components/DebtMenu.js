@@ -6,7 +6,7 @@ import BorrowBtn from 'components/BorrowBtn'
 import ReturnBtn from 'components/ReturnBtn'
 import SendMeiBtn from 'components/SendMeiBtn'
 import CompareBar from 'components/CompareBar'
-import { toAtom, toMei, convertAtomToUsd } from 'utils'
+import { toAtom, toMei, convertAtomToUsd, calculateDebtPercent, calculateMaxDebtUSD } from 'utils'
 
 const Circle = styled(Flex).attrs(({ color }) => ({
   width: '1.389vw',
@@ -88,7 +88,7 @@ export default ({ cdp, price }) => (
             </Text>
           </Flex>
         }
-        percent={60.51}
+        percent={calculateDebtPercent(toMei(cdp.result.debtAmount), convertAtomToUsd(toAtom(cdp.result.collateralAmount), price))}
         valueInUSD={toMei(cdp.result.debtAmount)}
       />
       <FeatureStat
@@ -102,9 +102,10 @@ export default ({ cdp, price }) => (
           >
             Max Debt
           </Text>
+          
         }
         percent={66.67}
-        valueInUSD={82420}
+        valueInUSD={calculateMaxDebtUSD(convertAtomToUsd(toAtom(cdp.result.collateralAmount), price))}
       />
       <FeatureStat
         color={colors.gray.normal}
