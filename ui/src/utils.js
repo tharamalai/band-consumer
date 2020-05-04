@@ -15,3 +15,13 @@ export const convertAtomToUsd = (atomString, usdString) => {
   atom = atom.times(USD_PER_ATOM)
   return atom.toFixed(2)
 }
+
+export const findAtomAmount = (response) => {
+  if (!response.result) {
+    return {
+      denom: "uatom",
+      amount: "0",
+    }
+  } 
+  return response.result.find(token => token.denom = "uatom")
+}
