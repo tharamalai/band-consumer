@@ -57,7 +57,7 @@ export default ({ meiAddress }) => {
                 ? 'loading...'
                 : meiBalanceError
                 ? meiBalanceError
-                : toMei(findMeiAmount(meiBalanceData.result).amount)
+                : toMei(findMeiAmount(meiBalanceData).amount)
               }
             </Text>
             <Text
@@ -83,7 +83,7 @@ export default ({ meiAddress }) => {
               ? 'loading...'
               : meiBalanceError
               ? meiBalanceError
-              :`≈ ${toMei(findMeiAmount(meiBalanceData.result).amount)} USD`}
+              :`≈ ${toMei(findMeiAmount(meiBalanceData).amount)} USD`}
           </Text>
         </Flex>
       </Flex>

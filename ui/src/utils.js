@@ -27,7 +27,7 @@ export const findAtomAmount = (response) => {
       amount: "0",
     }
   } 
-  return response.result.find(token => token.denom = "uatom")
+  return response.result.find(token => token.denom == "uatom")
 }
 
 export const toMei = (meiUnitString) => {
@@ -35,7 +35,7 @@ export const toMei = (meiUnitString) => {
     let meiUnit = Big(meiUnitString)
     const meiUnitPerMei = Big(MEI_UNIT_PER_ONE_MEI)
     meiUnit = meiUnit.div(meiUnitPerMei)
-    return meiUnit.toFixed(3)
+    return meiUnit.toFixed(18)
   } catch (error) {
     throw "Error invalid mei amount string. Cannot convert mei amount"
   }
@@ -49,8 +49,7 @@ export const findMeiAmount = (response) => {
     }
   } 
 
-  const meiToken = response.result.find(token => token.denom = "umei")
-  console.log("meiToken", meiToken)
+  const meiToken = response.result.find(token => token.denom == "umei")
 
   if (!meiToken) {
     return {
