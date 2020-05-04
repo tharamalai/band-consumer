@@ -5,7 +5,7 @@ import Button from 'components/Button'
 import LoanStatus from 'components/LoanStatus'
 import DebtMenu from 'components/DebtMenu'
 import LockMenu from 'components/LockMenu'
-import { useMeiCDP } from 'hooks/meichain'
+import { useMeiCDP, useMeichainBalance } from 'hooks/meichain'
 import { usePrice } from 'hooks/price'
 
 import ConnectCosmos from 'images/connect-meichain.svg'
@@ -22,7 +22,7 @@ const Card = styled(Flex).attrs(() => ({
 `
 
 export default ({ meiAddress, setMeiAddress }) => {
-
+  const [{ data: meichainBalanceData, loading: meichainBalanceLoading, error: meichainBalanceError }, meiAccountBalanceRefetch] = useMeichainBalance("cosmos180plwgqxyx55vvx0eucrg5lz3q6nf06e3s27jz")
   const [{ data: cdpData, loading: cdpLoading, error: cdpError }, cdpRefetch] = useMeiCDP("cosmos180plwgqxyx55vvx0eucrg5lz3q6nf06e3s27jz")
   const [{ data: priceData, loading: priceLoading, error: priceError }, priceRefetch] = usePrice()
 
@@ -30,9 +30,9 @@ export default ({ meiAddress, setMeiAddress }) => {
     <Card>
       {meiAddress ? (
         <Flex flexDirection="column" width="100%">
-          <LoanStatus meiAddress={meiAddress} />
+          <LoanStatus meiAddress={meiAddress} meichainBalance={meichainBalanceData} />
           <DebtMenu cdp={cdpData} price={priceData.cosmos.usd}/>
-          <LockMenu />
+          <LockMenu cdp={cdpData} meichainBalance={meichainBalanceData}/>
         </Flex>
       ) : (
         <Flex

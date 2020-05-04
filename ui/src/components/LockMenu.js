@@ -2,8 +2,9 @@ import React from 'react'
 import { Flex, Text } from 'rebass'
 import colors from 'ui/colors'
 import Button from 'components/Button'
+import { toAtom, findMeichainAtomAmount } from 'utils'
 
-export default () => (
+export default ({ cdp, meichainBalance }) => (
   <Flex flexDirection="column" width="100%" p="1.8vw">
     <Flex flexDirection="row" justifyContent="space-between">
       <Flex flexDirection="row" alignItems="flex-end">
@@ -13,7 +14,10 @@ export default () => (
           lineHeight="2.114vw"
           color={colors.purple.dark}
         >
-          8,000.00
+          {cdp 
+            ? `${toAtom(findMeichainAtomAmount(meichainBalance).amount)}`
+            : "0" 
+          }
         </Text>
         <Text
           fontSize="0.83vw"
@@ -56,7 +60,10 @@ export default () => (
           lineHeight="2.114vw"
           color={colors.purple.dark}
         >
-          5,000.00
+          {cdp 
+            ? `${toAtom(cdp.result.collateralAmount)}`
+            : "0" 
+          }
         </Text>
         <Text
           fontSize="0.83vw"

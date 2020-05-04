@@ -68,10 +68,13 @@ export const getMeichainAtomSymbol = () => {
   return `transfer/${TRANSFER_CHANNEL}/uatom`
 }
 
-// export const toMeichainAtom = (tokenAmount) => {
-//   const tokenSymbol = getMeichainAtomSymbol()
-//   if (token.denim !== tokenSymbol) {
-//     throw `Error invalid atom token in Meichain. denom must be ${tokenSymbol}.`
-//   }
-//   return toAtom(token.amount)
-// }
+export const findMeichainAtomAmount = (response) => {
+  const meichainAtomSymbol = getMeichainAtomSymbol()
+  if (!response.result) {
+    return {
+      denom: meichainAtomSymbol,
+      amount: "0",
+    }
+  } 
+  return response.result.find(token => token.denom == meichainAtomSymbol)
+}

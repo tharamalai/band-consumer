@@ -1,11 +1,10 @@
 import React from 'react'
 import { Flex, Text } from 'rebass'
 import colors from 'ui/colors'
-import { useMeiBalance } from 'hooks/meichain'
+import { useMeichainBalance } from 'hooks/meichain'
 import { findMeiAmount, toMei } from 'utils'
 
-export default ({ meiAddress }) => {
-  const [{ data: meiBalanceData, loading: meiBalanceLoading, error: meiBalanceError }, meiAccountBalanceRefetch] = useMeiBalance("cosmos180plwgqxyx55vvx0eucrg5lz3q6nf06e3s27jz")
+export default ({ meiAddress, meichainBalance }) => {
 
 
   return (
@@ -53,12 +52,7 @@ export default ({ meiAddress }) => {
               lineHeight="2.114vw"
               color={colors.purple.dark}
             >
-              {meiBalanceLoading
-                ? 'loading...'
-                : meiBalanceError
-                ? meiBalanceError
-                : toMei(findMeiAmount(meiBalanceData).amount)
-              }
+              {toMei(findMeiAmount(meichainBalance).amount)}
             </Text>
             <Text
               fontSize="0.83vw"
@@ -79,11 +73,7 @@ export default ({ meiAddress }) => {
             color={colors.purple.normal}
             style={{ fontStyle: 'italic' }}
           >
-            {meiBalanceLoading
-              ? 'loading...'
-              : meiBalanceError
-              ? meiBalanceError
-              :`≈ ${toMei(findMeiAmount(meiBalanceData).amount)} USD`}
+            {`≈ ${toMei(findMeiAmount(meichainBalance).amount)} USD`}
           </Text>
         </Flex>
       </Flex>
