@@ -23,8 +23,8 @@ const Card = styled(Flex).attrs(() => ({
 `
 
 export default ({ cosmosAddress, setCosmosAddress }) => {
-  // cosmos1mypshseyp9z30xscvg3kfcjg6v2r0rhz6plgl6
   const [{ data: cosmosBalanceData, loading: cosmosBalanceLoading, error: cosmosBalanceError }, cosmosAccountBalanceRefetch] = useCosmosBalance("cosmos1mypshseyp9z30xscvg3kfcjg6v2r0rhz6plgl6")
+  // TODO: should get price only one time
   const [{ data: priceData, loading: priceLoading, error: priceError }, priceRefetch] = usePrice()
 
   useEffect(() => {

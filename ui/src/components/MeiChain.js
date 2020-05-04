@@ -6,6 +6,7 @@ import LoanStatus from 'components/LoanStatus'
 import DebtMenu from 'components/DebtMenu'
 import LockMenu from 'components/LockMenu'
 import { useMeiCDP } from 'hooks/meichain'
+import { usePrice } from 'hooks/price'
 
 import ConnectCosmos from 'images/connect-meichain.svg'
 
@@ -23,13 +24,14 @@ const Card = styled(Flex).attrs(() => ({
 export default ({ meiAddress, setMeiAddress }) => {
 
   const [{ data: cdpData, loading: cdpLoading, error: cdpError }, cdpRefetch] = useMeiCDP("cosmos180plwgqxyx55vvx0eucrg5lz3q6nf06e3s27jz")
+  const [{ data: priceData, loading: priceLoading, error: priceError }, priceRefetch] = usePrice()
 
   return (
     <Card>
       {meiAddress ? (
         <Flex flexDirection="column" width="100%">
           <LoanStatus meiAddress={meiAddress} />
-          <DebtMenu cdp={cdpData}/>
+          <DebtMenu cdp={cdpData} price={priceData.cosmos.usd}/>
           <LockMenu />
         </Flex>
       ) : (
