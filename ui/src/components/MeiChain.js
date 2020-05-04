@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { Flex, Image, Text } from 'rebass'
 import styled from 'styled-components'
 import Button from 'components/Button'
