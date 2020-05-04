@@ -6,6 +6,31 @@ export const MEI_UNIT_PER_ONE_MEI = "1000000000000000000"
 
 export const TRANSFER_CHANNEL = "tiawodbkqg"
 
+export const ATOM_UNIT_SYMBOL = "uatom"
+
+export const MEI_UNIT_SYMBOL = "umei"
+
+export const findAmount = (tokens, tokenSymbol) => {
+  if (!tokens) {
+    return {
+      denom: tokenSymbol,
+      amount: "0",
+    }
+  }
+  
+  const token = tokens.find(token => token.denom == tokenSymbol)
+
+  if (!token) {
+    return {
+      denom: tokenSymbol,
+      amount: "0",
+    }
+  }
+  
+  return token
+}
+
+
 // Cosmos Hub
 export const toAtom = (atomUnitString) => {
   let atomUnit = Big(atomUnitString)
@@ -20,17 +45,6 @@ export const convertAtomToUsd = (atomString, usdString) => {
   atom = atom.times(USD_PER_ATOM)
   return atom.toFixed(2)
 }
-
-export const findAtomAmount = (tokens) => {
-  if (!tokens) {
-    return {
-      denom: "uatom",
-      amount: "0",
-    }
-  } 
-  return tokens.find(token => token.denom == "uatom")
-}
-
 // Meichain
 
 export const toMei = (meiUnitString) => {
@@ -44,37 +58,7 @@ export const toMei = (meiUnitString) => {
   }
 }
 
-export const findMeiAmount = (tokens) => {
-  if (!tokens) {
-    return {
-      denom: "umei",
-      amount: "0",
-    }
-  } 
-
-  const meiToken = tokens.find(token => token.denom == "umei")
-
-  if (!meiToken) {
-    return {
-      denom: "umei",
-      amount: "0",
-    }
-  }
-  return meiToken
-}
-
 // Meichain atom is atom transfered from cosmoshub
 export const getMeichainAtomSymbol = () => {
   return `transfer/${TRANSFER_CHANNEL}/uatom`
-}
-
-export const findMeichainAtomAmount = (tokens) => {
-  const meichainAtomSymbol = getMeichainAtomSymbol()
-  if (!tokens) {
-    return {
-      denom: meichainAtomSymbol,
-      amount: "0",
-    }
-  } 
-  return tokens.find(token => token.denom == meichainAtomSymbol)
 }

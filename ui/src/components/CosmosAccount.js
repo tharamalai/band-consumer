@@ -6,7 +6,7 @@ import Button from 'components/Button'
 import FaucetBtn from 'components/FaucetBtn'
 import { usePrice } from 'hooks/price'
 import { useCosmosBalance } from 'hooks/cosmoshub'
-import { toAtom, convertAtomToUsd, findAtomAmount } from 'utils'
+import { toAtom, convertAtomToUsd, findAmount, ATOM_UNIT_SYMBOL } from 'utils'
 
 import ConnectCosmos from 'images/connect-cosmos.svg'
 
@@ -72,7 +72,7 @@ export default ({ cosmosAddress, setCosmosAddress }) => {
                   ? 'loading...'
                   : cosmosBalanceError
                   ? cosmosBalanceError
-                  : toAtom(findAtomAmount(cosmosBalanceData.result).amount)
+                  : toAtom(findAmount(cosmosBalanceData.result, ATOM_UNIT_SYMBOL).amount)
                 }
               </Text>
               <Text
@@ -87,7 +87,7 @@ export default ({ cosmosAddress, setCosmosAddress }) => {
                   ? 'loading...'
                   : priceError
                   ? priceError
-                  : `≈ ${convertAtomToUsd(toAtom(findAtomAmount(cosmosBalanceData.result).amount), priceData.cosmos.usd)} USD`}
+                  : `≈ ${convertAtomToUsd(toAtom(findAmount(cosmosBalanceData.result, ATOM_UNIT_SYMBOL).amount), priceData.cosmos.usd)} USD`}
               </Text>
             </Flex>
             <Flex flexDirection="column" alignItems="flex-end">
