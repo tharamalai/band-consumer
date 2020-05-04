@@ -72,7 +72,7 @@ export default ({ cosmosAddress, setCosmosAddress }) => {
                   ? 'loading...'
                   : cosmosBalanceError
                   ? cosmosBalanceError
-                  : toAtom(findAtomAmount(cosmosBalanceData).amount)
+                  : toAtom(findAtomAmount(cosmosBalanceData.result).amount)
                 }
               </Text>
               <Text
@@ -87,7 +87,7 @@ export default ({ cosmosAddress, setCosmosAddress }) => {
                   ? 'loading...'
                   : priceError
                   ? priceError
-                  : `≈ ${convertAtomToUsd(toAtom(findAtomAmount(cosmosBalanceData).amount), priceData.cosmos.usd)} USD`}
+                  : `≈ ${convertAtomToUsd(toAtom(findAtomAmount(cosmosBalanceData.result).amount), priceData.cosmos.usd)} USD`}
               </Text>
             </Flex>
             <Flex flexDirection="column" alignItems="flex-end">

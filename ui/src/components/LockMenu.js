@@ -15,7 +15,7 @@ export default ({ cdp, meichainBalance }) => (
           color={colors.purple.dark}
         >
           {cdp 
-            ? `${toAtom(findMeichainAtomAmount(meichainBalance).amount)}`
+            ? `${toAtom(findMeichainAtomAmount(meichainBalance.result).amount)}`
             : "0" 
           }
         </Text>

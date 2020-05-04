@@ -52,7 +52,7 @@ export default ({ meiAddress, meichainBalance }) => {
               lineHeight="2.114vw"
               color={colors.purple.dark}
             >
-              {toMei(findMeiAmount(meichainBalance).amount)}
+              {toMei(findMeiAmount(meichainBalance.result).amount)}
             </Text>
             <Text
               fontSize="0.83vw"
@@ -73,7 +73,7 @@ export default ({ meiAddress, meichainBalance }) => {
             color={colors.purple.normal}
             style={{ fontStyle: 'italic' }}
           >
-            {`≈ ${toMei(findMeiAmount(meichainBalance).amount)} USD`}
+            {`≈ ${toMei(findMeiAmount(meichainBalance.result).amount)} USD`}
           </Text>
         </Flex>
       </Flex>

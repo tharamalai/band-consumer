@@ -21,14 +21,14 @@ export const convertAtomToUsd = (atomString, usdString) => {
   return atom.toFixed(2)
 }
 
-export const findAtomAmount = (response) => {
-  if (!response.result) {
+export const findAtomAmount = (tokens) => {
+  if (!tokens) {
     return {
       denom: "uatom",
       amount: "0",
     }
   } 
-  return response.result.find(token => token.denom == "uatom")
+  return tokens.find(token => token.denom == "uatom")
 }
 
 // Meichain
@@ -44,15 +44,15 @@ export const toMei = (meiUnitString) => {
   }
 }
 
-export const findMeiAmount = (response) => {
-  if (!response.result) {
+export const findMeiAmount = (tokens) => {
+  if (!tokens) {
     return {
       denom: "umei",
       amount: "0",
     }
   } 
 
-  const meiToken = response.result.find(token => token.denom == "umei")
+  const meiToken = tokens.find(token => token.denom == "umei")
 
   if (!meiToken) {
     return {
@@ -68,13 +68,13 @@ export const getMeichainAtomSymbol = () => {
   return `transfer/${TRANSFER_CHANNEL}/uatom`
 }
 
-export const findMeichainAtomAmount = (response) => {
+export const findMeichainAtomAmount = (tokens) => {
   const meichainAtomSymbol = getMeichainAtomSymbol()
-  if (!response.result) {
+  if (!tokens) {
     return {
       denom: meichainAtomSymbol,
       amount: "0",
     }
   } 
-  return response.result.find(token => token.denom == meichainAtomSymbol)
+  return tokens.find(token => token.denom == meichainAtomSymbol)
 }
