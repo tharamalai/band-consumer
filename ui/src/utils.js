@@ -4,7 +4,9 @@ export const ATOM_UNIT_PER_ONE_ATOM = "1000000"
 
 export const MEI_UNIT_PER_ONE_MEI = "1000000000000000000"
 
-export const TRANSFER_CHANNEL = "tiawodbkqg"
+export const MEICHAIN_GAIA_TRANSFER_CHANNEL = "tiawodbkqg"
+
+export const GAIA_MEICHAIN_TRANSFER_CHANNEL = "epyehjruei"
 
 export const ATOM_UNIT_SYMBOL = "uatom"
 
@@ -60,7 +62,7 @@ export const toMei = (meiUnitString) => {
 
 // Meichain atom is atom transfered from cosmoshub
 export const getMeichainAtomSymbol = () => {
-  return `transfer/${TRANSFER_CHANNEL}/uatom`
+  return `transfer/${MEICHAIN_GAIA_TRANSFER_CHANNEL}/uatom`
 }
 
 export const calculateDebtPercent = (_debtInUSD, _collateralInUSD) => {

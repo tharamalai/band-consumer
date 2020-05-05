@@ -7,7 +7,7 @@ import FaucetBtn from 'components/FaucetBtn'
 import { usePrice } from 'hooks/price'
 import { useCosmosBalance } from 'hooks/cosmoshub'
 import { toAtom, convertAtomToUsd, findTokenBySymbol, ATOM_UNIT_SYMBOL } from 'utils'
-import { initiateCosmosJs, getCosmosAddress } from 'cosmos/cosmos_hub'
+import { initiateCosmosJs, getCosmosAddress, sendTokenToMeichain } from 'cosmos/cosmos_hub'
 
 import ConnectCosmos from 'images/connect-cosmos.svg'
 
@@ -84,7 +84,11 @@ const LogIn = ({ cosmosAddress }) => {
             mt="0.833vw"
             py="0.55vw"
             px="1vw"
-            onClick={() => alert('Send atom to meichain')}
+            onClick={() => {
+              const amount = window.prompt('Input Transfer Amount')
+              const receiver = window.prompt('Input Meichain Receiver Address')
+              sendTokenToMeichain(cosmosAddress, amount, receiver)
+            }}
           >
             <Text fontSize="0.83vw" fontWeight={500} lineHeight="1vw">
               Send ATOM to MeiChain
