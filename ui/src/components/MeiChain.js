@@ -21,19 +21,30 @@ const Card = styled(Flex).attrs(() => ({
   position: relative;
 `
 
-export default ({ meiAddress, setMeiAddress }) => {
+const LoggedInToMeiChain = ({ meiAddress }) => {
   const [{ data: meichainBalanceData, loading: meichainBalanceLoading, error: meichainBalanceError }, meiAccountBalanceRefetch] = useMeichainBalance("cosmos180plwgqxyx55vvx0eucrg5lz3q6nf06e3s27jz")
-  const [{ data: cdpData, loading: cdpLoading, error: cdpError }, cdpRefetch] = useMeiCDP("cosmos180plwgqxyx55vvx0eucrg5lz3q6nf06e3s27jz")
+  const [{ data: cdpData, loading: cdpLoading, error: cdpError }, cdpRefetch] = useMeiCDP(meiAddress)
   const [{ data: priceData, loading: priceLoading, error: priceError }, priceRefetch] = usePrice()
+
+  return (
+    <Flex flexDirection="column" width="100%">
+      <LoanStatus meiAddress={meiAddress} meichainBalance={meichainBalanceData} />
+      {priceData && cdpData ? (
+        <DebtMenu cdp={cdpData} price={priceData.cosmos.usd}/>)
+        : "loading..."}
+      {cdpData ? (
+        <LockMenu cdp={cdpData} meichainBalance={meichainBalanceData}/>)
+        : "loading..."}
+    </Flex>
+  )
+}
+
+export default ({ meiAddress, setMeiAddress }) => {
 
   return (
     <Card>
       {meiAddress ? (
-        <Flex flexDirection="column" width="100%">
-          <LoanStatus meiAddress={meiAddress} meichainBalance={meichainBalanceData} />
-          <DebtMenu cdp={cdpData} price={priceData.cosmos.usd}/>
-          <LockMenu cdp={cdpData} meichainBalance={meichainBalanceData}/>
-        </Flex>
+        <LoggedInToMeiChain meiAddress={meiAddress}/>
       ) : (
         <Flex
           flexDirection="column"
