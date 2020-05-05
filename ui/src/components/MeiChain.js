@@ -28,7 +28,9 @@ const LoggedInToMeiChain = ({ meiAddress }) => {
 
   return (
     <Flex flexDirection="column" width="100%">
-      <LoanStatus meiAddress={meiAddress} meichainBalance={meichainBalanceData} />
+      {meichainBalanceData ? (
+        <LoanStatus meiAddress={meiAddress} meichainBalance={meichainBalanceData} />)
+        : "loading..."}
       {priceData && cdpData ? (
         <DebtMenu cdp={cdpData} price={priceData.cosmos.usd}/>)
         : "loading..."}
