@@ -60,12 +60,9 @@ const LogIn = ({ cosmosAddress }) => {
             lineHeight="2.114vw"
             color={colors.purple.dark}
           >
-            {cosmosBalanceLoading
-              ? 'loading...'
-              : cosmosBalanceError
-              ? cosmosBalanceError
-              : console.log(cosmosBalanceData) || toAtom(findTokenBySymbol(cosmosBalanceData.result, ATOM_UNIT_SYMBOL).amount)
-            }
+            {cosmosBalanceData
+              ? toAtom(findTokenBySymbol(cosmosBalanceData.result, ATOM_UNIT_SYMBOL).amount)
+              : 'loading...'}
           </Text>
           <Text
             mt="0.4vw"
@@ -75,11 +72,9 @@ const LogIn = ({ cosmosAddress }) => {
             color={colors.purple.normal}
             style={{ fontStyle: 'italic' }}
           >
-            {priceLoading
-              ? 'loading...'
-              : priceError
-              ? priceError
-              : `≈ ${convertAtomToUsd(toAtom(findTokenBySymbol(cosmosBalanceData.result, ATOM_UNIT_SYMBOL).amount), priceData.cosmos.usd)} USD`}
+            {cosmosBalanceData && priceData
+              ? `≈ ${convertAtomToUsd(toAtom(findTokenBySymbol(cosmosBalanceData.result, ATOM_UNIT_SYMBOL).amount), priceData.cosmos.usd)} USD`
+              : 'loading...'}
           </Text>
         </Flex>
         <Flex flexDirection="column" alignItems="flex-end">
