@@ -102,6 +102,18 @@ const LogIn = ({ cosmosAddress }) => {
               Send ATOM to MeiChain
             </Text>
           </Button>
+          <Button
+            mt="0.833vw"
+            py="0.55vw"
+            px="1vw"
+            onClick={() => {
+              cosmosAccountBalanceRefetch()
+            }}
+          >
+            <Text fontSize="0.83vw" fontWeight={500} lineHeight="1vw">
+              Refresh
+            </Text>
+          </Button>
         </Flex>
       </Flex>
     </Flex>
