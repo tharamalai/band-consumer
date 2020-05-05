@@ -34,7 +34,7 @@ const LoggedInToMeiChain = ({ meiAddress }) => {
         <LoanStatus meiAddress={meiAddress} meichainBalance={meichainBalanceData} />)
         : "loading..."}
       {priceData && cdpData ? (
-        <DebtMenu cdp={cdpData} price={priceData.cosmos.usd}/>)
+        <DebtMenu meiAddress={meiAddress} cdp={cdpData} price={priceData.cosmos.usd}/>)
         : "loading..."}
       {cdpData ? (
         <LockMenu cdp={cdpData} meiAddress={meiAddress} meichainBalance={meichainBalanceData}/>)
