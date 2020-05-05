@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Flex, Image, Text } from 'rebass'
 import styled from 'styled-components'
 import colors from 'ui/colors'
@@ -22,89 +22,90 @@ const Card = styled(Flex).attrs(() => ({
   position: relative;
 `
 
-export default ({ cosmosAddress, setCosmosAddress }) => {
-  const [{ data: cosmosBalanceData, loading: cosmosBalanceLoading, error: cosmosBalanceError }, cosmosAccountBalanceRefetch] = useCosmosBalance("cosmos1mypshseyp9z30xscvg3kfcjg6v2r0rhz6plgl6")
-  // TODO: should get price only one time
+const LogIn = ({ cosmosAddress }) => {
+  const [{ data: cosmosBalanceData, loading: cosmosBalanceLoading, error: cosmosBalanceError }, cosmosAccountBalanceRefetch] = useCosmosBalance(cosmosAddress)
   const [{ data: priceData, loading: priceLoading, error: priceError }, priceRefetch] = usePrice()
-
-  useEffect(() => {
-    console.log("new address", cosmosAddress)
-  });
-
   return (
-    <Card>
-      {cosmosAddress ? (
-        <Flex flexDirection="column" width="100%">
+    <Flex flexDirection="column" width="100%">
+      <Text
+        fontSize="0.83vw"
+        fontWeight={500}
+        lineHeight="1vw"
+        color={colors.purple.normal}
+      >
+        CosmosHub Account
+      </Text>
+      <Text
+        fontSize="0.83vw"
+        fontWeight={800}
+        lineHeight="1vw"
+        color={colors.purple.dark}
+        mt="0.347vw"
+      >
+        {cosmosAddress}
+      </Text>
+      <Flex flexDirection="row" justifyContent="space-between" mt="2.153vw">
+        <Flex flexDirection="column">
           <Text
             fontSize="0.83vw"
             fontWeight={500}
             lineHeight="1vw"
             color={colors.purple.normal}
           >
-            CosmosHub Account
+            ATOM
           </Text>
           <Text
-            fontSize="0.83vw"
-            fontWeight={800}
-            lineHeight="1vw"
+            fontSize="1.867vw"
+            fontWeight={400}
+            lineHeight="2.114vw"
             color={colors.purple.dark}
-            mt="0.347vw"
           >
-            {cosmosAddress}
+            {cosmosBalanceLoading
+              ? 'loading...'
+              : cosmosBalanceError
+              ? cosmosBalanceError
+              : console.log(cosmosBalanceData) || toAtom(findTokenBySymbol(cosmosBalanceData.result, ATOM_UNIT_SYMBOL).amount)
+            }
           </Text>
-          <Flex flexDirection="row" justifyContent="space-between" mt="2.153vw">
-            <Flex flexDirection="column">
-              <Text
-                fontSize="0.83vw"
-                fontWeight={500}
-                lineHeight="1vw"
-                color={colors.purple.normal}
-              >
-                ATOM
-              </Text>
-              <Text
-                fontSize="1.867vw"
-                fontWeight={400}
-                lineHeight="2.114vw"
-                color={colors.purple.dark}
-              >
-                {cosmosBalanceLoading
-                  ? 'loading...'
-                  : cosmosBalanceError
-                  ? cosmosBalanceError
-                  : toAtom(findTokenBySymbol(cosmosBalanceData.result, ATOM_UNIT_SYMBOL).amount)
-                }
-              </Text>
-              <Text
-                mt="0.4vw"
-                fontSize="0.83vw"
-                fontWeight={400}
-                lineHeight="1vw"
-                color={colors.purple.normal}
-                style={{ fontStyle: 'italic' }}
-              >
-                {priceLoading
-                  ? 'loading...'
-                  : priceError
-                  ? priceError
-                  : `≈ ${convertAtomToUsd(toAtom(findTokenBySymbol(cosmosBalanceData.result, ATOM_UNIT_SYMBOL).amount), priceData.cosmos.usd)} USD`}
-              </Text>
-            </Flex>
-            <Flex flexDirection="column" alignItems="flex-end">
-              <FaucetBtn onClick={() => alert('faucet')} />
-              <Button
-                mt="0.833vw"
-                py="0.55vw"
-                px="1vw"
-                onClick={() => alert('Send atom to meichain')}
-              >
-                <Text fontSize="0.83vw" fontWeight={500} lineHeight="1vw">
-                  Send ATOM to MeiChain
-                </Text>
-              </Button>
-            </Flex>
-          </Flex>
+          <Text
+            mt="0.4vw"
+            fontSize="0.83vw"
+            fontWeight={400}
+            lineHeight="1vw"
+            color={colors.purple.normal}
+            style={{ fontStyle: 'italic' }}
+          >
+            {priceLoading
+              ? 'loading...'
+              : priceError
+              ? priceError
+              : `≈ ${convertAtomToUsd(toAtom(findTokenBySymbol(cosmosBalanceData.result, ATOM_UNIT_SYMBOL).amount), priceData.cosmos.usd)} USD`}
+          </Text>
         </Flex>
+        <Flex flexDirection="column" alignItems="flex-end">
+          <FaucetBtn onClick={() => alert('faucet')} />
+          <Button
+            mt="0.833vw"
+            py="0.55vw"
+            px="1vw"
+            onClick={() => alert('Send atom to meichain')}
+          >
+            <Text fontSize="0.83vw" fontWeight={500} lineHeight="1vw">
+              Send ATOM to MeiChain
+            </Text>
+          </Button>
+        </Flex>
+      </Flex>
+    </Flex>
+  )
+}
+
+export default ({ cosmosAddress, setCosmosAddress }) => {
+
+  return (
+    <Card>
+      {cosmosAddress ? (
+        <LogIn cosmosAddress={cosmosAddress}/>
       ) : (
         <Flex flexDirection="column" alignItems="center" width="100%">
           <Image src={ConnectCosmos} width="23vw" />
