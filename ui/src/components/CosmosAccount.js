@@ -94,7 +94,15 @@ const LogIn = ({ cosmosAddress }) => {
             px="1vw"
             onClick={() => {
               const amount = window.prompt('Input Transfer Amount')
+              if (!amount) {
+                return
+              }
+
               const receiver = window.prompt('Input Meichain Receiver Address')
+              if (!receiver) {
+                return
+              }
+              
               sendTokenToMeichain(cosmosAddress, amount, receiver)
             }}
           >
@@ -135,12 +143,14 @@ export default ({ cosmosAddress, setCosmosAddress }) => {
             px="1vw"
             onClick={() => {
               const address = window.prompt('Input Cosmos Address Mnemonic')
-              try {
-                initiateCosmosJs()
-                const cosmosAddress = getCosmosAddress(address)
-                setCosmosAddress(cosmosAddress)
-              } catch (error) {
-                alert("Invalid mnemonic. Cannot get account from mnemonic.")
+              if (address) {
+                try {
+                  initiateCosmosJs()
+                  const cosmosAddress = getCosmosAddress(address)
+                  setCosmosAddress(cosmosAddress)
+                } catch (error) {
+                  alert("Invalid mnemonic. Cannot get account from mnemonic.")
+                }
               }
             }}
           >
