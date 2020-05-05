@@ -68,7 +68,12 @@ export const getMeichainAtomSymbol = () => {
 export const calculateDebtPercent = (_debtInUSD, _collateralInUSD) => {
   const debtUSD = Big(_debtInUSD)
   const collateralUSD = Big(_collateralInUSD)
-  let debtPercent = debtUSD.div(collateralUSD).times(100)
+  let debtPercent
+  if (collateralUSD.gt(0)) {
+    debtPercent = debtUSD.div(collateralUSD).times(100)
+  } else {
+    debtPercent = Big(0)
+  }
   return debtPercent.toFixed(2)
 }
 
@@ -76,7 +81,12 @@ export const calculateMaxDebtUSD = (_collateralInUSD) => {
   const allDebt = Big(2)
   const allCollateral = Big(3)
   const collateralUSD = Big(_collateralInUSD)
-  let maxDebtUSD = allDebt.div(allCollateral)
-  maxDebtUSD = maxDebtUSD.times(collateralUSD)
+  let maxDebtUSD
+  if (collateralUSD.gt(0)) {
+    maxDebtUSD = allDebt.div(allCollateral)
+    maxDebtUSD = maxDebtUSD.times(collateralUSD)
+  } else {
+    maxDebtUSD = Big(0)
+  }
   return maxDebtUSD.toFixed(2)
 }
