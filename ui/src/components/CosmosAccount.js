@@ -112,6 +112,7 @@ export default ({ cosmosAddress, setCosmosAddress }) => {
             onClick={() => {
               const address = window.prompt('Input Cosmos Address Mnemonic')
               try {
+                initiateCosmosJs()
                 const cosmosAddress = getCosmosAddress(address)
                 setCosmosAddress(cosmosAddress)
               } catch (error) {
