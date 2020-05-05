@@ -3,8 +3,8 @@ import { ATOM_UNIT_SYMBOL, MEICHAIN_GAIA_TRANSFER_CHANNEL, GAIA_MEICHAIN_TRANSFE
 
 const cosmosjs = require("@cosmostation/cosmosjs");
 
-const COSMOS_LCD_URL = "http://localhost:8011"
-const  COSMOS_CHAIN_ID = "band-cosmoshub";
+export const COSMOS_LCD_URL = "http://localhost:8011"
+export const  COSMOS_CHAIN_ID = "band-cosmoshub";
 
 export let cosmos = null
 
@@ -38,10 +38,9 @@ export const sendTokenToMeichain = (cosmosAddress, amount, receiver) => {
   try {
     isInitiateCosmos()
     if (!ecpairPriv) {
-      throw `Please connect wallet before request faucet`
+      throw `Please connect wallet before send token to meichain`
     }
     cosmos.getAccounts(cosmosAddress).then(data => {
-      console.log("data", data)
       let stdSignMsg = cosmos.newStdMsg({
         msgs: [
           {
@@ -74,6 +73,4 @@ export const sendTokenToMeichain = (cosmosAddress, amount, receiver) => {
   } catch (error) {
     throw Error(`Error cannot send token to meichain: ${error.message}`)
   }
-
-
 }

@@ -5,9 +5,9 @@ import colors from 'ui/colors'
 import Button from 'components/Button'
 import FaucetBtn from 'components/FaucetBtn'
 import { usePrice } from 'hooks/price'
-import { useCosmosBalance } from 'hooks/cosmoshub'
+import { useCosmosBalance, useCosmosHubFaucet } from 'hooks/cosmoshub'
 import { toAtom, convertAtomToUsd, findTokenBySymbol, ATOM_UNIT_SYMBOL } from 'utils'
-import { initiateCosmosJs, getCosmosAddress, sendTokenToMeichain } from 'cosmos/cosmos_hub'
+import { COSMOS_CHAIN_ID, initiateCosmosJs, getCosmosAddress, sendTokenToMeichain } from 'cosmos/cosmoshub'
 
 import ConnectCosmos from 'images/connect-cosmos.svg'
 
@@ -26,6 +26,7 @@ const Card = styled(Flex).attrs(() => ({
 const LogIn = ({ cosmosAddress }) => {
   const [{ data: cosmosBalanceData, loading: cosmosBalanceLoading, error: cosmosBalanceError }, cosmosAccountBalanceRefetch] = useCosmosBalance(cosmosAddress)
   const [{ data: priceData, loading: priceLoading, error: priceError }, priceRefetch] = usePrice()
+  const [{ data: faucetData, loading: faucetLoading, error: faucetError }, requestFaucet] = useCosmosHubFaucet()
   return (
     <Flex flexDirection="column" width="100%">
       <Text
@@ -79,7 +80,14 @@ const LogIn = ({ cosmosAddress }) => {
           </Text>
         </Flex>
         <Flex flexDirection="column" alignItems="flex-end">
-          <FaucetBtn onClick={() => alert('faucet')} />
+          <FaucetBtn onClick={() => {
+            requestFaucet({
+              data: {
+                "address": cosmosAddress,
+                "chain-id": COSMOS_CHAIN_ID
+              }
+            })
+          }} />
           <Button
             mt="0.833vw"
             py="0.55vw"
