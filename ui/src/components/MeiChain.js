@@ -22,7 +22,7 @@ const Card = styled(Flex).attrs(() => ({
 `
 
 const LoggedInToMeiChain = ({ meiAddress }) => {
-  const [{ data: meichainBalanceData, loading: meichainBalanceLoading, error: meichainBalanceError }, meiAccountBalanceRefetch] = useMeichainBalance("cosmos180plwgqxyx55vvx0eucrg5lz3q6nf06e3s27jz")
+  const [{ data: meichainBalanceData, loading: meichainBalanceLoading, error: meichainBalanceError }, meiAccountBalanceRefetch] = useMeichainBalance(meiAddress)
   const [{ data: cdpData, loading: cdpLoading, error: cdpError }, cdpRefetch] = useMeiCDP(meiAddress)
   const [{ data: priceData, loading: priceLoading, error: priceError }, priceRefetch] = usePrice()
 
