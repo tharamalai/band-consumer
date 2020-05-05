@@ -3,8 +3,9 @@ import { Flex, Text } from 'rebass'
 import colors from 'ui/colors'
 import Button from 'components/Button'
 import { toAtom, findTokenBySymbol, getMeichainAtomSymbol } from 'utils'
+import { lockCollateral } from 'cosmos/meichain'
 
-export default ({ cdp, meichainBalance }) => (
+export default ({ cdp, meiAddress, meichainBalance }) => (
   <Flex flexDirection="column" width="100%" p="1.8vw">
     <Flex flexDirection="row" justifyContent="space-between">
       <Flex flexDirection="row" alignItems="flex-end">
@@ -45,7 +46,13 @@ export default ({ cdp, meichainBalance }) => (
         width="8vw"
         boxShadow="0px 4px 8px rgba(86, 69, 158, 0.25)"
         background={colors.purple.dark}
-        onClick={() => alert('lock atom')}
+        onClick={() => {
+          const amount = window.prompt('Input Lock Atom Amount')
+          if (!amount) {
+            return
+          }
+          lockCollateral(meiAddress, amount)
+        }}
       >
         <Text fontSize="0.83vw" fontWeight={500} lineHeight="1vw">
           LOCK ATOM

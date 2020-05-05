@@ -8,6 +8,7 @@ import LockMenu from 'components/LockMenu'
 import { useMeiCDP, useMeichainBalance } from 'hooks/meichain'
 import { usePrice } from 'hooks/price'
 import { initiateMeichain, getMeichainAddress } from 'cosmos/meichain'
+import colors from 'ui/colors'
 
 import ConnectCosmos from 'images/connect-meichain.svg'
 
@@ -36,8 +37,23 @@ const LoggedInToMeiChain = ({ meiAddress }) => {
         <DebtMenu cdp={cdpData} price={priceData.cosmos.usd}/>)
         : "loading..."}
       {cdpData ? (
-        <LockMenu cdp={cdpData} meichainBalance={meichainBalanceData}/>)
+        <LockMenu cdp={cdpData} meiAddress={meiAddress} meichainBalance={meichainBalanceData}/>)
         : "loading..."}
+       <Button
+        py="0.55vw"
+        width="8vw"
+        boxShadow="0px 4px 8px rgba(86, 69, 158, 0.25)"
+        background={colors.purple.dark}
+        onClick={() => {
+          meiAccountBalanceRefetch()
+          cdpRefetch()
+          priceRefetch()
+        }}
+      >
+        <Text fontSize="0.83vw" fontWeight={500} lineHeight="1vw">
+          Refresh
+        </Text>
+      </Button>
     </Flex>
   )
 }
