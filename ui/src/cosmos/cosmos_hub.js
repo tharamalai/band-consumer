@@ -9,3 +9,13 @@ export const initiateCosmosJs = () => {
   const cosmosJs = cosmosjs.network(COSMOS_LCD_URL, COSMOS_CHAIN_ID);
   return cosmosJs
 }
+
+export const getCosmosAddress = (mnemonic) => {
+  try {
+    const cosmos = initiateCosmosJs()
+    const address = cosmos.getAddress(mnemonic);
+    return address
+  } catch (error) {
+    throw `Error cannot get cosmos account from mnemonic: ${error.message}`
+  }
+}

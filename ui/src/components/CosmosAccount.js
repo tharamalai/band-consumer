@@ -7,7 +7,7 @@ import FaucetBtn from 'components/FaucetBtn'
 import { usePrice } from 'hooks/price'
 import { useCosmosBalance } from 'hooks/cosmoshub'
 import { toAtom, convertAtomToUsd, findTokenBySymbol, ATOM_UNIT_SYMBOL } from 'utils'
-import { initiateCosmosJs } from 'cosmos/cosmos_hub'
+import { initiateCosmosJs, getCosmosAddress } from 'cosmos/cosmos_hub'
 
 import ConnectCosmos from 'images/connect-cosmos.svg'
 
@@ -22,16 +22,6 @@ const Card = styled(Flex).attrs(() => ({
   border-radius: 0.56vw;
   position: relative;
 `
-
-const getCosmosAddress = (mnemonic) => {
-  try {
-    const cosmos = initiateCosmosJs()
-    const address = cosmos.getAddress(mnemonic);
-    return address
-  } catch (error) {
-    throw `Error cannot get cosmos account from mnemonic: ${error.message}`
-  }
-}
 
 const LogIn = ({ cosmosAddress }) => {
   const [{ data: cosmosBalanceData, loading: cosmosBalanceLoading, error: cosmosBalanceError }, cosmosAccountBalanceRefetch] = useCosmosBalance(cosmosAddress)
