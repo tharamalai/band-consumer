@@ -15,7 +15,7 @@ export default ({ cdp, meiAddress, meichainBalance }) => (
           lineHeight="2.114vw"
           color={colors.purple.dark}
         >
-          {cdp 
+          {meichainBalance 
             ? `${toAtom(findTokenBySymbol(meichainBalance.result, getMeichainAtomSymbol()).amount)}`
             : "0" 
           }

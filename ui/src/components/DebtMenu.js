@@ -7,7 +7,7 @@ import ReturnBtn from 'components/ReturnBtn'
 import SendMeiBtn from 'components/SendMeiBtn'
 import CompareBar from 'components/CompareBar'
 import { toAtom, toMei, convertAtomToUsd, calculateDebtPercent, calculateMaxDebtUSD } from 'utils'
-import { borrowDebt } from 'cosmos/meichain'
+import { borrowDebt, returnDebt } from 'cosmos/meichain'
 
 const Circle = styled(Flex).attrs(({ color }) => ({
   width: '1.389vw',
@@ -151,7 +151,13 @@ export default ({ meiAddress, cdp, price }) => (
         }
         borrowDebt(meiAddress, amount)
       }} />
-      <ReturnBtn onClick={() => alert('Return')} />
+      <ReturnBtn onClick={() => {
+        const amount = window.prompt('Input Return Debt Amount')
+        if (!amount) {
+          return
+        }
+        returnDebt(meiAddress, amount)
+      }} />
       <SendMeiBtn onClick={() => alert('Send MEI')} />
     </Flex>
   </Container>

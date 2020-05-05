@@ -114,3 +114,31 @@ export const borrowDebt = (meiAddress, amount) => {
     meichain.broadcast(signedTx).then(response => console.log(response));
   })
 }
+
+export const returnDebt = (meiAddress, amount) => {
+  isInitiateMeichain()
+  if (!ecpairPriv) {
+    throw `Please connect wallet before return mei`
+  }
+  meichain.getAccounts(meiAddress).then(data => {
+    let stdSignMsg = meichain.newStdMsg({
+      msgs: [
+        {
+          type: "meichain/ReturnDebt",
+          value: {
+            Amount: String(amount),
+            Sender: meiAddress,
+          }
+        }
+      ],
+      chain_id: MEICHAIN_CHAIN_ID,
+      fee: { amount: [], gas: String(200000) },
+      memo: "",
+      account_number: String(data.result.value.account_number),
+      sequence: String(data.result.value.sequence)
+    });
+  
+    const signedTx = meichain.sign(stdSignMsg, ecpairPriv);
+    meichain.broadcast(signedTx).then(response => console.log(response));
+  })
+}
