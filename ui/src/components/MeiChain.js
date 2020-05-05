@@ -9,6 +9,7 @@ import { useMeiCDP, useMeichainBalance } from 'hooks/meichain'
 import { usePrice } from 'hooks/price'
 import { initiateMeichain, getMeichainAddress } from 'cosmos/meichain'
 import colors from 'ui/colors'
+import refresh from 'images/refresh.svg' 
 
 import ConnectCosmos from 'images/connect-meichain.svg'
 
@@ -29,7 +30,14 @@ const LoggedInToMeiChain = ({ meiAddress }) => {
   const [{ data: priceData, loading: priceLoading, error: priceError }, priceRefetch] = usePrice()
 
   return (
-    <Flex flexDirection="column" width="100%">
+    <Flex flexDirection="column" width="100%" style={{position: "relative"}}>
+      <Image src={refresh} width="1vw" style={{position: "absolute", top: "1.5vw", right: "1.5vw", cursor: "pointer"}}
+        onClick={() => {
+          meiAccountBalanceRefetch()
+          cdpRefetch()
+          priceRefetch()
+        }}
+      />
       {meichainBalanceData ? (
         <LoanStatus meiAddress={meiAddress} meichainBalance={meichainBalanceData} />)
         : "loading..."}
@@ -39,7 +47,7 @@ const LoggedInToMeiChain = ({ meiAddress }) => {
       {cdpData ? (
         <LockMenu cdp={cdpData} meiAddress={meiAddress} meichainBalance={meichainBalanceData}/>)
         : "loading..."}
-       <Button
+       {/* <Button
         py="0.55vw"
         width="8vw"
         boxShadow="0px 4px 8px rgba(86, 69, 158, 0.25)"
@@ -53,7 +61,7 @@ const LoggedInToMeiChain = ({ meiAddress }) => {
         <Text fontSize="0.83vw" fontWeight={500} lineHeight="1vw">
           Refresh
         </Text>
-      </Button>
+      </Button> */}
     </Flex>
   )
 }
