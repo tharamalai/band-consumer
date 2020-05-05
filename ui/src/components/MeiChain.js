@@ -7,6 +7,7 @@ import DebtMenu from 'components/DebtMenu'
 import LockMenu from 'components/LockMenu'
 import { useMeiCDP, useMeichainBalance } from 'hooks/meichain'
 import { usePrice } from 'hooks/price'
+import { initiateMeichain, getMeichainAddress } from 'cosmos/meichain'
 
 import ConnectCosmos from 'images/connect-meichain.svg'
 
@@ -64,8 +65,16 @@ export default ({ meiAddress, setMeiAddress }) => {
             background="#971e44"
             boxShadow="0px 4px 8px rgba(151, 30, 68, 0.25)"
             onClick={() => {
-              const address = window.prompt('Insert MeiChain Address')
-              setMeiAddress(address)
+              const address = window.prompt('Insert MeiChain Address Mnemonic')
+              if (address) {
+                try {
+                  initiateMeichain()
+                  const meichainAddress = getMeichainAddress(address)
+                  setMeiAddress(meichainAddress)
+                } catch (error) {
+                  alert("Invalid mnemonic. Cannot get account from mnemonic.")
+                }
+              }
             }}
           >
             <Text fontSize="0.83vw" fontWeight={500} lineHeight="1vw">

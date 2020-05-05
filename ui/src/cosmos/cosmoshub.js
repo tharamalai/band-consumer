@@ -1,4 +1,3 @@
-import useAxios from 'axios-hooks'
 import { ATOM_UNIT_SYMBOL, MEICHAIN_GAIA_TRANSFER_CHANNEL, GAIA_MEICHAIN_TRANSFER_CHANNEL } from 'utils';
 
 const cosmosjs = require("@cosmostation/cosmosjs");
