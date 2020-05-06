@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, createContext } from 'react'
 import { Flex, Image, Text } from 'rebass'
 import styled from 'styled-components'
 import colors from 'ui/colors'
@@ -7,8 +7,8 @@ import FaucetBtn from 'components/FaucetBtn'
 import { usePrice } from 'hooks/price'
 import { useCosmosBalance, useCosmosHubFaucet } from 'hooks/cosmoshub'
 import { toAtom, convertAtomToUsd, findTokenBySymbol, ATOM_UNIT_SYMBOL } from 'utils'
-import { COSMOS_CHAIN_ID, initiateCosmosJs, getCosmosAddress, sendTokenToMeichain } from 'cosmos/cosmoshub'
-import refresh from 'images/refresh.svg' 
+import refresh from 'images/refresh.svg'
+import { useCosmosHubContextState } from 'contexts/CosmosHub'
 
 import ConnectCosmos from 'images/connect-cosmos.svg'
 
@@ -28,6 +28,8 @@ const LogIn = ({ cosmosAddress }) => {
   const [{ data: cosmosBalanceData, loading: cosmosBalanceLoading, error: cosmosBalanceError }, cosmosAccountBalanceRefetch] = useCosmosBalance(cosmosAddress)
   const [{ data: priceData, loading: priceLoading, error: priceError }, priceRefetch] = usePrice()
   const [{ data: faucetData, loading: faucetLoading, error: faucetError }, requestFaucet] = useCosmosHubFaucet()
+  const { COSMOS_CHAIN_ID, sendTokenToMeichain } = useCosmosHubContextState()
+
   return (
     <Flex flexDirection="column" width="100%">
       <Image src={refresh} width="1vw" style={{position: "absolute", top: "1.5vw", right: "1.5vw", cursor: "pointer"}}
@@ -109,7 +111,7 @@ const LogIn = ({ cosmosAddress }) => {
                 return
               }
               
-              sendTokenToMeichain(cosmosAddress, amount, receiver)
+              sendTokenToMeichain(amount, receiver)
             }}
           >
             <Text fontSize="0.83vw" fontWeight={500} lineHeight="1vw">
@@ -123,7 +125,8 @@ const LogIn = ({ cosmosAddress }) => {
 }
 
 export default ({ cosmosAddress, setCosmosAddress }) => {
-
+  const { getCosmosAddress, setPrivateKeyFromMnemonic } = useCosmosHubContextState()
+  
   return (
     <Card>
       {cosmosAddress ? (
@@ -136,11 +139,11 @@ export default ({ cosmosAddress, setCosmosAddress }) => {
             py="0.55vw"
             px="1vw"
             onClick={() => {
-              const address = window.prompt('Input Cosmos Address Mnemonic')
-              if (address) {
+              const mnemonic = window.prompt('Input Cosmos Address Mnemonic')
+              if (mnemonic) {
                 try {
-                  initiateCosmosJs()
-                  const cosmosAddress = getCosmosAddress(address)
+                  const cosmosAddress = getCosmosAddress(mnemonic)
+                  setPrivateKeyFromMnemonic(mnemonic)
                   setCosmosAddress(cosmosAddress)
                 } catch (error) {
                   alert("Invalid mnemonic. Cannot get account from mnemonic.")
