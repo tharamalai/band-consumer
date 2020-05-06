@@ -7,7 +7,7 @@ import ReturnBtn from 'components/ReturnBtn'
 import SendMeiBtn from 'components/SendMeiBtn'
 import CompareBar from 'components/CompareBar'
 import { toAtom, toMei, convertAtomToUsd, calculateDebtPercent, calculateMaxDebtUSD } from 'utils'
-import { borrowDebt, returnDebt } from 'cosmos/meichain'
+import { useMeichainContextState } from 'contexts/MeichainContext'
 
 const Circle = styled(Flex).attrs(({ color }) => ({
   width: '1.389vw',
@@ -64,105 +64,109 @@ const debtPercent = (cdp, price) => {
   return calculateDebtPercent(toMei(cdp.result.debtAmount), convertAtomToUsd(toAtom(cdp.result.collateralAmount), price))
 }
 
-export default ({ meiAddress, cdp, price }) => (
-  <Container>
-    <Flex justifyContent="space-between" width="93%">
-      <FeatureStat
-        color={colors.pink.dark}
-        title={
-          <Flex flexDirection="row" mt="0.14vw">
+export default ({ meiAddress, cdp, price }) => {
+  const { borrowDebt, returnDebt } = useMeichainContextState()
+
+  return (
+    <Container>
+      <Flex justifyContent="space-between" width="93%">
+        <FeatureStat
+          color={colors.pink.dark}
+          title={
+            <Flex flexDirection="row" mt="0.14vw">
+              <Text
+                fontSize="0.83vw"
+                fontWeight={500}
+                lineHeight="1vw"
+                color={colors.purple.dark}
+              >
+                Debt
+              </Text>
+              <Text
+                fontSize="0.83vw"
+                fontWeight={900}
+                lineHeight="1vw"
+                ml="0.2vw"
+                color={colors.purple.dark}
+              >
+                {cdp 
+                  ? `${toMei(cdp.result.debtAmount)}  MEI`
+                  : "0 MEI" 
+                }
+              </Text>
+            </Flex>
+          }
+          percent={debtPercent(cdp, price)}
+          valueInUSD={toMei(cdp.result.debtAmount)}
+        />
+        <FeatureStat
+          color={colors.pink.normal}
+          title={
             <Text
               fontSize="0.83vw"
               fontWeight={500}
               lineHeight="1vw"
               color={colors.purple.dark}
             >
-              Debt
+              Max Debt
             </Text>
-            <Text
-              fontSize="0.83vw"
-              fontWeight={900}
-              lineHeight="1vw"
-              ml="0.2vw"
-              color={colors.purple.dark}
-            >
-              {cdp 
-                ? `${toMei(cdp.result.debtAmount)}  MEI`
-                : "0 MEI" 
-              }
-            </Text>
-          </Flex>
-        }
-        percent={debtPercent(cdp, price)}
-        valueInUSD={toMei(cdp.result.debtAmount)}
-      />
-      <FeatureStat
-        color={colors.pink.normal}
-        title={
-          <Text
-            fontSize="0.83vw"
-            fontWeight={500}
-            lineHeight="1vw"
-            color={colors.purple.dark}
-          >
-            Max Debt
-          </Text>
-          
-        }
-        percent={66.67}
-        valueInUSD={calculateMaxDebtUSD(convertAtomToUsd(toAtom(cdp.result.collateralAmount), price))}
-      />
-      <FeatureStat
-        color={colors.gray.normal}
-        title={
-          <Flex flexDirection="row" mt="0.14vw">
-            <Text
-              fontSize="0.83vw"
-              fontWeight={500}
-              lineHeight="1vw"
-              color={colors.purple.dark}
-            >
-              Collateral
-            </Text>
-            <Text
-              fontSize="0.83vw"
-              fontWeight={900}
-              lineHeight="1vw"
-              ml="0.2vw"
-              color={colors.purple.dark}
-            >
-              {cdp 
-                ? `${toAtom(cdp.result.collateralAmount)}  ATOM`
-                : "0 ATOM" 
-              }
-            </Text>
-          </Flex>
-        }
-        valueInUSD={convertAtomToUsd(toAtom(cdp.result.collateralAmount), price)}
-      />
-    </Flex>
-    <CompareBar debtPercent={debtPercent(cdp, price)}/>
-    <Flex
-      flexDirection="row"
-      justifyContent="space-between"
-      mt="0.4vw"
-      width="100%"
-    >
-      <BorrowBtn onClick={() => {
-        const amount = window.prompt('Input Borrow Debt Amount')
-        if (!amount) {
-          return
-        }
-        borrowDebt(meiAddress, amount)
-      }} />
-      <ReturnBtn onClick={() => {
-        const amount = window.prompt('Input Return Debt Amount')
-        if (!amount) {
-          return
-        }
-        returnDebt(meiAddress, amount)
-      }} />
-      <SendMeiBtn onClick={() => alert('Send MEI')} />
-    </Flex>
-  </Container>
-)
+            
+          }
+          percent={66.67}
+          valueInUSD={calculateMaxDebtUSD(convertAtomToUsd(toAtom(cdp.result.collateralAmount), price))}
+        />
+        <FeatureStat
+          color={colors.gray.normal}
+          title={
+            <Flex flexDirection="row" mt="0.14vw">
+              <Text
+                fontSize="0.83vw"
+                fontWeight={500}
+                lineHeight="1vw"
+                color={colors.purple.dark}
+              >
+                Collateral
+              </Text>
+              <Text
+                fontSize="0.83vw"
+                fontWeight={900}
+                lineHeight="1vw"
+                ml="0.2vw"
+                color={colors.purple.dark}
+              >
+                {cdp 
+                  ? `${toAtom(cdp.result.collateralAmount)}  ATOM`
+                  : "0 ATOM" 
+                }
+              </Text>
+            </Flex>
+          }
+          valueInUSD={convertAtomToUsd(toAtom(cdp.result.collateralAmount), price)}
+        />
+      </Flex>
+      <CompareBar debtPercent={debtPercent(cdp, price)}/>
+      <Flex
+        flexDirection="row"
+        justifyContent="space-between"
+        mt="0.4vw"
+        width="100%"
+      >
+        <BorrowBtn onClick={() => {
+          const amount = window.prompt('Input Borrow Debt Amount')
+          if (!amount) {
+            return
+          }
+          borrowDebt(amount)
+        }} />
+        <ReturnBtn onClick={() => {
+          const amount = window.prompt('Input Return Debt Amount')
+          if (!amount) {
+            return
+          }
+          returnDebt(amount)
+        }} />
+        <SendMeiBtn onClick={() => alert('Send MEI')} />
+      </Flex>
+    </Container>
+  )
+}
