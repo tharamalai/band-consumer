@@ -8,6 +8,7 @@ import { usePrice } from 'hooks/price'
 import { useCosmosBalance, useCosmosHubFaucet } from 'hooks/cosmoshub'
 import { toAtom, convertAtomToUsd, findTokenBySymbol, ATOM_UNIT_SYMBOL } from 'utils'
 import { COSMOS_CHAIN_ID, initiateCosmosJs, getCosmosAddress, sendTokenToMeichain } from 'cosmos/cosmoshub'
+import refresh from 'images/refresh.svg' 
 
 import ConnectCosmos from 'images/connect-cosmos.svg'
 
@@ -29,6 +30,11 @@ const LogIn = ({ cosmosAddress }) => {
   const [{ data: faucetData, loading: faucetLoading, error: faucetError }, requestFaucet] = useCosmosHubFaucet()
   return (
     <Flex flexDirection="column" width="100%">
+      <Image src={refresh} width="1vw" style={{position: "absolute", top: "1.5vw", right: "1.5vw", cursor: "pointer"}}
+        onClick={() => {
+          cosmosAccountBalanceRefetch()
+        }}
+      />
       <Text
         fontSize="0.83vw"
         fontWeight={500}
@@ -108,18 +114,6 @@ const LogIn = ({ cosmosAddress }) => {
           >
             <Text fontSize="0.83vw" fontWeight={500} lineHeight="1vw">
               Send ATOM to MeiChain
-            </Text>
-          </Button>
-          <Button
-            mt="0.833vw"
-            py="0.55vw"
-            px="1vw"
-            onClick={() => {
-              cosmosAccountBalanceRefetch()
-            }}
-          >
-            <Text fontSize="0.83vw" fontWeight={500} lineHeight="1vw">
-              Refresh
             </Text>
           </Button>
         </Flex>

@@ -47,21 +47,6 @@ const LoggedInToMeiChain = ({ meiAddress }) => {
       {cdpData ? (
         <LockMenu cdp={cdpData} meiAddress={meiAddress} meichainBalance={meichainBalanceData}/>)
         : "loading..."}
-       {/* <Button
-        py="0.55vw"
-        width="8vw"
-        boxShadow="0px 4px 8px rgba(86, 69, 158, 0.25)"
-        background={colors.purple.dark}
-        onClick={() => {
-          meiAccountBalanceRefetch()
-          cdpRefetch()
-          priceRefetch()
-        }}
-      >
-        <Text fontSize="0.83vw" fontWeight={500} lineHeight="1vw">
-          Refresh
-        </Text>
-      </Button> */}
     </Flex>
   )
 }
