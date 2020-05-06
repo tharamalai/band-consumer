@@ -151,7 +151,7 @@ export const MeichainProvider = ({ children}) => {
     })
   }
 
-  const liquidate = (cdpOwnerAddresss, meiAddress) => {
+  const liquidate = (cdpOwnerAddresss) => {
     isInitiateMeichain()
     if (!privateKey) {
       throw `Please connect wallet before liquidate debt`

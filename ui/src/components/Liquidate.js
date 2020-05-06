@@ -7,6 +7,7 @@ import Button from 'components/Button'
 import Bg from 'images/bg-liquidate.svg'
 import Thunder from 'images/thunder.svg'
 import { liquidate } from 'cosmos/meichain'
+import { useMeichainContextState } from 'contexts/MeichainContext'
 
 const Card = styled(Flex).attrs(() => ({
   p: '1.8vw',
@@ -36,7 +37,7 @@ const NotLogin = () => (
   </Text>
 )
 
-const Login = ({meiAddress}) => (
+const Login = () => (
   <Button
     py="0.55vw"
     mt="1.04vw"
@@ -48,7 +49,7 @@ const Login = ({meiAddress}) => (
       if (!cdpOwner) {
         return
       }
-      liquidate(cdpOwner, meiAddress)
+      liquidate(cdpOwner)
     }}
   >
     <Text fontSize="0.83vw" fontWeight={500} lineHeight="1vw">
@@ -88,7 +89,7 @@ export default ({ meiAddress }) => {
       >
         Dangerous Zone
       </Text>
-      {meiAddress ? <Login meiAddress={meiAddress}/> : <NotLogin />}
+      {meiAddress ? <Login/> : <NotLogin />}
     </Card>
   )
 }
