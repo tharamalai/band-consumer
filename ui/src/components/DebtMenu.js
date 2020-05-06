@@ -6,7 +6,7 @@ import BorrowBtn from 'components/BorrowBtn'
 import ReturnBtn from 'components/ReturnBtn'
 import SendMeiBtn from 'components/SendMeiBtn'
 import CompareBar from 'components/CompareBar'
-import { toAtom, toMei, toMeiUnit, convertAtomToUsd, calculateDebtPercent, calculateMaxDebtUSD } from 'utils'
+import { toAtom, toMei, toMeiUnit, convertAtomToUsd, calculateDebtPercent, calculateMaxDebtUSD, findTokenBySymbol, MEI_UNIT_SYMBOL } from 'utils'
 import { useMeichainContextState } from 'contexts/MeichainContext'
 import Big from 'big.js'
 
@@ -86,7 +86,7 @@ const maxBorrow = (cdp, price) => {
   return max
 }
 
-export default ({ meiAddress, cdp, price }) => {
+export default ({ cdp, price, meichainBalance }) => {
   const { borrowDebt, returnDebt, sendMei } = useMeichainContextState()
 
   return (
@@ -199,6 +199,14 @@ export default ({ meiAddress, cdp, price }) => {
           if (!amount) {
             return
           }
+
+          const sendAmount = Big(toMeiUnit(amount))
+          const maxSendAmount = Big(findTokenBySymbol(meichainBalance.result, MEI_UNIT_SYMBOL).amount)
+          if (sendAmount.gt(maxSendAmount)) {
+            alert(`Max send amount is ${toMei(maxSendAmount)}`)
+            return
+          }
+
           const recipient = window.prompt('Input Recipient')
           if (!recipient) {
             return
