@@ -60,6 +60,10 @@ const FeatureStat = ({ color, title, percent, valueInUSD }) => (
   </Flex>
 )
 
+const debtPercent = (cdp, price) => {
+  return calculateDebtPercent(toMei(cdp.result.debtAmount), convertAtomToUsd(toAtom(cdp.result.collateralAmount), price))
+}
+
 export default ({ meiAddress, cdp, price }) => (
   <Container>
     <Flex justifyContent="space-between" width="93%">
@@ -89,7 +93,7 @@ export default ({ meiAddress, cdp, price }) => (
             </Text>
           </Flex>
         }
-        percent={calculateDebtPercent(toMei(cdp.result.debtAmount), convertAtomToUsd(toAtom(cdp.result.collateralAmount), price))}
+        percent={debtPercent(cdp, price)}
         valueInUSD={toMei(cdp.result.debtAmount)}
       />
       <FeatureStat
@@ -137,7 +141,7 @@ export default ({ meiAddress, cdp, price }) => (
         valueInUSD={convertAtomToUsd(toAtom(cdp.result.collateralAmount), price)}
       />
     </Flex>
-    <CompareBar />
+    <CompareBar debtPercent={debtPercent(cdp, price)}/>
     <Flex
       flexDirection="row"
       justifyContent="space-between"

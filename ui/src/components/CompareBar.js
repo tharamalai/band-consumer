@@ -23,10 +23,10 @@ const Container = styled(Flex).attrs(() => ({
   position: relative;
 `
 
-export default ({ debt, maxDebt, collateral }) => (
+export default ({ debtPercent }) => (
   <Container>
     <Bar width="100%" height="2.083vw" bg={colors.gray.normal} />
     <Bar width="66.6%" height="1.389vw" bg={colors.pink.normal} top="0.3vw" />
-    <Bar width="33.3%" height="0.694vw" bg={colors.pink.dark} top="0.6vw" />
+    <Bar width={debtPercent + '%'} height="0.694vw" bg={colors.pink.dark} top="0.6vw" />
   </Container>
 )
