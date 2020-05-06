@@ -2,11 +2,25 @@ import React from 'react'
 import { Flex, Text } from 'rebass'
 import colors from 'ui/colors'
 import Button from 'components/Button'
-import { toAtom, toAtomUnit, findTokenBySymbol, getMeichainAtomSymbol } from 'utils'
+import { toAtom, toAtomUnit, findTokenBySymbol, getMeichainAtomSymbol, toMei, toMeiUnit } from 'utils'
 import { useMeichainContextState } from 'contexts/MeichainContext'
+import Big from 'big.js'
 
-export default ({ cdp, meichainBalance }) => { 
+export default ({ cdp, meichainBalance, price }) => { 
   const { lockCollateral, unlockCollateral } = useMeichainContextState()
+
+  const maxUnlock = (cdp, price) => {
+    const meiUSD = Big(toMei(cdp.result.debtAmount, price))
+
+    // min collateral value is 150% of debt value (1.5 * debt amount)
+    const percentMultiplier = Big(1.5)
+    const minCollateralUSD = meiUSD.times(percentMultiplier)
+    const minCollateralAmount = minCollateralUSD.div(price)
+    const minCollateralUnitAmount = Big(toAtomUnit(minCollateralAmount))
+    const currentCdpCollateralUnitAmount = Big(cdp.result.collateralAmount)
+    const max = currentCdpCollateralUnitAmount.minus(minCollateralUnitAmount)
+    return max
+  }
 
   return (
     <Flex flexDirection="column" width="100%" p="1.8vw">
@@ -104,6 +118,12 @@ export default ({ cdp, meichainBalance }) => {
           onClick={() => {
             const amount = window.prompt('Input Unlock Atom Amount')
             if (!amount) {
+              return
+            }
+            const unlockAmount = Big(toAtomUnit(amount))
+            const maxUnlockAmount = Big(maxUnlock(cdp, price))
+            if (unlockAmount.gt(maxUnlockAmount)) {
+              alert(`Max unlock amount is ${toAtom(maxUnlockAmount.toString())}`)
               return
             }
             unlockCollateral(toAtomUnit(amount))

@@ -44,8 +44,8 @@ const LoggedInToMeiChain = ({ meiAddress }) => {
       {priceData && cdpData ? (
         <DebtMenu meiAddress={meiAddress} cdp={cdpData} price={priceData.cosmos.usd}/>)
         : "loading..."}
-      {cdpData ? (
-        <LockMenu cdp={cdpData} meiAddress={meiAddress} meichainBalance={meichainBalanceData}/>)
+      {priceData && cdpData ? (
+        <LockMenu cdp={cdpData} meiAddress={meiAddress} meichainBalance={meichainBalanceData} price={priceData.cosmos.usd}/>)
         : "loading..."}
     </Flex>
   )
