@@ -79,12 +79,11 @@ const maxDebt = (cdp, price) => {
   return calculateMaxDebtUSD(convertAtomToUsd(toAtom(cdp.result.collateralAmount), price))
 }
 
-const isValidBorrowAmount = (cdp, price, borrowAmount) => {
-  const cdpDebt = Big(cdp.result.debtAmount)
-  const max = Big(toMeiUnit(maxDebt(cdp, price)))
-  const borrow = Big(toMeiUnit(borrowAmount))
-  const maxBorrow = max.minus(cdpDebt)
-  return borrow.lte(maxBorrow)
+const maxBorrow = (cdp, price) => {
+  const cdpDebtAmount = Big(cdp.result.debtAmount)
+  const maxAmount = Big(toMeiUnit(maxDebt(cdp, price)))
+  const max = maxAmount.minus(cdpDebtAmount)
+  return max
 }
 
 export default ({ meiAddress, cdp, price }) => {
@@ -179,9 +178,10 @@ export default ({ meiAddress, cdp, price }) => {
           if (!amount) {
             return
           }
-
-          if (!isValidBorrowAmount(cdp, price, amount)) {
-            alert('Accumulated debt amount is more than max debt amount')
+          const borrowAmount = Big(toMeiUnit(amount))
+          const maxBorrowAmount = maxBorrow(cdp, price)
+          if (borrowAmount.gt(maxBorrowAmount)) {
+            alert(`Max borrow amount is ${toMei(maxBorrowAmount)}`)
             return
           }
 

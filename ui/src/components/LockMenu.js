@@ -121,7 +121,7 @@ export default ({ cdp, meichainBalance, price }) => {
               return
             }
             const unlockAmount = Big(toAtomUnit(amount))
-            const maxUnlockAmount = Big(maxUnlock(cdp, price))
+            const maxUnlockAmount = maxUnlock(cdp, price)
             if (unlockAmount.gt(maxUnlockAmount)) {
               alert(`Max unlock amount is ${toAtom(maxUnlockAmount.toString())}`)
               return
