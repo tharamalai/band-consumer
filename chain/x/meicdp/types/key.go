@@ -41,7 +41,7 @@ const (
 	// AtomUnitPerAtom is amount of atom unit per one atom (10^6)
 	AtomUnitPerAtom = 1000000
 
-	// MeiUnitPerMei is amount of mei unit per one mei (10^18)
+	// MeiUnitPerMei is amount of mei unit per one mei (10^6)
 	MeiUnitPerMei = 1000000
 
 	// AtomMultiplier is multiplier of Atom price request
