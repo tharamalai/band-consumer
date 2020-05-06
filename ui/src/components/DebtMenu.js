@@ -75,6 +75,18 @@ const debtPercentBar = (percent) => {
   return percentBar
 }
 
+const maxDebt = (cdp, price) => {
+  return calculateMaxDebtUSD(convertAtomToUsd(toAtom(cdp.result.collateralAmount), price))
+}
+
+const isValidBorrowAmount = (cdp, price, borrowAmount) => {
+  const cdpDebt = Big(cdp.result.debtAmount)
+  const max = Big(toMeiUnit(maxDebt(cdp, price)))
+  const borrow = Big(toMeiUnit(borrowAmount))
+  const maxBorrow = max.minus(cdpDebt)
+  return borrow.lte(maxBorrow)
+}
+
 export default ({ meiAddress, cdp, price }) => {
   const { borrowDebt, returnDebt, sendMei } = useMeichainContextState()
 
@@ -124,7 +136,7 @@ export default ({ meiAddress, cdp, price }) => {
             
           }
           percent={66.67}
-          valueInUSD={calculateMaxDebtUSD(convertAtomToUsd(toAtom(cdp.result.collateralAmount), price))}
+          valueInUSD={maxDebt(cdp, price)}
         />
         <FeatureStat
           color={colors.gray.normal}
@@ -167,6 +179,12 @@ export default ({ meiAddress, cdp, price }) => {
           if (!amount) {
             return
           }
+
+          if (!isValidBorrowAmount(cdp, price, amount)) {
+            alert('Accumulated debt amount is more than max debt amount')
+            return
+          }
+
           borrowDebt(toMeiUnit(amount))
         }} />
         <ReturnBtn onClick={() => {
