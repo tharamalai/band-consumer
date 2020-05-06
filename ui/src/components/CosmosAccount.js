@@ -6,9 +6,10 @@ import Button from 'components/Button'
 import FaucetBtn from 'components/FaucetBtn'
 import { usePrice } from 'hooks/price'
 import { useCosmosBalance, useCosmosHubFaucet } from 'hooks/cosmoshub'
-import { toAtom, convertAtomToUsd, findTokenBySymbol, ATOM_UNIT_SYMBOL } from 'utils'
+import { toAtom, toAtomUnit, convertAtomToUsd, findTokenBySymbol, ATOM_UNIT_SYMBOL } from 'utils'
 import refresh from 'images/refresh.svg'
 import { useCosmosHubContextState } from 'contexts/CosmosHub'
+import Big from 'big.js'
 
 import ConnectCosmos from 'images/connect-cosmos.svg'
 
@@ -106,12 +107,19 @@ const LogIn = ({ cosmosAddress }) => {
                 return
               }
 
+              const transferAmount = Big(toAtomUnit(amount))
+              const atomBalance = Big(findTokenBySymbol(cosmosBalanceData.result, ATOM_UNIT_SYMBOL).amount)
+              if (transferAmount.gt(atomBalance)) {
+                alert(`Max transfer amount is ${toAtom(atomBalance)}`)
+                return
+              }
+
               const recipient = window.prompt('Input Meichain recipient address')
               if (!recipient) {
                 return
               }
               
-              sendTokenToMeichain(amount, recipient)
+              sendTokenToMeichain(toAtomUnit(amount), recipient)
             }}
           >
             <Text fontSize="0.83vw" fontWeight={500} lineHeight="1vw">
@@ -139,7 +147,7 @@ export default ({ cosmosAddress, setCosmosAddress }) => {
             py="0.55vw"
             px="1vw"
             onClick={() => {
-              const mnemonic = window.prompt('Input Cosmos Address Mnemonic')
+              const mnemonic = window.prompt('Input Cosmos address mnemonic')
               if (mnemonic) {
                 try {
                   const cosmosAddress = getCosmosAddress(mnemonic)

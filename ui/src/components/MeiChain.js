@@ -74,7 +74,7 @@ export default ({ meiAddress, setMeiAddress }) => {
             background="#971e44"
             boxShadow="0px 4px 8px rgba(151, 30, 68, 0.25)"
             onClick={() => {
-              const mnemonic = window.prompt('Insert MeiChain Address Mnemonic')
+              const mnemonic = window.prompt('Insert MeiChain address mnemonic')
               if (mnemonic) {
                 try {
                   const meichainAddress = getMeichainAddress(mnemonic)
