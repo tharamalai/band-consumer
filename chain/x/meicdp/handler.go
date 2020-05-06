@@ -474,7 +474,7 @@ func handleAddDebtByAdmin(ctx sdk.Context, keeper Keeper, msg MsgAddDebtAdmin) (
 	cdp := keeper.GetCDP(ctx, msg.CdpOwner)
 
 	//liquidator should receive mei for liquidate CDP
-	debtCoin := sdk.NewCoin(types.MeiUnit, sdk.NewInt(int64(9000000000000000000)))
+	debtCoin := sdk.NewCoin(types.MeiUnit, sdk.NewInt(int64(90000000)))
 	debtCoins := sdk.NewCoins(debtCoin)
 
 	// CDP mint Mei coins

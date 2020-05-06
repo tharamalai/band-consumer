@@ -36,13 +36,13 @@ const (
 	AtomDecimal = 6
 
 	// MeiDecimal is decimal of MEI
-	MeiDecimal = 18
+	MeiDecimal = 6
 
 	// AtomUnitPerAtom is amount of atom unit per one atom (10^6)
 	AtomUnitPerAtom = 1000000
 
-	// MeiUnitPerMei is amount of mei unit per one mei (10^18)
-	MeiUnitPerMei = 1000000000000000000
+	// MeiUnitPerMei is amount of mei unit per one mei (10^6)
+	MeiUnitPerMei = 1000000
 
 	// AtomMultiplier is multiplier of Atom price request
 	AtomMultiplier = 1000000
