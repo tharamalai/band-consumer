@@ -8,7 +8,6 @@ import LockMenu from 'components/LockMenu'
 import { useMeiCDP, useMeichainBalance } from 'hooks/meichain'
 import { usePrice } from 'hooks/price'
 import { useMeichainContextState } from 'contexts/MeichainContext'
-import colors from 'ui/colors'
 import refresh from 'images/refresh.svg' 
 
 import ConnectCosmos from 'images/connect-meichain.svg'

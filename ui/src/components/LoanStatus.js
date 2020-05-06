@@ -1,7 +1,6 @@
 import React from 'react'
 import { Flex, Text } from 'rebass'
 import colors from 'ui/colors'
-import { useMeichainBalance } from 'hooks/meichain'
 import { findTokenBySymbol, toMei, MEI_UNIT_SYMBOL } from 'utils'
 
 export default ({ meiAddress, meichainBalance }) => {
