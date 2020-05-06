@@ -46,7 +46,7 @@ const Login = () => {
       background="linear-gradient(223.23deg, #d25c7d 9.86%, #f2918b 89.2%)"
       boxShadow="0px 4px 8px rgba(151, 30, 68, 0.25)"
       onClick={() => {
-        const cdpOwner = window.prompt('Input CDP Owner Account')
+        const cdpOwner = window.prompt('Input CDP owner account')
         if (!cdpOwner) {
           return
         }

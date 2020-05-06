@@ -101,17 +101,17 @@ const LogIn = ({ cosmosAddress }) => {
             py="0.55vw"
             px="1vw"
             onClick={() => {
-              const amount = window.prompt('Input Transfer Amount')
+              const amount = window.prompt('Input transfer amount')
               if (!amount) {
                 return
               }
 
-              const receiver = window.prompt('Input Meichain Receiver Address')
-              if (!receiver) {
+              const recipient = window.prompt('Input Meichain recipient address')
+              if (!recipient) {
                 return
               }
               
-              sendTokenToMeichain(amount, receiver)
+              sendTokenToMeichain(amount, recipient)
             }}
           >
             <Text fontSize="0.83vw" fontWeight={500} lineHeight="1vw">

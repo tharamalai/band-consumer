@@ -174,7 +174,7 @@ export default ({ cdp, price, meichainBalance }) => {
         width="100%"
       >
         <BorrowBtn onClick={() => {
-          const amount = window.prompt('Input Borrow Debt Amount')
+          const amount = window.prompt('Input borrow debt amount')
           if (!amount) {
             return
           }
@@ -188,14 +188,14 @@ export default ({ cdp, price, meichainBalance }) => {
           borrowDebt(toMeiUnit(amount))
         }} />
         <ReturnBtn onClick={() => {
-          const amount = window.prompt('Input Return Debt Amount')
+          const amount = window.prompt('Input return debt amount')
           if (!amount) {
             return
           }
           returnDebt(toMeiUnit(amount))
         }} />
         <SendMeiBtn onClick={() => {
-          const amount = window.prompt('Input Send Amount')
+          const amount = window.prompt('Input send amount')
           if (!amount) {
             return
           }
@@ -207,7 +207,7 @@ export default ({ cdp, price, meichainBalance }) => {
             return
           }
 
-          const recipient = window.prompt('Input Recipient')
+          const recipient = window.prompt('Input recipient')
           if (!recipient) {
             return
           }

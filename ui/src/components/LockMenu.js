@@ -64,7 +64,7 @@ export default ({ cdp, meichainBalance, price }) => {
           boxShadow="0px 4px 8px rgba(86, 69, 158, 0.25)"
           background={colors.purple.dark}
           onClick={() => {
-            const amount = window.prompt('Input Lock Atom Amount')
+            const amount = window.prompt('Input lock atom amount')
             if (!amount) {
               return
             }
@@ -116,7 +116,7 @@ export default ({ cdp, meichainBalance, price }) => {
           boxShadow="0px 4px 8px rgba(86, 69, 158, 0.25)"
           background={colors.purple.normal}
           onClick={() => {
-            const amount = window.prompt('Input Unlock Atom Amount')
+            const amount = window.prompt('Input unlock atom amount')
             if (!amount) {
               return
             }
