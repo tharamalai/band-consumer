@@ -7,7 +7,7 @@ import DebtMenu from 'components/DebtMenu'
 import LockMenu from 'components/LockMenu'
 import { useMeiCDP, useMeichainBalance } from 'hooks/meichain'
 import { usePrice } from 'hooks/price'
-import { initiateMeichain, getMeichainAddress } from 'cosmos/meichain'
+import { useMeichainContextState } from 'contexts/MeichainContext'
 import colors from 'ui/colors'
 import refresh from 'images/refresh.svg' 
 
@@ -52,7 +52,7 @@ const LoggedInToMeiChain = ({ meiAddress }) => {
 }
 
 export default ({ meiAddress, setMeiAddress }) => {
-
+  const { getMeichainAddress, setPrivateKeyFromMnemonic } = useMeichainContextState()
   return (
     <Card>
       {meiAddress ? (
@@ -74,11 +74,11 @@ export default ({ meiAddress, setMeiAddress }) => {
             background="#971e44"
             boxShadow="0px 4px 8px rgba(151, 30, 68, 0.25)"
             onClick={() => {
-              const address = window.prompt('Insert MeiChain Address Mnemonic')
-              if (address) {
+              const mnemonic = window.prompt('Insert MeiChain Address Mnemonic')
+              if (mnemonic) {
                 try {
-                  initiateMeichain()
-                  const meichainAddress = getMeichainAddress(address)
+                  const meichainAddress = getMeichainAddress(mnemonic)
+                  setPrivateKeyFromMnemonic(mnemonic)
                   setMeiAddress(meichainAddress)
                 } catch (error) {
                   alert("Invalid mnemonic. Cannot get account from mnemonic.")

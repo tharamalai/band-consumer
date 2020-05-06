@@ -7,11 +7,12 @@ export const CosmosHubProvider = ({ children }) => {
   const [privateKey, setPrivateKey] = useState('')
   const [cosmosAddress, setCosmosAddress] = useState('')
 
-  const cosmosjs = require("@cosmostation/cosmosjs");
+  const cosmosjs = require("@cosmostation/cosmosjs")
   const COSMOS_LCD_URL = "http://localhost:8011"
-  const COSMOS_CHAIN_ID = "band-cosmoshub";
+  const COSMOS_CHAIN_ID = "band-cosmoshub"
   
   const cosmos = cosmosjs.network(COSMOS_LCD_URL, COSMOS_CHAIN_ID)
+  cosmos.setPath("m/44'/118'/0'/0/0");
 
   const isInitiateCosmos = () => {
     if (!cosmos) {
@@ -22,8 +23,7 @@ export const CosmosHubProvider = ({ children }) => {
   const getCosmosAddress = (mnemonic) => {
     try {
       isInitiateCosmos()
-      cosmos.setPath("m/44'/118'/0'/0/0");
-      const address = cosmos.getAddress(mnemonic);
+      const address = cosmos.getAddress(mnemonic)
       setCosmosAddress(address)
       return address
     } catch (error) {
@@ -34,7 +34,7 @@ export const CosmosHubProvider = ({ children }) => {
 
   const setPrivateKeyFromMnemonic = (mnemonic) => {
     try {
-      const privateKey = cosmos.getECPairPriv(mnemonic);
+      const privateKey = cosmos.getECPairPriv(mnemonic)
       setPrivateKey(privateKey)
     } catch (error) {
       throw Error(`Error cannot set private key from mnemonic: ${error.message}`)
@@ -74,8 +74,8 @@ export const CosmosHubProvider = ({ children }) => {
           sequence: String(data.result.value.sequence)
         });
       
-        const signedTx = cosmos.sign(stdSignMsg, privateKey);
-        cosmos.broadcast(signedTx).then(response => console.log(response));
+        const signedTx = cosmos.sign(stdSignMsg, privateKey)
+        cosmos.broadcast(signedTx).then(response => console.log(response))
       })
     } catch (error) {
       throw Error(`Error cannot send token to meichain: ${error.message}`)
