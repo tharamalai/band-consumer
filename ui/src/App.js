@@ -10,7 +10,7 @@ import {
 
 import theme from './ui/theme'
 import { ThemeProvider } from 'styled-components'
-import { CosmosHubProvider } from 'contexts/CosmosHub'
+import { CosmosHubProvider } from 'contexts/CosmosHubContext'
 import { MeichainProvider } from 'contexts/MeichainContext'
 
 import LandingPage from 'pages/Landing'

@@ -8,7 +8,7 @@ import { usePrice } from 'hooks/price'
 import { useCosmosBalance, useCosmosHubFaucet } from 'hooks/cosmoshub'
 import { toAtom, toAtomUnit, convertAtomToUsd, findTokenBySymbol, ATOM_UNIT_SYMBOL } from 'utils'
 import refresh from 'images/refresh.svg'
-import { useCosmosHubContextState } from 'contexts/CosmosHub'
+import { useCosmosHubContextState } from 'contexts/CosmosHubContext'
 import Big from 'big.js'
 
 import ConnectCosmos from 'images/connect-cosmos.svg'
