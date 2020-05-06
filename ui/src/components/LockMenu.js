@@ -2,10 +2,10 @@ import React from 'react'
 import { Flex, Text } from 'rebass'
 import colors from 'ui/colors'
 import Button from 'components/Button'
-import { toAtom, findTokenBySymbol, getMeichainAtomSymbol } from 'utils'
+import { toAtom, toAtomUnit, findTokenBySymbol, getMeichainAtomSymbol } from 'utils'
 import { useMeichainContextState } from 'contexts/MeichainContext'
 
-export default ({ cdp, meiAddress, meichainBalance }) => { 
+export default ({ cdp, meichainBalance }) => { 
   const { lockCollateral, unlockCollateral } = useMeichainContextState()
 
   return (
@@ -54,7 +54,7 @@ export default ({ cdp, meiAddress, meichainBalance }) => {
             if (!amount) {
               return
             }
-            lockCollateral(amount)
+            lockCollateral(toAtomUnit(amount))
           }}
         >
           <Text fontSize="0.83vw" fontWeight={500} lineHeight="1vw">
@@ -106,7 +106,7 @@ export default ({ cdp, meiAddress, meichainBalance }) => {
             if (!amount) {
               return
             }
-            unlockCollateral(amount)
+            unlockCollateral(toAtomUnit(amount))
           }}
         >
           <Text fontSize="0.83vw" fontWeight={500} lineHeight="1vw">

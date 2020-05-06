@@ -6,7 +6,7 @@ import BorrowBtn from 'components/BorrowBtn'
 import ReturnBtn from 'components/ReturnBtn'
 import SendMeiBtn from 'components/SendMeiBtn'
 import CompareBar from 'components/CompareBar'
-import { toAtom, toMei, convertAtomToUsd, calculateDebtPercent, calculateMaxDebtUSD } from 'utils'
+import { toAtom, toMei, toMeiUnit, convertAtomToUsd, calculateDebtPercent, calculateMaxDebtUSD } from 'utils'
 import { useMeichainContextState } from 'contexts/MeichainContext'
 import Big from 'big.js'
 
@@ -167,14 +167,14 @@ export default ({ meiAddress, cdp, price }) => {
           if (!amount) {
             return
           }
-          borrowDebt(amount)
+          borrowDebt(toMeiUnit(amount))
         }} />
         <ReturnBtn onClick={() => {
           const amount = window.prompt('Input Return Debt Amount')
           if (!amount) {
             return
           }
-          returnDebt(amount)
+          returnDebt(toMeiUnit(amount))
         }} />
         <SendMeiBtn onClick={() => alert('Send MEI')} />
       </Flex>

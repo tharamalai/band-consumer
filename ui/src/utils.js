@@ -35,10 +35,25 @@ export const findTokenBySymbol = (tokens, tokenSymbol) => {
 
 // Cosmos Hub
 export const toAtom = (atomUnitString) => {
-  let atomUnit = Big(atomUnitString)
-  const atomUnitPerAtom = Big(ATOM_UNIT_PER_ONE_ATOM)
-  atomUnit = atomUnit.div(atomUnitPerAtom)
-  return atomUnit.toFixed(6)
+  try {
+    let atomUnit = Big(atomUnitString)
+    const atomUnitPerAtom = Big(ATOM_UNIT_PER_ONE_ATOM)
+    const atom = atomUnit.div(atomUnitPerAtom)
+    return atom.toFixed(6)
+  } catch (error) {
+      throw "Error invalid atom unit amount string. Cannot convert atom amount"
+  }
+}
+
+export const toAtomUnit = (atomString) => {
+  try {
+    const atom = Big(atomString)
+    const atomUnitPerAtom = Big(ATOM_UNIT_PER_ONE_ATOM)
+    const atomUnit = atom.times(atomUnitPerAtom)
+    return atomUnit.toString()
+  } catch (error) {
+    throw "Error invalid atom amount string. Cannot convert atom amount"
+  }
 }
 
 export const convertAtomToUsd = (atomString, usdString) => {
@@ -47,8 +62,8 @@ export const convertAtomToUsd = (atomString, usdString) => {
   atom = atom.times(USD_PER_ATOM)
   return atom.toFixed(2)
 }
-// Meichain
 
+// Meichain
 export const toMei = (meiUnitString) => {
   try {
     let meiUnit = Big(meiUnitString)
@@ -56,8 +71,20 @@ export const toMei = (meiUnitString) => {
     meiUnit = meiUnit.div(meiUnitPerMei)
     return meiUnit.toFixed(6)
   } catch (error) {
+    throw "Error invalid mei unit amount string. Cannot convert mei amount"
+  }
+}
+
+export const toMeiUnit = (meiString) => {
+  try {
+    const mei = Big(meiString)
+    const meiUnitPerMei = Big(MEI_UNIT_PER_ONE_MEI)
+    const meiUnit = mei.times(meiUnitPerMei)
+    return meiUnit.toString()
+  } catch (error) {
     throw "Error invalid mei amount string. Cannot convert mei amount"
   }
+
 }
 
 // Meichain atom is atom transfered from cosmoshub
