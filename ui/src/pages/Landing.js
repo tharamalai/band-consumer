@@ -65,7 +65,7 @@ export default () => {
             cosmosAddress={cosmosAddress}
             setCosmosAddress={setCosmosAddress}
           />
-          <Liquidate cosmosAddress={cosmosAddress} />
+          <Liquidate meiAddress={meiAddress} />
         </LeftContainer>
         <RightContainer>
           <MeiChain meiAddress={meiAddress} setMeiAddress={setMeiAddress} />

@@ -142,3 +142,31 @@ export const returnDebt = (meiAddress, amount) => {
     meichain.broadcast(signedTx).then(response => console.log(response));
   })
 }
+
+export const liquidate = (cdpOwnerAddresss, meiAddress) => {
+  isInitiateMeichain()
+  if (!ecpairPriv) {
+    throw `Please connect wallet before liquidate debt`
+  }
+  meichain.getAccounts(meiAddress).then(data => {
+    let stdSignMsg = meichain.newStdMsg({
+      msgs: [
+        {
+          type: "meichain/Liquidate",
+          value: {
+            CdpOwner: cdpOwnerAddresss,
+            Liquidator: meiAddress,
+          }
+        }
+      ],
+      chain_id: MEICHAIN_CHAIN_ID,
+      fee: { amount: [], gas: String(200000) },
+      memo: "",
+      account_number: String(data.result.value.account_number),
+      sequence: String(data.result.value.sequence)
+    });
+  
+    const signedTx = meichain.sign(stdSignMsg, ecpairPriv);
+    meichain.broadcast(signedTx).then(response => console.log(response));
+  })
+}

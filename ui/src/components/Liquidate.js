@@ -6,6 +6,7 @@ import Button from 'components/Button'
 
 import Bg from 'images/bg-liquidate.svg'
 import Thunder from 'images/thunder.svg'
+import { liquidate } from 'cosmos/meichain'
 
 const Card = styled(Flex).attrs(() => ({
   p: '1.8vw',
@@ -31,18 +32,24 @@ const NotLogin = () => (
     mt="1.458vw"
     style={{ position: 'relative', zIndex: 2 }}
   >
-    Please connect to Cosmoshub before using this section
+    Please connect to Meichain before using this section
   </Text>
 )
 
-const Login = () => (
+const Login = ({meiAddress}) => (
   <Button
     py="0.55vw"
     mt="1.04vw"
     width="16.67vw"
     background="linear-gradient(223.23deg, #d25c7d 9.86%, #f2918b 89.2%)"
     boxShadow="0px 4px 8px rgba(151, 30, 68, 0.25)"
-    onClick={() => alert('liquidate')}
+    onClick={() => {
+      const cdpOwner = window.prompt('Input CDP Owner Account')
+      if (!cdpOwner) {
+        return
+      }
+      liquidate(cdpOwner, meiAddress)
+    }}
   >
     <Text fontSize="0.83vw" fontWeight={500} lineHeight="1vw">
       Liquidate Undercollateralized Loan
@@ -50,7 +57,7 @@ const Login = () => (
   </Button>
 )
 
-export default ({ cosmosAddress }) => {
+export default ({ meiAddress }) => {
   return (
     <Card>
       <Image
@@ -81,7 +88,7 @@ export default ({ cosmosAddress }) => {
       >
         Dangerous Zone
       </Text>
-      {cosmosAddress ? <Login /> : <NotLogin />}
+      {meiAddress ? <Login meiAddress={meiAddress}/> : <NotLogin />}
     </Card>
   )
 }
