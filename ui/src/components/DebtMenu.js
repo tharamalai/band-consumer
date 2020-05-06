@@ -8,6 +8,7 @@ import SendMeiBtn from 'components/SendMeiBtn'
 import CompareBar from 'components/CompareBar'
 import { toAtom, toMei, convertAtomToUsd, calculateDebtPercent, calculateMaxDebtUSD } from 'utils'
 import { useMeichainContextState } from 'contexts/MeichainContext'
+import Big from 'big.js'
 
 const Circle = styled(Flex).attrs(({ color }) => ({
   width: '1.389vw',
@@ -62,6 +63,16 @@ const FeatureStat = ({ color, title, percent, valueInUSD }) => (
 
 const debtPercent = (cdp, price) => {
   return calculateDebtPercent(toMei(cdp.result.debtAmount), convertAtomToUsd(toAtom(cdp.result.collateralAmount), price))
+}
+
+const debtPercentBar = (percent) => {
+  let percentBar = Big(percent)
+  const maxPercentBar = Big(100)
+  if (percentBar.gt(maxPercentBar)) {
+    percentBar = maxPercentBar
+    return percentBar.toFixed(2)
+  }
+  return percentBar
 }
 
 export default ({ meiAddress, cdp, price }) => {
@@ -144,7 +155,7 @@ export default ({ meiAddress, cdp, price }) => {
           valueInUSD={convertAtomToUsd(toAtom(cdp.result.collateralAmount), price)}
         />
       </Flex>
-      <CompareBar debtPercent={debtPercent(cdp, price)}/>
+      <CompareBar debtPercent={debtPercentBar(debtPercent(cdp, price))}/>
       <Flex
         flexDirection="row"
         justifyContent="space-between"
