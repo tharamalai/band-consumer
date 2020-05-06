@@ -1,4 +1,5 @@
 import React, { useContext, createContext, useState } from 'react'
+import { ATOM_UNIT_SYMBOL, MEI_UNIT_SYMBOL } from 'utils'
 
 const MeichainContext = createContext()
 
@@ -179,6 +180,40 @@ export const MeichainProvider = ({ children}) => {
     })
   }
 
+  const sendMei = (amount, recipient) => {
+    isInitiateMeichain()
+    if (!privateKey) {
+      throw `Please connect wallet before send mei`
+    }
+    meichain.getAccounts(meiAddress).then(data => {
+      let stdSignMsg = meichain.newStdMsg({
+        msgs: [
+          {
+            type: "cosmos-sdk/MsgSend",
+            value: {
+              amount: [
+                {
+                  amount: String(amount),
+                  denom: MEI_UNIT_SYMBOL
+                }
+              ],
+              from_address: meiAddress,
+              to_address: recipient
+            }
+          }
+        ],
+        chain_id: MEICHAIN_CHAIN_ID,
+        fee: { amount: [], gas: String(200000) },
+        memo: "",
+        account_number: String(data.result.value.account_number),
+        sequence: String(data.result.value.sequence)
+      });
+    
+      const signedTx = meichain.sign(stdSignMsg, privateKey);
+      meichain.broadcast(signedTx).then(response => console.log(response))
+    })
+  }
+
   return (
     <MeichainContext.Provider value={{ 
       MEICHAIN_CHAIN_ID,
@@ -188,7 +223,8 @@ export const MeichainProvider = ({ children}) => {
       unlockCollateral,
       borrowDebt,
       returnDebt,
-      liquidate
+      liquidate,
+      sendMei,
      }}>
        {children}
     </MeichainContext.Provider>

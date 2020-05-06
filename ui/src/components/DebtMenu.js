@@ -76,7 +76,7 @@ const debtPercentBar = (percent) => {
 }
 
 export default ({ meiAddress, cdp, price }) => {
-  const { borrowDebt, returnDebt } = useMeichainContextState()
+  const { borrowDebt, returnDebt, sendMei } = useMeichainContextState()
 
   return (
     <Container>
@@ -176,7 +176,17 @@ export default ({ meiAddress, cdp, price }) => {
           }
           returnDebt(toMeiUnit(amount))
         }} />
-        <SendMeiBtn onClick={() => alert('Send MEI')} />
+        <SendMeiBtn onClick={() => {
+          const amount = window.prompt('Input Send Amount')
+          if (!amount) {
+            return
+          }
+          const recipient = window.prompt('Input Recipient')
+          if (!recipient) {
+            return
+          }
+          sendMei(toMeiUnit(amount), recipient)
+        }} />
       </Flex>
     </Container>
   )
