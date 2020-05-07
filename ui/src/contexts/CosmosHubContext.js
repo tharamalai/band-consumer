@@ -8,7 +8,7 @@ export const CosmosHubProvider = ({ children }) => {
   const [cosmosAddress, setCosmosAddress] = useState('')
 
   const cosmosjs = require("@cosmostation/cosmosjs")
-  const COSMOS_LCD_URL = "http://localhost:8011"
+  const COSMOS_LCD_URL = "http://gaia-ibc-hackathon.node.bandchain.org:1317"
   const COSMOS_CHAIN_ID = "band-cosmoshub"
   
   const cosmos = cosmosjs.network(COSMOS_LCD_URL, COSMOS_CHAIN_ID)

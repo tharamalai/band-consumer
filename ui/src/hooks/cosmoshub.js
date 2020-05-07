@@ -8,7 +8,7 @@ export const useCosmosBalance = (cosmosAddress) => {
 
 export const useCosmosHubFaucet = () => {
   return useAxios({
-      url: `http://localhost:8012/`,
+      url: `http://gaia-ibc-hackathon.node.bandchain.org:8000/`,
       method: 'POST'
     },
     { manual: true }
