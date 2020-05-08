@@ -9,6 +9,7 @@ import { useMeiCDP, useMeichainBalance } from 'hooks/meichain'
 import { usePrice } from 'hooks/price'
 import { useMeichainContextState } from 'contexts/MeichainContext'
 import refresh from 'images/refresh.svg' 
+import { generateNewMnemonic } from 'utils'
 
 import ConnectCosmos from 'images/connect-meichain.svg'
 
@@ -66,6 +67,26 @@ export default ({ meiAddress, setMeiAddress }) => {
           p="1.8vw"
         >
           <Image src={ConnectCosmos} width="23vw" />
+          <Button
+            py="0.55vw"
+            px="1vw"
+            mt="1.5vw"
+            background="#971e44"
+            boxShadow="0px 4px 8px rgba(151, 30, 68, 0.25)"
+            onClick={() => {
+              try {
+                const mnemonic = generateNewMnemonic()
+                alert(mnemonic)
+              } catch (error) {
+                console.error(`Fail to Generate Mnemomic: ${error}`)
+                alert("Fail to Generate Mnemomic")
+              }
+            }}
+          >
+            <Text fontSize="0.83vw" fontWeight={500} lineHeight="1vw">
+              Generate Mnemonic
+            </Text>
+          </Button>
           <Button
             py="0.55vw"
             px="1vw"
