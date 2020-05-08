@@ -101,7 +101,7 @@ export const calculateDebtPercent = (_debtInUSD, _collateralInUSD) => {
   if (collateralUSD.gt(0)) {
     debtPercent = debtUSD.div(collateralUSD).times(100)
   } else {
-    debtPercent = debtUSD.div("1").times(100)
+    debtPercent = debtUSD.times(100)
   }
   return debtPercent.toFixed(2)
 }
