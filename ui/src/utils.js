@@ -154,3 +154,13 @@ export const getMeichainRestServer = () => {
   }
   return "http://13.250.187.211:1317"
 }
+
+export const generateNewMnemonic = () => {
+  try {
+    const bip39 = require('bip39')
+    const mnemonic = bip39.generateMnemonic()
+    return mnemonic
+  } catch (error) {
+    throw `Error while generate new mnemonic: ${error}`
+  }
+}

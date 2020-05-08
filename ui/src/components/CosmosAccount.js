@@ -6,7 +6,7 @@ import Button from 'components/Button'
 import FaucetBtn from 'components/FaucetBtn'
 import { usePrice } from 'hooks/price'
 import { useCosmosBalance, useCosmosHubFaucet } from 'hooks/cosmoshub'
-import { toAtom, toAtomUnit, convertAtomToUsd, findTokenBySymbol, ATOM_UNIT_SYMBOL, COSMOS_CHAIN_ID } from 'utils'
+import { toAtom, toAtomUnit, convertAtomToUsd, findTokenBySymbol, ATOM_UNIT_SYMBOL, COSMOS_CHAIN_ID, generateNewMnemonic } from 'utils'
 import refresh from 'images/refresh.svg'
 import { useCosmosHubContextState } from 'contexts/CosmosHubContext'
 import Big from 'big.js'
@@ -17,7 +17,7 @@ const Card = styled(Flex).attrs(() => ({
   p: '1.8vw',
   width: '100%',
   mt: '2.5vw',
-  height: '12.639vw',
+  height: '17vw',
 }))`
   background: rgba(249, 251, 252, 0.9);
   box-shadow: 0px 16px 32px rgba(95, 106, 128, 0.1);
@@ -144,6 +144,24 @@ export default ({ cosmosAddress, setCosmosAddress }) => {
           <Image src={ConnectCosmos} width="23vw" />
           <Button
             mt="2.22vw"
+            py="0.55vw"
+            px="1vw"
+            onClick={() => {
+              try {
+                const mnemonic = generateNewMnemonic()
+                alert(mnemonic)
+              } catch (error) {
+                console.error(`Fail to Generate Mnemomic: ${error}`)
+                alert("Fail to Generate Mnemomic")
+              }
+            }}
+          >
+            <Text fontSize="0.83vw" fontWeight={500} lineHeight="1vw">
+              Generate Mnemonic
+            </Text>
+          </Button>
+          <Button
+            mt="1vw"
             py="0.55vw"
             px="1vw"
             onClick={() => {
