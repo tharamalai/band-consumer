@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import { Flex, Image, Text } from 'rebass'
 import styled from 'styled-components'
 import Button from 'components/Button'
@@ -24,10 +24,35 @@ const Card = styled(Flex).attrs(() => ({
   position: relative;
 `
 
+const useInterval = (callback, delay) => {
+  const savedCallback = useRef();
+
+  // Remember the latest function.
+  useEffect(() => {
+    savedCallback.current = callback;
+  }, [callback]);
+
+  // Set up the interval.
+  useEffect(() => {
+    function tick() {
+      savedCallback.current();
+    }
+    if (delay !== null) {
+      let id = setInterval(tick, delay);
+      return () => clearInterval(id);
+    }
+  }, [delay])
+}
+
 const LoggedInToMeiChain = ({ meiAddress }) => {
   const [{ data: meichainBalanceData, loading: meichainBalanceLoading, error: meichainBalanceError }, meiAccountBalanceRefetch] = useMeichainBalance(meiAddress)
   const [{ data: cdpData, loading: cdpLoading, error: cdpError }, cdpRefetch] = useMeiCDP(meiAddress)
   const [{ data: priceData, loading: priceLoading, error: priceError }, priceRefetch] = usePrice()
+
+  useInterval(() => {
+    meiAccountBalanceRefetch()
+    cdpRefetch()
+  }, 5000);
 
   return (
     <Flex flexDirection="column" width="100%" style={{position: "relative"}}>
