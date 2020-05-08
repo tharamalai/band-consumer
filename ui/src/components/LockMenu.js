@@ -2,7 +2,7 @@ import React from 'react'
 import { Flex, Text } from 'rebass'
 import colors from 'ui/colors'
 import Button from 'components/Button'
-import { toAtom, toAtomUnit, findTokenBySymbol, getMeichainAtomSymbol, toMei, toMeiUnit } from 'utils'
+import { toAtom, toAtomUnit, findTokenBySymbol, getMeichainAtomSymbol, toMei } from 'utils'
 import { useMeichainContextState } from 'contexts/MeichainContext'
 import Big from 'big.js'
 

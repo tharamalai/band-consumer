@@ -72,7 +72,7 @@ const LogIn = ({ cosmosAddress }) => {
             color={colors.purple.dark}
           >
             {cosmosBalanceData
-              ? toAtom(findTokenBySymbol(cosmosBalanceData.result, ATOM_UNIT_SYMBOL).amount)
+              ? toAtom(findTokenBySymbol(safeAccess(cosmosBalanceData, ["result"]), ATOM_UNIT_SYMBOL).amount)
               : 'loading...'}
           </Text>
           <Text
@@ -84,7 +84,7 @@ const LogIn = ({ cosmosAddress }) => {
             style={{ fontStyle: 'italic' }}
           >
             {cosmosBalanceData && priceData
-              ? `≈ ${convertAtomToUsd(toAtom(findTokenBySymbol(cosmosBalanceData.result, ATOM_UNIT_SYMBOL).amount), safeAccess(priceData, ["cosmos", "usd"]))} USD`
+              ? `≈ ${convertAtomToUsd(toAtom(findTokenBySymbol(safeAccess(cosmosBalanceData, ["result"]), ATOM_UNIT_SYMBOL).amount), safeAccess(priceData, ["cosmos", "usd"]))} USD`
               : 'loading...'}
           </Text>
         </Flex>
@@ -108,7 +108,7 @@ const LogIn = ({ cosmosAddress }) => {
               }
 
               const transferAmount = Big(toAtomUnit(amount))
-              const atomBalance = Big(findTokenBySymbol(cosmosBalanceData.result, ATOM_UNIT_SYMBOL).amount)
+              const atomBalance = Big(findTokenBySymbol(safeAccess(cosmosBalanceData, ["result"]), ATOM_UNIT_SYMBOL).amount)
               if (transferAmount.gt(atomBalance)) {
                 alert(`Max transfer amount is ${toAtom(atomBalance)}`)
                 return
