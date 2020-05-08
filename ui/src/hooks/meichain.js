@@ -1,13 +1,16 @@
 import useAxios from 'axios-hooks'
+import { getMeichainRestServer } from 'utils'
+
+const MEICHAIN_REST_SERVER = getMeichainRestServer()
 
 export const useMeichainBalance = (meiAddress) => {
   return useAxios(
-    `http://13.250.187.211:1317/bank/balances/${meiAddress}`,
+    `${MEICHAIN_REST_SERVER}/bank/balances/${meiAddress}`,
   )
 }
 
 export const useMeiCDP = (meiAddress) => {
   return useAxios(
-    `http://13.250.187.211:1317/meicdp/cdp/${meiAddress}`,
+    `${MEICHAIN_REST_SERVER}/meicdp/cdp/${meiAddress}`,
   )
 }

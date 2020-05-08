@@ -1,5 +1,5 @@
 import React, { useContext, createContext, useState } from 'react'
-import { MEICHAIN_GAIA_TRANSFER_CHANNEL, GAIA_MEICHAIN_TRANSFER_CHANNEL,  ATOM_UNIT_SYMBOL } from 'utils'
+import { MEICHAIN_GAIA_TRANSFER_CHANNEL, GAIA_MEICHAIN_TRANSFER_CHANNEL,  ATOM_UNIT_SYMBOL, getCosmosRestServer, COSMOS_CHAIN_ID, convertSignMsg } from 'utils'
 
 const CosmosHubContext = createContext()
 
@@ -8,11 +8,8 @@ export const CosmosHubProvider = ({ children }) => {
   const [cosmosAddress, setCosmosAddress] = useState('')
 
   const cosmosjs = require("@cosmostation/cosmosjs")
-  const COSMOS_LCD_URL = "http://gaia-ibc-hackathon.node.bandchain.org:1317"
-  const COSMOS_CHAIN_ID = "band-cosmoshub"
   
-  const cosmos = cosmosjs.network(COSMOS_LCD_URL, COSMOS_CHAIN_ID)
-  cosmos.setPath("m/44'/118'/0'/0/0");
+  const cosmos = cosmosjs.network(getCosmosRestServer(), COSMOS_CHAIN_ID)
 
   const isInitiateCosmos = () => {
     if (!cosmos) {
@@ -73,8 +70,8 @@ export const CosmosHubProvider = ({ children }) => {
           account_number: String(data.result.value.account_number),
           sequence: String(data.result.value.sequence)
         });
-      
-        const signedTx = cosmos.sign(stdSignMsg, privateKey)
+        let signedTx = cosmos.sign(stdSignMsg, privateKey)
+        signedTx = convertSignMsg(signedTx)
         cosmos.broadcast(signedTx).then(response => console.log(response))
       })
     } catch (error) {
@@ -85,7 +82,6 @@ export const CosmosHubProvider = ({ children }) => {
 
   return (
     <CosmosHubContext.Provider value={{ 
-      COSMOS_CHAIN_ID,
       getCosmosAddress,
       setPrivateKeyFromMnemonic,
       sendTokenToMeichain

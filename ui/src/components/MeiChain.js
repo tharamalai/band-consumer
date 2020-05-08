@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import { Flex, Image, Text } from 'rebass'
 import styled from 'styled-components'
 import Button from 'components/Button'
@@ -9,6 +9,7 @@ import { useMeiCDP, useMeichainBalance } from 'hooks/meichain'
 import { usePrice } from 'hooks/price'
 import { useMeichainContextState } from 'contexts/MeichainContext'
 import refresh from 'images/refresh.svg' 
+import { generateNewMnemonic, safeAccess } from 'utils'
 
 import ConnectCosmos from 'images/connect-meichain.svg'
 
@@ -23,10 +24,35 @@ const Card = styled(Flex).attrs(() => ({
   position: relative;
 `
 
+const useInterval = (callback, delay) => {
+  const savedCallback = useRef();
+
+  // Remember the latest function.
+  useEffect(() => {
+    savedCallback.current = callback;
+  }, [callback]);
+
+  // Set up the interval.
+  useEffect(() => {
+    function tick() {
+      savedCallback.current();
+    }
+    if (delay !== null) {
+      let id = setInterval(tick, delay);
+      return () => clearInterval(id);
+    }
+  }, [delay])
+}
+
 const LoggedInToMeiChain = ({ meiAddress }) => {
   const [{ data: meichainBalanceData, loading: meichainBalanceLoading, error: meichainBalanceError }, meiAccountBalanceRefetch] = useMeichainBalance(meiAddress)
   const [{ data: cdpData, loading: cdpLoading, error: cdpError }, cdpRefetch] = useMeiCDP(meiAddress)
   const [{ data: priceData, loading: priceLoading, error: priceError }, priceRefetch] = usePrice()
+
+  useInterval(() => {
+    meiAccountBalanceRefetch()
+    cdpRefetch()
+  }, 5000);
 
   return (
     <Flex flexDirection="column" width="100%" style={{position: "relative"}}>
@@ -41,10 +67,10 @@ const LoggedInToMeiChain = ({ meiAddress }) => {
         <LoanStatus meiAddress={meiAddress} meichainBalance={meichainBalanceData} />)
         : "loading..."}
       {priceData && cdpData && meichainBalanceData ? (
-        <DebtMenu cdp={cdpData} price={priceData.cosmos.usd} meichainBalance={meichainBalanceData}/>)
+        <DebtMenu cdp={cdpData} price={safeAccess(priceData, ["cosmos", "usd"])} meichainBalance={meichainBalanceData}/>)
         : "loading..."}
       {priceData && cdpData ? (
-        <LockMenu cdp={cdpData} meiAddress={meiAddress} meichainBalance={meichainBalanceData} price={priceData.cosmos.usd}/>)
+        <LockMenu cdp={cdpData} meiAddress={meiAddress} meichainBalance={meichainBalanceData} price={safeAccess(priceData, ["cosmos", "usd"])}/>)
         : "loading..."}
     </Flex>
   )
@@ -66,6 +92,26 @@ export default ({ meiAddress, setMeiAddress }) => {
           p="1.8vw"
         >
           <Image src={ConnectCosmos} width="23vw" />
+          <Button
+            py="0.55vw"
+            px="1vw"
+            mt="1.5vw"
+            background="#971e44"
+            boxShadow="0px 4px 8px rgba(151, 30, 68, 0.25)"
+            onClick={() => {
+              try {
+                const mnemonic = generateNewMnemonic()
+                alert(mnemonic)
+              } catch (error) {
+                console.error(`Fail to Generate Mnemomic: ${error}`)
+                alert("Fail to Generate Mnemomic")
+              }
+            }}
+          >
+            <Text fontSize="0.83vw" fontWeight={500} lineHeight="1vw">
+              Generate Mnemonic
+            </Text>
+          </Button>
           <Button
             py="0.55vw"
             px="1vw"

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, createContext } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { Flex, Image, Text } from 'rebass'
 import styled from 'styled-components'
 import colors from 'ui/colors'
@@ -6,7 +6,7 @@ import Button from 'components/Button'
 import FaucetBtn from 'components/FaucetBtn'
 import { usePrice } from 'hooks/price'
 import { useCosmosBalance, useCosmosHubFaucet } from 'hooks/cosmoshub'
-import { toAtom, toAtomUnit, convertAtomToUsd, findTokenBySymbol, ATOM_UNIT_SYMBOL } from 'utils'
+import { toAtom, toAtomUnit, convertAtomToUsd, findTokenBySymbol, ATOM_UNIT_SYMBOL, COSMOS_CHAIN_ID, generateNewMnemonic, safeAccess } from 'utils'
 import refresh from 'images/refresh.svg'
 import { useCosmosHubContextState } from 'contexts/CosmosHubContext'
 import Big from 'big.js'
@@ -17,7 +17,7 @@ const Card = styled(Flex).attrs(() => ({
   p: '1.8vw',
   width: '100%',
   mt: '2.5vw',
-  height: '12.639vw',
+  height: '17vw',
 }))`
   background: rgba(249, 251, 252, 0.9);
   box-shadow: 0px 16px 32px rgba(95, 106, 128, 0.1);
@@ -25,11 +25,35 @@ const Card = styled(Flex).attrs(() => ({
   position: relative;
 `
 
+const useInterval = (callback, delay) => {
+  const savedCallback = useRef();
+
+  // Remember the latest function.
+  useEffect(() => {
+    savedCallback.current = callback;
+  }, [callback]);
+
+  // Set up the interval.
+  useEffect(() => {
+    function tick() {
+      savedCallback.current();
+    }
+    if (delay !== null) {
+      let id = setInterval(tick, delay);
+      return () => clearInterval(id);
+    }
+  }, [delay])
+}
+
 const LogIn = ({ cosmosAddress }) => {
   const [{ data: cosmosBalanceData, loading: cosmosBalanceLoading, error: cosmosBalanceError }, cosmosAccountBalanceRefetch] = useCosmosBalance(cosmosAddress)
   const [{ data: priceData, loading: priceLoading, error: priceError }, priceRefetch] = usePrice()
   const [{ data: faucetData, loading: faucetLoading, error: faucetError }, requestFaucet] = useCosmosHubFaucet()
-  const { COSMOS_CHAIN_ID, sendTokenToMeichain } = useCosmosHubContextState()
+  const { sendTokenToMeichain } = useCosmosHubContextState()
+
+  useInterval(() => {
+    cosmosAccountBalanceRefetch()
+  }, 5000);
 
   return (
     <Flex flexDirection="column" width="100%">
@@ -72,7 +96,7 @@ const LogIn = ({ cosmosAddress }) => {
             color={colors.purple.dark}
           >
             {cosmosBalanceData
-              ? toAtom(findTokenBySymbol(cosmosBalanceData.result, ATOM_UNIT_SYMBOL).amount)
+              ? toAtom(findTokenBySymbol(safeAccess(cosmosBalanceData, ["result"]), ATOM_UNIT_SYMBOL).amount)
               : 'loading...'}
           </Text>
           <Text
@@ -84,7 +108,7 @@ const LogIn = ({ cosmosAddress }) => {
             style={{ fontStyle: 'italic' }}
           >
             {cosmosBalanceData && priceData
-              ? `≈ ${convertAtomToUsd(toAtom(findTokenBySymbol(cosmosBalanceData.result, ATOM_UNIT_SYMBOL).amount), priceData.cosmos.usd)} USD`
+              ? `≈ ${convertAtomToUsd(toAtom(findTokenBySymbol(safeAccess(cosmosBalanceData, ["result"]), ATOM_UNIT_SYMBOL).amount), safeAccess(priceData, ["cosmos", "usd"]))} USD`
               : 'loading...'}
           </Text>
         </Flex>
@@ -107,8 +131,20 @@ const LogIn = ({ cosmosAddress }) => {
                 return
               }
 
-              const transferAmount = Big(toAtomUnit(amount))
-              const atomBalance = Big(findTokenBySymbol(cosmosBalanceData.result, ATOM_UNIT_SYMBOL).amount)
+              let transferAmount
+              try {
+                transferAmount = Big(toAtomUnit(amount))
+              } catch (error) {
+                alert("Invalid amount")
+                return
+              }
+
+              if (transferAmount.lte(0)) {
+                alert("Amount must more than 0")
+                return
+              }
+
+              const atomBalance = Big(findTokenBySymbol(safeAccess(cosmosBalanceData, ["result"]), ATOM_UNIT_SYMBOL).amount)
               if (transferAmount.gt(atomBalance)) {
                 alert(`Max transfer amount is ${toAtom(atomBalance)}`)
                 return
@@ -144,6 +180,24 @@ export default ({ cosmosAddress, setCosmosAddress }) => {
           <Image src={ConnectCosmos} width="23vw" />
           <Button
             mt="2.22vw"
+            py="0.55vw"
+            px="1vw"
+            onClick={() => {
+              try {
+                const mnemonic = generateNewMnemonic()
+                alert(mnemonic)
+              } catch (error) {
+                console.error(`Fail to Generate Mnemomic: ${error}`)
+                alert("Fail to Generate Mnemomic")
+              }
+            }}
+          >
+            <Text fontSize="0.83vw" fontWeight={500} lineHeight="1vw">
+              Generate Mnemonic
+            </Text>
+          </Button>
+          <Button
+            mt="1vw"
             py="0.55vw"
             px="1vw"
             onClick={() => {

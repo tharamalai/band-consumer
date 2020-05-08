@@ -11,6 +11,10 @@ export const GAIA_MEICHAIN_TRANSFER_CHANNEL = "izwkqheeij"
 export const ATOM_UNIT_SYMBOL = "uatom"
 
 export const MEI_UNIT_SYMBOL = "umei"
+  
+export const COSMOS_CHAIN_ID = "band-cosmoshub"
+
+export const MEICHAIN_CHAIN_ID = "meichain"
 
 export const findTokenBySymbol = (tokens, tokenSymbol) => {
   if (!tokens) {
@@ -99,7 +103,7 @@ export const calculateDebtPercent = (_debtInUSD, _collateralInUSD) => {
   if (collateralUSD.gt(0)) {
     debtPercent = debtUSD.div(collateralUSD).times(100)
   } else {
-    debtPercent = debtUSD.div("1").times(100)
+    debtPercent = debtUSD.times(100)
   }
   return debtPercent.toFixed(2)
 }
@@ -117,3 +121,71 @@ export const calculateMaxDebtUSD = (_collateralInUSD) => {
   }
   return maxDebtUSD.toFixed(2)
 }
+
+export const getHost = () => {
+  const host = window.location.host
+  if (host && host.includes("localhost")) {
+    return "localhost"
+  }
+  return host
+}
+
+export const getCosmosLcdUrl = () => {
+  const host = getHost()
+  if (host === "localhost") {
+    return "http://localhost:8012"
+  }
+  return "http://gaia-ibc-hackathon.node.bandchain.org:8000"
+}
+
+export const getCosmosRestServer = () => {
+  const host = getHost()
+  if (host === "localhost") {
+    return "http://localhost:8011"
+  }
+  return "http://gaia-ibc-hackathon.node.bandchain.org:1317"
+}
+
+
+export const getMeichainRestServer = () => {
+  const host = getHost()
+  if (host === "localhost") {
+    return "http://localhost:8010"
+  }
+  return "http://13.250.187.211:1317"
+}
+
+export const generateNewMnemonic = () => {
+  try {
+    const bip39 = require('bip39')
+    const mnemonic = bip39.generateMnemonic()
+    return mnemonic
+  } catch (error) {
+    throw `Error while generate new mnemonic: ${error}`
+  }
+}
+
+export const safeAccess = (object, path) => {
+  return object
+    ? path.reduce(
+        (accumulator, currentValue) => (accumulator && accumulator[currentValue] ? accumulator[currentValue] : null),
+        object
+      )
+    : null
+}
+
+export const convertSignMsg = (signedMsg) => {
+  for (const sig of signedMsg.tx.signatures) {
+    // sha256("tendermint/PubKeySecp256k1") = f8ccea**eb5ae987**ea423e6cc0e94297a53bd6862df3b3a02a6f6fc89250308760
+    // We use eb5ae987 AND 21 (= 21 base 16 = 33 = pubkey size)
+    sig.public_key = Buffer.from(
+      'eb5ae98721' + Buffer.from(sig.pub_key.value, 'base64').toString('hex'), 'hex'
+    ).toString('base64')
+    if (sig.pub_key) {
+      delete sig.pub_key
+    }
+    signedMsg.tx.signatures = [sig]
+    return signedMsg
+  }
+}
+
