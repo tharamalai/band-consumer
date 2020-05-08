@@ -3,7 +3,7 @@ import { getCosmosLcdUrl, getCosmosRestServer } from 'utils'
 
 export const useCosmosBalance = (cosmosAddress) => {
   return useAxios(
-    `${getCosmosRestServer()}bank/balances/${cosmosAddress}`, 
+    `${getCosmosRestServer()}/bank/balances/${cosmosAddress}`, 
   )
 }
 

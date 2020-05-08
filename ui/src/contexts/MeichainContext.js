@@ -1,17 +1,15 @@
 import React, { useContext, createContext, useState } from 'react'
-import { ATOM_UNIT_SYMBOL, MEI_UNIT_SYMBOL } from 'utils'
+import { ATOM_UNIT_SYMBOL, MEI_UNIT_SYMBOL, MEICHAIN_CHAIN_ID, getMeichainRestServer } from 'utils'
 
 const MeichainContext = createContext()
 
 export const MeichainProvider = ({ children}) => {
   const [privateKey, setPrivateKey] = useState('')
   const [meiAddress, setMeiAddress] = useState('')
-  const MEICHAIN_LCD_URL = "http://localhost:8010"
-  const  MEICHAIN_CHAIN_ID = "meichain";
 
   const cosmosjs = require("@cosmostation/cosmosjs")
-  const meichain = cosmosjs.network(MEICHAIN_LCD_URL, MEICHAIN_CHAIN_ID)
-  meichain.setPath("m/44'/118'/0'/0/0")
+  const meichain = cosmosjs.network(getMeichainRestServer(), MEICHAIN_CHAIN_ID)
+  // meichain.setPath("m/44'/118'/0'/0/0")
 
   const isInitiateMeichain = () => {
     if (!meichain) {
@@ -216,7 +214,6 @@ export const MeichainProvider = ({ children}) => {
 
   return (
     <MeichainContext.Provider value={{ 
-      MEICHAIN_CHAIN_ID,
       getMeichainAddress,
       setPrivateKeyFromMnemonic,
       lockCollateral,

@@ -14,6 +14,8 @@ export const MEI_UNIT_SYMBOL = "umei"
   
 export const COSMOS_CHAIN_ID = "band-cosmoshub"
 
+export const MEICHAIN_CHAIN_ID = "meichain"
+
 export const findTokenBySymbol = (tokens, tokenSymbol) => {
   if (!tokens) {
     return {
@@ -131,24 +133,24 @@ export const getHost = () => {
 export const getCosmosLcdUrl = () => {
   const host = getHost()
   if (host === "localhost") {
-    return "http://localhost:8012/"
+    return "http://localhost:8012"
   }
-  return "http://gaia-ibc-hackathon.node.bandchain.org:8000/"
+  return "http://gaia-ibc-hackathon.node.bandchain.org:8000"
 }
 
 export const getCosmosRestServer = () => {
   const host = getHost()
   if (host === "localhost") {
-    return "http://localhost:8011/"
+    return "http://localhost:8011"
   }
-  return "http://gaia-ibc-hackathon.node.bandchain.org:1317/"
+  return "http://gaia-ibc-hackathon.node.bandchain.org:1317"
 }
 
 
 export const getMeichainRestServer = () => {
   const host = getHost()
   if (host === "localhost") {
-    return "http://localhost:8010/"
+    return "http://localhost:8010"
   }
-  return "http://13.250.187.211:1317/"
+  return "http://13.250.187.211:1317"
 }
