@@ -68,6 +68,20 @@ export default ({ cdp, meichainBalance, price }) => {
             if (!amount) {
               return
             }
+
+            let lockAmount
+            try {
+              lockAmount = Big(toAtomUnit(amount))
+            } catch (error) {
+              alert("Invalid amount")
+              return
+            }
+  
+            if (lockAmount.lte(0)) {
+              alert("Amount must more than 0")
+              return
+            }
+
             lockCollateral(toAtomUnit(amount))
           }}
         >
@@ -120,7 +134,20 @@ export default ({ cdp, meichainBalance, price }) => {
             if (!amount) {
               return
             }
-            const unlockAmount = Big(toAtomUnit(amount))
+
+            let unlockAmount
+            try {
+              unlockAmount = Big(toAtomUnit(amount))
+            } catch (error) {
+              alert("Invalid amount")
+              return
+            }
+  
+            if (unlockAmount.lte(0)) {
+              alert("Amount must more than 0")
+              return
+            }
+            
             const maxUnlockAmount = maxUnlock(cdp, price)
             if (unlockAmount.gt(maxUnlockAmount)) {
               alert(`Max unlock amount is ${toAtom(maxUnlockAmount.toString())}`)

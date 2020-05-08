@@ -178,7 +178,20 @@ export default ({ cdp, price, meichainBalance }) => {
           if (!amount) {
             return
           }
-          const borrowAmount = Big(toMeiUnit(amount))
+
+          let borrowAmount
+          try {
+            borrowAmount = Big(toMeiUnit(amount))
+          } catch (error) {
+            alert("Invalid amount")
+            return
+          }
+
+          if (borrowAmount.lte(0)) {
+            alert("Amount must more than 0")
+            return
+          }
+
           const maxBorrowAmount = maxBorrow(cdp, price)
           if (borrowAmount.gt(maxBorrowAmount)) {
             alert(`Max borrow amount is ${toMei(maxBorrowAmount)}`)
@@ -192,6 +205,20 @@ export default ({ cdp, price, meichainBalance }) => {
           if (!amount) {
             return
           }
+
+          let returnAmount
+          try {
+            returnAmount = Big(toMeiUnit(amount))
+          } catch (error) {
+            alert("Invalid amount")
+            return
+          }
+
+          if (returnAmount.lte(0)) {
+            alert("Amount must more than 0")
+            return
+          }
+          
           returnDebt(toMeiUnit(amount))
         }} />
         <SendMeiBtn onClick={() => {
@@ -200,7 +227,19 @@ export default ({ cdp, price, meichainBalance }) => {
             return
           }
 
-          const sendAmount = Big(toMeiUnit(amount))
+          let sendAmount
+          try {
+            sendAmount = Big(toMeiUnit(amount))
+          } catch (error) {
+            alert("Invalid amount")
+            return
+          }
+
+          if (sendAmount.lte(0)) {
+            alert("Amount must more than 0")
+            return
+          }
+
           const maxSendAmount = Big(findTokenBySymbol(safeAccess(meichainBalance, ["result"]), MEI_UNIT_SYMBOL).amount)
           if (sendAmount.gt(maxSendAmount)) {
             alert(`Max send amount is ${toMei(maxSendAmount)}`)

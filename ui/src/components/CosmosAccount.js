@@ -131,7 +131,19 @@ const LogIn = ({ cosmosAddress }) => {
                 return
               }
 
-              const transferAmount = Big(toAtomUnit(amount))
+              let transferAmount
+              try {
+                transferAmount = Big(toAtomUnit(amount))
+              } catch (error) {
+                alert("Invalid amount")
+                return
+              }
+
+              if (transferAmount.lte(0)) {
+                alert("Amount must more than 0")
+                return
+              }
+
               const atomBalance = Big(findTokenBySymbol(safeAccess(cosmosBalanceData, ["result"]), ATOM_UNIT_SYMBOL).amount)
               if (transferAmount.gt(atomBalance)) {
                 alert(`Max transfer amount is ${toAtom(atomBalance)}`)
