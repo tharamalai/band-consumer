@@ -9,7 +9,7 @@ import { useMeiCDP, useMeichainBalance } from 'hooks/meichain'
 import { usePrice } from 'hooks/price'
 import { useMeichainContextState } from 'contexts/MeichainContext'
 import refresh from 'images/refresh.svg' 
-import { generateNewMnemonic } from 'utils'
+import { generateNewMnemonic, safeAccess } from 'utils'
 
 import ConnectCosmos from 'images/connect-meichain.svg'
 
@@ -42,10 +42,10 @@ const LoggedInToMeiChain = ({ meiAddress }) => {
         <LoanStatus meiAddress={meiAddress} meichainBalance={meichainBalanceData} />)
         : "loading..."}
       {priceData && cdpData && meichainBalanceData ? (
-        <DebtMenu cdp={cdpData} price={priceData.cosmos.usd} meichainBalance={meichainBalanceData}/>)
+        <DebtMenu cdp={cdpData} price={safeAccess(priceData, ["cosmos", "usd"])} meichainBalance={meichainBalanceData}/>)
         : "loading..."}
       {priceData && cdpData ? (
-        <LockMenu cdp={cdpData} meiAddress={meiAddress} meichainBalance={meichainBalanceData} price={priceData.cosmos.usd}/>)
+        <LockMenu cdp={cdpData} meiAddress={meiAddress} meichainBalance={meichainBalanceData} price={safeAccess(priceData, ["cosmos", "usd"])}/>)
         : "loading..."}
     </Flex>
   )

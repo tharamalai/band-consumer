@@ -6,7 +6,7 @@ import Button from 'components/Button'
 import FaucetBtn from 'components/FaucetBtn'
 import { usePrice } from 'hooks/price'
 import { useCosmosBalance, useCosmosHubFaucet } from 'hooks/cosmoshub'
-import { toAtom, toAtomUnit, convertAtomToUsd, findTokenBySymbol, ATOM_UNIT_SYMBOL, COSMOS_CHAIN_ID, generateNewMnemonic } from 'utils'
+import { toAtom, toAtomUnit, convertAtomToUsd, findTokenBySymbol, ATOM_UNIT_SYMBOL, COSMOS_CHAIN_ID, generateNewMnemonic, safeAccess } from 'utils'
 import refresh from 'images/refresh.svg'
 import { useCosmosHubContextState } from 'contexts/CosmosHubContext'
 import Big from 'big.js'
@@ -84,7 +84,7 @@ const LogIn = ({ cosmosAddress }) => {
             style={{ fontStyle: 'italic' }}
           >
             {cosmosBalanceData && priceData
-              ? `≈ ${convertAtomToUsd(toAtom(findTokenBySymbol(cosmosBalanceData.result, ATOM_UNIT_SYMBOL).amount), priceData.cosmos.usd)} USD`
+              ? `≈ ${convertAtomToUsd(toAtom(findTokenBySymbol(cosmosBalanceData.result, ATOM_UNIT_SYMBOL).amount), safeAccess(priceData, ["cosmos", "usd"]))} USD`
               : 'loading...'}
           </Text>
         </Flex>
