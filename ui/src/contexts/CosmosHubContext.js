@@ -1,5 +1,5 @@
 import React, { useContext, createContext, useState } from 'react'
-import { MEICHAIN_GAIA_TRANSFER_CHANNEL, GAIA_MEICHAIN_TRANSFER_CHANNEL,  ATOM_UNIT_SYMBOL, getCosmosRestServer, COSMOS_CHAIN_ID } from 'utils'
+import { MEICHAIN_GAIA_TRANSFER_CHANNEL, GAIA_MEICHAIN_TRANSFER_CHANNEL,  ATOM_UNIT_SYMBOL, getCosmosRestServer, COSMOS_CHAIN_ID, convertSignMsg } from 'utils'
 
 const CosmosHubContext = createContext()
 
@@ -70,8 +70,8 @@ export const CosmosHubProvider = ({ children }) => {
           account_number: String(data.result.value.account_number),
           sequence: String(data.result.value.sequence)
         });
-      
-        const signedTx = cosmos.sign(stdSignMsg, privateKey)
+        let signedTx = cosmos.sign(stdSignMsg, privateKey)
+        signedTx = convertSignMsg(signedTx)
         cosmos.broadcast(signedTx).then(response => console.log(response))
       })
     } catch (error) {

@@ -173,3 +173,18 @@ export const safeAccess = (object, path) => {
       )
     : null
 }
+
+export const convertSignMsg = (signedMsg) => {
+  for (const sig of signedMsg.tx.signatures) {
+    // sha256("tendermint/PubKeySecp256k1") = f8ccea**eb5ae987**ea423e6cc0e94297a53bd6862df3b3a02a6f6fc89250308760
+    // We use eb5ae987 AND 21 (= 21 base 16 = 33 = pubkey size)
+    sig.public_key = Buffer.from(
+      'eb5ae98721' + Buffer.from(sig.pub_key.value, 'base64').toString('hex'), 'hex'
+    ).toString('base64')
+    if (sig.pub_key) {
+      delete sig.pub_key
+    }
+    signedMsg.tx.signatures = [sig]
+    return signedMsg
+  }
+}

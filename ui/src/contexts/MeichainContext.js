@@ -1,5 +1,5 @@
 import React, { useContext, createContext, useState } from 'react'
-import { ATOM_UNIT_SYMBOL, MEI_UNIT_SYMBOL, MEICHAIN_CHAIN_ID, getMeichainRestServer } from 'utils'
+import { ATOM_UNIT_SYMBOL, MEI_UNIT_SYMBOL, MEICHAIN_CHAIN_ID, getMeichainRestServer, convertSignMsg } from 'utils'
 
 const MeichainContext = createContext()
 
@@ -59,8 +59,8 @@ export const MeichainProvider = ({ children}) => {
         account_number: String(data.result.value.account_number),
         sequence: String(data.result.value.sequence)
       });
-    
-      const signedTx = meichain.sign(stdSignMsg, privateKey)
+      let signedTx = meichain.sign(stdSignMsg, privateKey)
+      signedTx = convertSignMsg(signedTx)
       meichain.broadcast(signedTx).then(response => console.log(response));
     })
   }
@@ -88,7 +88,8 @@ export const MeichainProvider = ({ children}) => {
         sequence: String(data.result.value.sequence)
       });
     
-      const signedTx = meichain.sign(stdSignMsg, privateKey);
+      let signedTx = meichain.sign(stdSignMsg, privateKey);
+      signedTx = convertSignMsg(signedTx)
       meichain.broadcast(signedTx).then(response => console.log(response))
     })
   }
@@ -116,7 +117,8 @@ export const MeichainProvider = ({ children}) => {
         sequence: String(data.result.value.sequence)
       });
     
-      const signedTx = meichain.sign(stdSignMsg, privateKey);
+      let signedTx = meichain.sign(stdSignMsg, privateKey);
+      signedTx = convertSignMsg(signedTx)
       meichain.broadcast(signedTx).then(response => console.log(response))
     })
   }
@@ -144,7 +146,8 @@ export const MeichainProvider = ({ children}) => {
         sequence: String(data.result.value.sequence)
       });
     
-      const signedTx = meichain.sign(stdSignMsg, privateKey);
+      let signedTx = meichain.sign(stdSignMsg, privateKey);
+      signedTx = convertSignMsg(signedTx)
       meichain.broadcast(signedTx).then(response => console.log(response))
     })
   }
@@ -172,7 +175,8 @@ export const MeichainProvider = ({ children}) => {
         sequence: String(data.result.value.sequence)
       });
     
-      const signedTx = meichain.sign(stdSignMsg, privateKey);
+      let signedTx = meichain.sign(stdSignMsg, privateKey);
+      signedTx = convertSignMsg(signedTx)
       meichain.broadcast(signedTx).then(response => console.log(response))
     })
   }
@@ -206,7 +210,8 @@ export const MeichainProvider = ({ children}) => {
         sequence: String(data.result.value.sequence)
       });
     
-      const signedTx = meichain.sign(stdSignMsg, privateKey);
+      let signedTx = meichain.sign(stdSignMsg, privateKey);
+      signedTx = convertSignMsg(signedTx)
       meichain.broadcast(signedTx).then(response => console.log(response))
     })
   }
