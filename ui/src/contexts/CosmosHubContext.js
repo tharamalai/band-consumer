@@ -10,7 +10,6 @@ export const CosmosHubProvider = ({ children }) => {
   const cosmosjs = require("@cosmostation/cosmosjs")
   
   const cosmos = cosmosjs.network(getCosmosLcdUrl(), COSMOS_CHAIN_ID)
-  cosmos.setPath("m/44'/118'/0'/0/0");
 
   const isInitiateCosmos = () => {
     if (!cosmos) {
