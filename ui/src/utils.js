@@ -11,6 +11,8 @@ export const GAIA_MEICHAIN_TRANSFER_CHANNEL = "izwkqheeij"
 export const ATOM_UNIT_SYMBOL = "uatom"
 
 export const MEI_UNIT_SYMBOL = "umei"
+  
+export const COSMOS_CHAIN_ID = "band-cosmoshub"
 
 export const findTokenBySymbol = (tokens, tokenSymbol) => {
   if (!tokens) {
@@ -116,4 +118,37 @@ export const calculateMaxDebtUSD = (_collateralInUSD) => {
     maxDebtUSD = Big(0)
   }
   return maxDebtUSD.toFixed(2)
+}
+
+export const getHost = () => {
+  const host = window.location.host
+  if (host && host.includes("localhost")) {
+    return "localhost"
+  }
+  return host
+}
+
+export const getCosmosLcdUrl = () => {
+  const host = getHost()
+  if (host === "localhost") {
+    return "http://localhost:8012/"
+  }
+  return "http://gaia-ibc-hackathon.node.bandchain.org:8000/"
+}
+
+export const getCosmosRestServer = () => {
+  const host = getHost()
+  if (host === "localhost") {
+    return "http://localhost:8011/"
+  }
+  return "http://gaia-ibc-hackathon.node.bandchain.org:1317/"
+}
+
+
+export const getMeichainRestServer = () => {
+  const host = getHost()
+  if (host === "localhost") {
+    return "http://localhost:8010/"
+  }
+  return "http://13.250.187.211:1317/"
 }

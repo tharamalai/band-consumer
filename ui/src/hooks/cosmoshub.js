@@ -1,14 +1,15 @@
 import useAxios from 'axios-hooks'
+import { getCosmosLcdUrl, getCosmosRestServer } from 'utils'
 
 export const useCosmosBalance = (cosmosAddress) => {
   return useAxios(
-    `http://gaia-ibc-hackathon.node.bandchain.org:1317/bank/balances/${cosmosAddress}`, 
+    `${getCosmosRestServer()}bank/balances/${cosmosAddress}`, 
   )
 }
 
 export const useCosmosHubFaucet = () => {
   return useAxios({
-      url: `http://gaia-ibc-hackathon.node.bandchain.org:8000/`,
+      url: getCosmosLcdUrl(),
       method: 'POST'
     },
     { manual: true }

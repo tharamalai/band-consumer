@@ -1,5 +1,5 @@
 import React, { useContext, createContext, useState } from 'react'
-import { MEICHAIN_GAIA_TRANSFER_CHANNEL, GAIA_MEICHAIN_TRANSFER_CHANNEL,  ATOM_UNIT_SYMBOL } from 'utils'
+import { MEICHAIN_GAIA_TRANSFER_CHANNEL, GAIA_MEICHAIN_TRANSFER_CHANNEL,  ATOM_UNIT_SYMBOL, getCosmosLcdUrl, COSMOS_CHAIN_ID } from 'utils'
 
 const CosmosHubContext = createContext()
 
@@ -8,10 +8,8 @@ export const CosmosHubProvider = ({ children }) => {
   const [cosmosAddress, setCosmosAddress] = useState('')
 
   const cosmosjs = require("@cosmostation/cosmosjs")
-  const COSMOS_LCD_URL = "http://gaia-ibc-hackathon.node.bandchain.org:1317"
-  const COSMOS_CHAIN_ID = "band-cosmoshub"
   
-  const cosmos = cosmosjs.network(COSMOS_LCD_URL, COSMOS_CHAIN_ID)
+  const cosmos = cosmosjs.network(getCosmosLcdUrl(), COSMOS_CHAIN_ID)
   cosmos.setPath("m/44'/118'/0'/0/0");
 
   const isInitiateCosmos = () => {
@@ -85,7 +83,6 @@ export const CosmosHubProvider = ({ children }) => {
 
   return (
     <CosmosHubContext.Provider value={{ 
-      COSMOS_CHAIN_ID,
       getCosmosAddress,
       setPrivateKeyFromMnemonic,
       sendTokenToMeichain

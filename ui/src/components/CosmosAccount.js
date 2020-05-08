@@ -6,7 +6,7 @@ import Button from 'components/Button'
 import FaucetBtn from 'components/FaucetBtn'
 import { usePrice } from 'hooks/price'
 import { useCosmosBalance, useCosmosHubFaucet } from 'hooks/cosmoshub'
-import { toAtom, toAtomUnit, convertAtomToUsd, findTokenBySymbol, ATOM_UNIT_SYMBOL } from 'utils'
+import { toAtom, toAtomUnit, convertAtomToUsd, findTokenBySymbol, ATOM_UNIT_SYMBOL, COSMOS_CHAIN_ID } from 'utils'
 import refresh from 'images/refresh.svg'
 import { useCosmosHubContextState } from 'contexts/CosmosHubContext'
 import Big from 'big.js'
@@ -29,7 +29,7 @@ const LogIn = ({ cosmosAddress }) => {
   const [{ data: cosmosBalanceData, loading: cosmosBalanceLoading, error: cosmosBalanceError }, cosmosAccountBalanceRefetch] = useCosmosBalance(cosmosAddress)
   const [{ data: priceData, loading: priceLoading, error: priceError }, priceRefetch] = usePrice()
   const [{ data: faucetData, loading: faucetLoading, error: faucetError }, requestFaucet] = useCosmosHubFaucet()
-  const { COSMOS_CHAIN_ID, sendTokenToMeichain } = useCosmosHubContextState()
+  const { sendTokenToMeichain } = useCosmosHubContextState()
 
   return (
     <Flex flexDirection="column" width="100%">
