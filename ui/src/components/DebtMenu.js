@@ -6,7 +6,7 @@ import BorrowBtn from 'components/BorrowBtn'
 import ReturnBtn from 'components/ReturnBtn'
 import SendMeiBtn from 'components/SendMeiBtn'
 import CompareBar from 'components/CompareBar'
-import { toAtom, toMei, toMeiUnit, convertAtomToUsd, calculateDebtPercent, calculateMaxDebtUSD, findTokenBySymbol, MEI_UNIT_SYMBOL } from 'utils'
+import { toAtom, toMei, toMeiUnit, convertAtomToUsd, calculateDebtPercent, calculateMaxDebtUSD, findTokenBySymbol, MEI_UNIT_SYMBOL, safeAccess } from 'utils'
 import { useMeichainContextState } from 'contexts/MeichainContext'
 import Big from 'big.js'
 
@@ -62,7 +62,7 @@ const FeatureStat = ({ color, title, percent, valueInUSD }) => (
 )
 
 const debtPercent = (cdp, price) => {
-  return calculateDebtPercent(toMei(cdp.result.debtAmount), convertAtomToUsd(toAtom(cdp.result.collateralAmount), price))
+  return calculateDebtPercent(toMei(safeAccess(cdp, ["result", "debtAmount"])), convertAtomToUsd(toAtom(safeAccess(cdp, ["result", "collateralAmount"])), price))
 }
 
 const debtPercentBar = (percent) => {
@@ -76,11 +76,11 @@ const debtPercentBar = (percent) => {
 }
 
 const maxDebt = (cdp, price) => {
-  return calculateMaxDebtUSD(convertAtomToUsd(toAtom(cdp.result.collateralAmount), price))
+  return calculateMaxDebtUSD(convertAtomToUsd(toAtom(safeAccess(cdp, ["result", "collateralAmount"])), price))
 }
 
 const maxBorrow = (cdp, price) => {
-  const cdpDebtAmount = Big(cdp.result.debtAmount)
+  const cdpDebtAmount = Big(safeAccess(cdp, ["result", "debtAmount"]))
   const maxAmount = Big(toMeiUnit(maxDebt(cdp, price)))
   const max = maxAmount.minus(cdpDebtAmount)
   return max
@@ -112,14 +112,14 @@ export default ({ cdp, price, meichainBalance }) => {
                 color={colors.purple.dark}
               >
                 {cdp 
-                  ? `${toMei(cdp.result.debtAmount)}  MEI`
+                  ? `${toMei(safeAccess(cdp, ["result", "debtAmount"]))}  MEI`
                   : "0 MEI" 
                 }
               </Text>
             </Flex>
           }
           percent={debtPercent(cdp, price)}
-          valueInUSD={toMei(cdp.result.debtAmount)}
+          valueInUSD={toMei(safeAccess(cdp, ["result", "debtAmount"]))}
         />
         <FeatureStat
           color={colors.pink.normal}
@@ -157,13 +157,13 @@ export default ({ cdp, price, meichainBalance }) => {
                 color={colors.purple.dark}
               >
                 {cdp 
-                  ? `${toAtom(cdp.result.collateralAmount)}  ATOM`
+                  ? `${toAtom(safeAccess(cdp, ["result", "collateralAmount"]))}  ATOM`
                   : "0 ATOM" 
                 }
               </Text>
             </Flex>
           }
-          valueInUSD={convertAtomToUsd(toAtom(cdp.result.collateralAmount), price)}
+          valueInUSD={convertAtomToUsd(toAtom(safeAccess(cdp, ["result", "collateralAmount"])), price)}
         />
       </Flex>
       <CompareBar debtPercent={debtPercentBar(debtPercent(cdp, price))}/>
@@ -201,7 +201,7 @@ export default ({ cdp, price, meichainBalance }) => {
           }
 
           const sendAmount = Big(toMeiUnit(amount))
-          const maxSendAmount = Big(findTokenBySymbol(meichainBalance.result, MEI_UNIT_SYMBOL).amount)
+          const maxSendAmount = Big(findTokenBySymbol(safeAccess(meichainBalance, ["result"]), MEI_UNIT_SYMBOL).amount)
           if (sendAmount.gt(maxSendAmount)) {
             alert(`Max send amount is ${toMei(maxSendAmount)}`)
             return

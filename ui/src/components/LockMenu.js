@@ -2,7 +2,7 @@ import React from 'react'
 import { Flex, Text } from 'rebass'
 import colors from 'ui/colors'
 import Button from 'components/Button'
-import { toAtom, toAtomUnit, findTokenBySymbol, getMeichainAtomSymbol, toMei } from 'utils'
+import { toAtom, toAtomUnit, findTokenBySymbol, getMeichainAtomSymbol, toMei, safeAccess } from 'utils'
 import { useMeichainContextState } from 'contexts/MeichainContext'
 import Big from 'big.js'
 
@@ -10,14 +10,14 @@ export default ({ cdp, meichainBalance, price }) => {
   const { lockCollateral, unlockCollateral } = useMeichainContextState()
 
   const maxUnlock = (cdp, price) => {
-    const meiUSD = Big(toMei(cdp.result.debtAmount, price))
+    const meiUSD = Big(toMei(safeAccess(cdp, ["result", "debtAmount"]), price))
 
     // min collateral value is 150% of debt value (1.5 * debt amount)
     const percentMultiplier = Big(1.5)
     const minCollateralUSD = meiUSD.times(percentMultiplier)
     const minCollateralAmount = minCollateralUSD.div(price)
     const minCollateralUnitAmount = Big(toAtomUnit(minCollateralAmount))
-    const currentCdpCollateralUnitAmount = Big(cdp.result.collateralAmount)
+    const currentCdpCollateralUnitAmount = Big(safeAccess(cdp, ["result", "collateralAmount"]))
     const max = currentCdpCollateralUnitAmount.minus(minCollateralUnitAmount)
     return max
   }
@@ -85,7 +85,7 @@ export default ({ cdp, meichainBalance, price }) => {
             color={colors.purple.dark}
           >
             {cdp 
-              ? `${toAtom(cdp.result.collateralAmount)}`
+              ? `${toAtom(safeAccess(cdp, ["result", "collateralAmount"]))}`
               : "0" 
             }
           </Text>
