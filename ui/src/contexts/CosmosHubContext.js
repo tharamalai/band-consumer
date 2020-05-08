@@ -1,5 +1,5 @@
 import React, { useContext, createContext, useState } from 'react'
-import { MEICHAIN_GAIA_TRANSFER_CHANNEL, GAIA_MEICHAIN_TRANSFER_CHANNEL,  ATOM_UNIT_SYMBOL, getCosmosLcdUrl, COSMOS_CHAIN_ID } from 'utils'
+import { MEICHAIN_GAIA_TRANSFER_CHANNEL, GAIA_MEICHAIN_TRANSFER_CHANNEL,  ATOM_UNIT_SYMBOL, getCosmosRestServer, COSMOS_CHAIN_ID } from 'utils'
 
 const CosmosHubContext = createContext()
 
@@ -9,7 +9,7 @@ export const CosmosHubProvider = ({ children }) => {
 
   const cosmosjs = require("@cosmostation/cosmosjs")
   
-  const cosmos = cosmosjs.network(getCosmosLcdUrl(), COSMOS_CHAIN_ID)
+  const cosmos = cosmosjs.network(getCosmosRestServer(), COSMOS_CHAIN_ID)
 
   const isInitiateCosmos = () => {
     if (!cosmos) {

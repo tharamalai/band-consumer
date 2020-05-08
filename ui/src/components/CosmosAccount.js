@@ -1,4 +1,4 @@
-import React, { useEffect, useState, createContext } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { Flex, Image, Text } from 'rebass'
 import styled from 'styled-components'
 import colors from 'ui/colors'
@@ -25,11 +25,35 @@ const Card = styled(Flex).attrs(() => ({
   position: relative;
 `
 
+const useInterval = (callback, delay) => {
+  const savedCallback = useRef();
+
+  // Remember the latest function.
+  useEffect(() => {
+    savedCallback.current = callback;
+  }, [callback]);
+
+  // Set up the interval.
+  useEffect(() => {
+    function tick() {
+      savedCallback.current();
+    }
+    if (delay !== null) {
+      let id = setInterval(tick, delay);
+      return () => clearInterval(id);
+    }
+  }, [delay])
+}
+
 const LogIn = ({ cosmosAddress }) => {
   const [{ data: cosmosBalanceData, loading: cosmosBalanceLoading, error: cosmosBalanceError }, cosmosAccountBalanceRefetch] = useCosmosBalance(cosmosAddress)
   const [{ data: priceData, loading: priceLoading, error: priceError }, priceRefetch] = usePrice()
   const [{ data: faucetData, loading: faucetLoading, error: faucetError }, requestFaucet] = useCosmosHubFaucet()
   const { sendTokenToMeichain } = useCosmosHubContextState()
+
+  useInterval(() => {
+    cosmosAccountBalanceRefetch()
+  }, 5000);
 
   return (
     <Flex flexDirection="column" width="100%">
