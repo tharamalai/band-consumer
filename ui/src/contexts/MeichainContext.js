@@ -9,7 +9,6 @@ export const MeichainProvider = ({ children}) => {
 
   const cosmosjs = require("@cosmostation/cosmosjs")
   const meichain = cosmosjs.network(getMeichainRestServer(), MEICHAIN_CHAIN_ID)
-  // meichain.setPath("m/44'/118'/0'/0/0")
 
   const isInitiateMeichain = () => {
     if (!meichain) {
