@@ -1,5 +1,6 @@
 import React, { useContext, createContext, useState } from 'react'
 import { MEICHAIN_GAIA_TRANSFER_CHANNEL, GAIA_MEICHAIN_TRANSFER_CHANNEL,  ATOM_UNIT_SYMBOL, getCosmosRestServer, COSMOS_CHAIN_ID, convertSignMsg } from 'utils'
+import { signAndBroadcastMessage } from "helpers";
 
 const CosmosHubContext = createContext()
 
@@ -44,8 +45,9 @@ export const CosmosHubProvider = ({ children }) => {
       if (!privateKey) {
         throw `Please connect wallet before send token to meichain`
       }
+
       cosmos.getAccounts(cosmosAddress).then(data => {
-        let stdSignMsg = cosmos.newStdMsg({
+        const msg = {
           msgs: [
             {
               type: "ibc/transfer/MsgTransfer",
@@ -69,11 +71,12 @@ export const CosmosHubProvider = ({ children }) => {
           memo: "",
           account_number: String(data.result.value.account_number),
           sequence: String(data.result.value.sequence)
-        });
-        let signedTx = cosmos.sign(stdSignMsg, privateKey)
-        signedTx = convertSignMsg(signedTx)
-        cosmos.broadcast(signedTx).then(response => console.log(response))
+        }
+
+        signAndBroadcastMessage(cosmos, msg, privateKey)
+
       })
+      
     } catch (error) {
       throw Error(`Error cannot send token to meichain: ${error.message}`)
     }

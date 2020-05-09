@@ -1,5 +1,6 @@
 import React, { useContext, createContext, useState } from 'react'
 import { ATOM_UNIT_SYMBOL, MEI_UNIT_SYMBOL, MEICHAIN_CHAIN_ID, getMeichainRestServer, convertSignMsg } from 'utils'
+import { signAndBroadcastMessage } from 'helpers'
 
 const MeichainContext = createContext()
 
@@ -42,8 +43,9 @@ export const MeichainProvider = ({ children}) => {
     if (!privateKey) {
       throw `Please connect wallet before lock atom`
     }
+
     meichain.getAccounts(meiAddress).then(data => {
-      let stdSignMsg = meichain.newStdMsg({
+      const msg = {
         msgs: [
           {
             type: "meichain/LockCollateral",
@@ -58,11 +60,11 @@ export const MeichainProvider = ({ children}) => {
         memo: "",
         account_number: String(data.result.value.account_number),
         sequence: String(data.result.value.sequence)
-      });
-      let signedTx = meichain.sign(stdSignMsg, privateKey)
-      signedTx = convertSignMsg(signedTx)
-      meichain.broadcast(signedTx).then(response => console.log(response));
+      }
+  
+      signAndBroadcastMessage(meichain, msg, privateKey)
     })
+
   }
 
   const unlockCollateral = (amount) => {
@@ -70,8 +72,9 @@ export const MeichainProvider = ({ children}) => {
     if (!privateKey) {
       throw `Please connect wallet before unlock atom`
     }
+
     meichain.getAccounts(meiAddress).then(data => {
-      let stdSignMsg = meichain.newStdMsg({
+      const msg = {
         msgs: [
           {
             type: "meichain/UnlockCollateral",
@@ -86,11 +89,9 @@ export const MeichainProvider = ({ children}) => {
         memo: "",
         account_number: String(data.result.value.account_number),
         sequence: String(data.result.value.sequence)
-      });
-    
-      let signedTx = meichain.sign(stdSignMsg, privateKey);
-      signedTx = convertSignMsg(signedTx)
-      meichain.broadcast(signedTx).then(response => console.log(response))
+      }
+  
+      signAndBroadcastMessage(meichain, msg, privateKey)
     })
   }
 
@@ -99,8 +100,9 @@ export const MeichainProvider = ({ children}) => {
     if (!privateKey) {
       throw `Please connect wallet before borrow mei`
     }
+
     meichain.getAccounts(meiAddress).then(data => {
-      let stdSignMsg = meichain.newStdMsg({
+      const msg = {
         msgs: [
           {
             type: "meichain/BorrowDebt",
@@ -115,12 +117,11 @@ export const MeichainProvider = ({ children}) => {
         memo: "",
         account_number: String(data.result.value.account_number),
         sequence: String(data.result.value.sequence)
-      });
-    
-      let signedTx = meichain.sign(stdSignMsg, privateKey);
-      signedTx = convertSignMsg(signedTx)
-      meichain.broadcast(signedTx).then(response => console.log(response))
+      }
+  
+      signAndBroadcastMessage(meichain, msg, privateKey)
     })
+
   }
 
   const returnDebt = (amount) => {
@@ -128,8 +129,9 @@ export const MeichainProvider = ({ children}) => {
     if (!privateKey) {
       throw `Please connect wallet before return mei`
     }
+
     meichain.getAccounts(meiAddress).then(data => {
-      let stdSignMsg = meichain.newStdMsg({
+      const msg = {
         msgs: [
           {
             type: "meichain/ReturnDebt",
@@ -144,11 +146,9 @@ export const MeichainProvider = ({ children}) => {
         memo: "",
         account_number: String(data.result.value.account_number),
         sequence: String(data.result.value.sequence)
-      });
-    
-      let signedTx = meichain.sign(stdSignMsg, privateKey);
-      signedTx = convertSignMsg(signedTx)
-      meichain.broadcast(signedTx).then(response => console.log(response))
+      }
+  
+      signAndBroadcastMessage(meichain, msg, privateKey)
     })
   }
 
@@ -157,8 +157,9 @@ export const MeichainProvider = ({ children}) => {
     if (!privateKey) {
       throw `Please connect wallet before liquidate debt`
     }
+
     meichain.getAccounts(meiAddress).then(data => {
-      let stdSignMsg = meichain.newStdMsg({
+      const msg = {
         msgs: [
           {
             type: "meichain/Liquidate",
@@ -173,12 +174,11 @@ export const MeichainProvider = ({ children}) => {
         memo: "",
         account_number: String(data.result.value.account_number),
         sequence: String(data.result.value.sequence)
-      });
-    
-      let signedTx = meichain.sign(stdSignMsg, privateKey);
-      signedTx = convertSignMsg(signedTx)
-      meichain.broadcast(signedTx).then(response => console.log(response))
+      }
+  
+      signAndBroadcastMessage(meichain, msg, privateKey)
     })
+
   }
 
   const sendMei = (amount, recipient) => {
@@ -186,8 +186,9 @@ export const MeichainProvider = ({ children}) => {
     if (!privateKey) {
       throw `Please connect wallet before send mei`
     }
+
     meichain.getAccounts(meiAddress).then(data => {
-      let stdSignMsg = meichain.newStdMsg({
+      const msg = {
         msgs: [
           {
             type: "cosmos-sdk/MsgSend",
@@ -208,11 +209,9 @@ export const MeichainProvider = ({ children}) => {
         memo: "",
         account_number: String(data.result.value.account_number),
         sequence: String(data.result.value.sequence)
-      });
-    
-      let signedTx = meichain.sign(stdSignMsg, privateKey);
-      signedTx = convertSignMsg(signedTx)
-      meichain.broadcast(signedTx).then(response => console.log(response))
+      }
+  
+      signAndBroadcastMessage(meichain, msg, privateKey)
     })
   }
 
