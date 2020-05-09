@@ -122,7 +122,7 @@ export default ({ cdp, price, meichainBalance }) => {
           valueInUSD={toMei(safeAccess(cdp, ["result", "debtAmount"]))}
         />
         <FeatureStat
-          color={colors.pink.normal}
+          color={colors.gray.dark}
           title={
             <Text
               fontSize="0.83vw"
