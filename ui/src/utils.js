@@ -16,6 +16,10 @@ export const COSMOS_CHAIN_ID = "band-cosmoshub"
 
 export const MEICHAIN_CHAIN_ID = "meichain"
 
+export const COSMOS_GAIA_URL = "http://gaia-ibc-hackathon.node.bandchain.org"
+
+export const MEICHAIN_URL = "http://13.250.187.211"
+
 export const findTokenBySymbol = (tokens, tokenSymbol) => {
   if (!tokens) {
     return {
@@ -135,7 +139,7 @@ export const getCosmosLcdUrl = () => {
   if (host === "localhost") {
     return "http://localhost:8012"
   }
-  return "http://gaia-ibc-hackathon.node.bandchain.org:8000"
+  return `${COSMOS_GAIA_URL}:8000`
 }
 
 export const getCosmosRestServer = () => {
@@ -143,7 +147,7 @@ export const getCosmosRestServer = () => {
   if (host === "localhost") {
     return "http://localhost:8011"
   }
-  return "http://gaia-ibc-hackathon.node.bandchain.org:1317"
+  return `${COSMOS_GAIA_URL}:1317`
 }
 
 
@@ -152,7 +156,7 @@ export const getMeichainRestServer = () => {
   if (host === "localhost") {
     return "http://localhost:8010"
   }
-  return "http://13.250.187.211:1317"
+  return `${MEICHAIN_URL}:1317`
 }
 
 export const generateNewMnemonic = () => {
