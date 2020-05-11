@@ -10,16 +10,22 @@ import {
 
 import theme from './ui/theme'
 import { ThemeProvider } from 'styled-components'
+import { CosmosHubProvider } from 'contexts/CosmosHubContext'
+import { MeichainProvider } from 'contexts/MeichainContext'
 
 import LandingPage from 'pages/Landing'
 
 export default () => (
   <ThemeProvider theme={theme}>
-    <Router>
-      <Switch>
-        <Route exact path="/" component={LandingPage} />
-        <Route path="/" render={() => <Redirect to="/" />} />
-      </Switch>
-    </Router>
+    <CosmosHubProvider>
+      <MeichainProvider>
+        <Router>
+          <Switch>
+            <Route exact path="/" component={LandingPage} />
+            <Route path="/" render={() => <Redirect to="/" />} />
+          </Switch>
+        </Router>
+      </MeichainProvider>
+    </CosmosHubProvider>
   </ThemeProvider>
 )

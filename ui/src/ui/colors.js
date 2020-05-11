@@ -10,7 +10,7 @@ export default {
   },
   gray: {
     normal: '#E5DCE1',
-    dark: '#5F6A80',
+    dark: '#A8AAAF',
   },
   text: {
     normal: '#56459E',
