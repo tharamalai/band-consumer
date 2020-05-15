@@ -7,7 +7,7 @@ MeiChain, built on Cosmos SDK, takes ATOM from Cosmos Hub over the IBC to collat
 ## MeiChain Stablecoin System Overview
 ![Image of Mei System overview](https://github.com/tharamalai/meichain/blob/mei-master/image/mei_overview.png)
 
-We have 3 blockchains working together. First is Cosmos Hub where its users hold their ATOMs. ATOM will be used as collateral for minting MEI. Second is Meichain which we use to store the CDP and the MEI token itself. And the last one is Bandchain which serves the ATOM/USD price feed from several exchanges to Meichian. All chains communicate to MeiChain by sending the packet across the chain using the Cosmos-IBC over  Relayers.
+We have 3 blockchains working together. First is Cosmos Hub where its users hold their ATOMs. ATOM will be used as collateral for minting MEI. Second is Meichain which we use to store the CDP and the MEI token itself. And the last one is Bandchain which serves the ATOM/USD price feed from several exchanges to Meichian. All chains communicate to MeiChain by sending the packet across the chain using the Cosmos-IBC over relayers.
 
 ## MeiChain has 5 messages:
 1. Lock Collateral
@@ -37,5 +37,6 @@ When a user sends an unlock collateral message. MeiChain will request ATOM price
 When a user sends a liquidate message. MeiChain will request ATOM price data from Band Protocol oracle. When an IBC packet is sent to MeiChain, the CDP will check the collateral ratio. Again, If this CDP has the collateral ratio less than 150% then you can liquidate this CDP. The liquidator has to send their MEI to CDP and CDP clears the debt on that CDP. After that CDP will unlock ATOM and send it to the liquidator account.
 
 ## More Details:
+MeiChain Website: http://meichain.surge.sh/<br/>
 MeiChain Demo: https://www.youtube.com/watch?v=0g2o4JJbzgg<br/>
 Twitter: https://twitter.com/mei_stablecoin
