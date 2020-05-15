@@ -22,7 +22,7 @@ When a user sends a lock collateral message, MeiChain will move ATOM from your a
 
 ## Borrow Debt Message
 ![Image of Borrow Debt](https://github.com/tharamalai/meichain/blob/mei-master/image/borrow_debt.png)
-When a user sends a borrow debt message. MeiChain will request ATOM price data from Band Protocol oracle over the relayer. After MeiChain receives the price data from BandChain, the CDP module will check the collateral ratio and if collateral ratio is more than 150% then CDP module will mint new MEI tokens and send to your account
+When a user sends a borrow debt message. MeiChain will request ATOM price data from Band Protocol oracle over the relayer. After MeiChain receives the price data from BandChain, the CDP module will check the collateral ratio and if collateral ratio is more than 150% then CDP module will mint new MEI tokens and send to your account.
 
 ## Return Debt Message
 ![Image of Return Debt](https://github.com/tharamalai/meichain/blob/mei-master/image/return_debt.png)
@@ -30,7 +30,7 @@ When a user sends a return debt message. MeiChain will move MEI from your accoun
 
 ## Unlock Collateral Message
 ![Image of Unlock Collateral](https://github.com/tharamalai/meichain/blob/mei-master/image/unlock_collateral.png)
-When a user sends an unlock collateral message. MeiChain will request ATOM price data from Band Protocol oracle over the IBC relayer. When the IBC packet is sent to MeiChain, the CDP will check the collateral ratio and if collateral ratio is more than 150% then CDP unlock ATOM tokens and send them to your account
+When a user sends an unlock collateral message. MeiChain will request ATOM price data from Band Protocol oracle over the IBC relayer. When the IBC packet is sent to MeiChain, the CDP will check the collateral ratio and if collateral ratio is more than 150% then CDP unlock ATOM tokens and send them to your account.
 
 ## Liquidate Message
 ![Image of Liquidate](https://github.com/tharamalai/meichain/blob/mei-master/image/liquidate.png)
