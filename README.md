@@ -36,5 +36,5 @@ When a user sends an unlock collateral message. MeiChain will request ATOM price
 ![Image of Liquidate](https://github.com/tharamalai/meichain/blob/mei-master/image/liquidate.png)
 When a user sends a liquidate message. MeiChain will request ATOM price data from Band Protocol oracle. When an IBC packet is sent to MeiChain, the CDP will check the collateral ratio. Again, If this CDP has the collateral ratio less than 150% then you can liquidate this CDP. The liquidator has to send their MEI to CDP and CDP clears the debt on that CDP. After that CDP will unlock ATOM and send it to the liquidator account.
 
-MeiChain Demo: https://www.youtube.com/watch?v=0g2o4JJbzgg
+MeiChain Demo: https://www.youtube.com/watch?v=0g2o4JJbzgg. 
 Twitter: https://twitter.com/mei_stablecoin
