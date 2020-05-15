@@ -4,6 +4,10 @@
 
 MeiChain, built on Cosmos SDK, takes ATOM from Cosmos Hub over the IBC to collateral for the new stablecoin MEI, which its value is pegged to 1 US Dollar. Users can open their CDP (Collateralized Debt Position) and also liquidate another CDP. It uses ATOM price feed from Band Protocol.
 
+🌏 MeiChain CDP Website: http://meichain.surge.sh/<br/>
+🎬 MeiChain Demo: https://www.youtube.com/watch?v=0g2o4JJbzgg<br/>
+🐦 Twitter: https://twitter.com/mei_stablecoin
+
 ## MeiChain Stablecoin System Overview
 ![Image of Mei System overview](https://github.com/tharamalai/meichain/blob/mei-master/image/mei_overview.png)
 
@@ -35,8 +39,3 @@ When a user sends an unlock collateral message. MeiChain will request ATOM price
 ## Liquidate Message
 ![Image of Liquidate](https://github.com/tharamalai/meichain/blob/mei-master/image/liquidate.png)
 When a user sends a liquidate message. MeiChain will request ATOM price data from Band Protocol oracle. When an IBC packet is sent to MeiChain, the CDP will check the collateral ratio. Again, If this CDP has the collateral ratio less than 150% then you can liquidate this CDP. The liquidator has to send their MEI to CDP and CDP clears the debt on that CDP. After that CDP will unlock ATOM and send it to the liquidator account.
-
-## More Details:
-MeiChain Website: http://meichain.surge.sh/<br/>
-MeiChain Demo: https://www.youtube.com/watch?v=0g2o4JJbzgg<br/>
-Twitter: https://twitter.com/mei_stablecoin
